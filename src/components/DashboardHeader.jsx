@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { DEMO_ROLES_CONFIG } from '../services/mongoAuthService';
 
 const DashboardHeader = ({
   activeModule,
@@ -15,35 +16,39 @@ const DashboardHeader = ({
   themeMenuRef,
   handleLogout,
   navModules,
+  activeUser,
+  setActiveUser,
+  showNotification,
 }) => {
-  const activeUser = (() => {
-    try {
-      const stored = localStorage.getItem('dealflow_active_user') || sessionStorage.getItem('dealflow_active_user');
-      return stored ? JSON.parse(stored) : null;
-    } catch {
-      return null;
-    }
-  })();
+  const currentRoleConfig = DEMO_ROLES_CONFIG.find(
+    (r) => r.role === activeUser?.role || r.email?.toLowerCase() === activeUser?.email?.toLowerCase()
+  ) || DEMO_ROLES_CONFIG[0];
+
+  const roleAllowedModules = currentRoleConfig?.allowedModules || navModules;
 
   return (
       <header className={`sticky top-0 z-40 ${theme === 'light' ? 'bg-white/95 border-slate-200/90 shadow-sm' : 'bg-[#0f172a]/95 border-slate-800/90 shadow-sm'} backdrop-blur-xl border-b px-4 lg:px-8 py-2.5 transition-colors duration-200`}>
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
-          {/* Brand Title */}
+          {/* Brand Title with Role Portal Tag */}
           <div 
             onClick={() => {
               setActiveQuotationDetail(null);
-              setActiveModule('Dashboard');
+              setActiveModule(currentRoleConfig.defaultModule || 'Dashboard');
             }}
-            className="flex items-center shrink-0 cursor-pointer"
+            className="flex items-center gap-2.5 shrink-0 cursor-pointer"
           >
             <span className={`text-xl font-extrabold tracking-tight ${theme === 'light' ? 'text-slate-900' : 'text-white'}`}>
               DealFlow<span className="text-blue-600 dark:text-blue-400">360</span>
             </span>
+            <span className={`hidden md:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg text-[10px] font-bold bg-gradient-to-r ${currentRoleConfig.color} text-white shadow-xs`}>
+              <span>{currentRoleConfig.icon}</span>
+              <span>{currentRoleConfig.portalName}</span>
+            </span>
           </div>
 
-          {/* 9 Navigation Module Tabs */}
+          {/* Role-Specific Navigation Tabs */}
           <nav className="flex items-center gap-1 overflow-x-auto py-1 px-1 scrollbar-none max-w-2xl lg:max-w-3xl">
-            {navModules.map((module) => (
+            {roleAllowedModules.map((module) => (
               <button
                 key={module}
                 onClick={() => {
@@ -87,26 +92,6 @@ const DashboardHeader = ({
 
           {/* Right Section: User Profile, Theme Selector & Sign Out */}
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-
-            {/* Active Real User Identity Badge */}
-            {activeUser && (
-              <div
-                className={`hidden lg:flex items-center gap-2 px-2.5 py-1 rounded-xl border text-xs ${
-                  theme === 'light'
-                    ? 'bg-slate-50 border-slate-200 text-slate-700'
-                    : 'bg-slate-800/80 border-slate-700 text-slate-200'
-                }`}
-                title={`Logged in as ${activeUser.email}`}
-              >
-                <div className="w-5 h-5 rounded-full bg-blue-600 text-white font-bold text-[10px] flex items-center justify-center">
-                  {(activeUser.name || 'U').charAt(0).toUpperCase()}
-                </div>
-                <div className="text-left leading-none">
-                  <p className="font-semibold text-[11px] truncate max-w-[120px]">{activeUser.name}</p>
-                  <p className="text-[9px] text-slate-400 capitalize truncate max-w-[120px]">{activeUser.role}</p>
-                </div>
-              </div>
-            )}
             {/* Theme Transition Menu Dropdown */}
             <div className="relative" ref={themeMenuRef}>
               <button

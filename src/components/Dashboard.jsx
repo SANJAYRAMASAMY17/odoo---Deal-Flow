@@ -22,6 +22,7 @@ import {
   initialTierDiscountCeilings,
   initialCategoryDiscountCeilings,
   initialApprovalRoutingRules,
+  initialCustomers,
   navModules,
   kanbanStages,
 } from '../data/initialData.js';
@@ -41,15 +42,56 @@ import ReportsSection from './sections/ReportsSection.jsx';
 import ProductsSection from './sections/ProductsSection.jsx';
 import DiscountChainsSection from './sections/DiscountChainsSection.jsx';
 import CustomerPortalSection from './sections/CustomerPortalSection.jsx';
+import { DEMO_ROLES_CONFIG } from '../services/mongoAuthService.js';
 
 const Dashboard = ({ setIsAuthenticated }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
+  // Active User Profile State
+  const [activeUser, setActiveUser] = useState(() => {
+    try {
+      const stored = localStorage.getItem('dealflow_active_user') || sessionStorage.getItem('dealflow_active_user');
+      if (stored) return JSON.parse(stored);
+      return DEMO_ROLES_CONFIG[0];
+    } catch {
+      return DEMO_ROLES_CONFIG[0];
+    }
+  });
+
   // Navigation module state
   const [activeModule, setActiveModule] = useState(() => {
-    return location.state?.targetModule || 'Dashboard';
+    return location.state?.targetModule || activeUser?.defaultModule || 'Dashboard';
   });
+
+  // Handle URL role parameter on initial load or change (e.g. /dashboard?role=founder)
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const roleParam = params.get('role');
+    if (roleParam) {
+      const matched = DEMO_ROLES_CONFIG.find(
+        (r) => r.id === roleParam.toLowerCase() || r.role.toLowerCase().includes(roleParam.toLowerCase())
+      );
+      if (matched) {
+        const userProfile = {
+          _id: `65e8a1f2b3c4d5e6f7a8b9c_${matched.id}`,
+          email: matched.email,
+          name: matched.name,
+          role: matched.role,
+          company: matched.company,
+          defaultModule: matched.defaultModule,
+          loginTime: new Date().toISOString(),
+        };
+        localStorage.setItem('dealflow_active_user', JSON.stringify(userProfile));
+        setActiveUser(userProfile);
+        if (location.state?.targetModule) {
+          setActiveModule(location.state.targetModule);
+        } else {
+          setActiveModule(matched.defaultModule);
+        }
+      }
+    }
+  }, [location.search, location.state]);
 
   // Theme state: strict 2-color theme ('dark' | 'light')
   const [theme, setTheme] = useState(() => {
@@ -110,6 +152,10 @@ const Dashboard = ({ setIsAuthenticated }) => {
     gstin: '',
     title: '',
     priceList: 'Standard Indian Enterprise Tier 2026 (INR)',
+    amount: '450000',
+    stage: 'Draft',
+    contact: '',
+    initialProduct: 'Enterprise Core License & Platform',
     notes: '',
   });
 
@@ -124,27 +170,40 @@ const Dashboard = ({ setIsAuthenticated }) => {
 
   const handleCreateQuotationSubmit = (e) => {
     if (e) e.preventDefault();
-    if (!newQuotationForm.client || !newQuotationForm.title) {
+    if (!newQuotationForm.client?.trim() || !newQuotationForm.title?.trim()) {
       showNotification('Please provide client name and quotation title.');
       return;
     }
     const newId = `Q-${1040 + quotations.length + 1}`;
+    const parsedAmount = parseFloat(newQuotationForm.amount) || 450000;
+    const clientName = newQuotationForm.client.trim();
+    const cleanClient = clientName.toLowerCase().replace(/[^a-z0-9]/g, '');
+
     const newQuote = {
       id: newId,
-      client: newQuotationForm.client,
-      city: newQuotationForm.city || 'Bengaluru, Karnataka',
-      gstin: newQuotationForm.gstin || '29AABCA9999F1Z5',
-      title: newQuotationForm.title,
-      amount: 450000,
-      stage: 'Draft',
-      contact: `contact@${newQuotationForm.client.toLowerCase().replace(/\s+/g, '')}.com`,
-      priceList: newQuotationForm.priceList,
+      client: clientName,
+      city: newQuotationForm.city?.trim() || 'Bengaluru, Karnataka',
+      gstin: newQuotationForm.gstin?.trim() || '29AABCA9999F1Z5',
+      title: newQuotationForm.title.trim(),
+      amount: parsedAmount,
+      stage: newQuotationForm.stage || 'Draft',
+      contact: newQuotationForm.contact?.trim() || `contact@${cleanClient || 'enterprise'}.com`,
+      priceList: newQuotationForm.priceList || 'Standard Indian Enterprise Tier 2026 (INR)',
       date: new Date().toISOString().split('T')[0],
       lineItems: [
-        { id: 1, product: 'Enterprise Core License', qty: 1, price: 350000, discount: 5, limit: 10 },
-        { id: 2, product: 'Standard Deployment', qty: 1, price: 100000, discount: 0, limit: 10 },
+        {
+          id: 1,
+          product: newQuotationForm.initialProduct?.trim() || 'Enterprise Core License & Platform',
+          qty: 1,
+          price: parsedAmount > 100000 ? parsedAmount - 100000 : parsedAmount,
+          discount: 5,
+          limit: 10,
+        },
+        ...(parsedAmount > 100000
+          ? [{ id: 2, product: 'Standard Deployment & Implementation', qty: 1, price: 100000, discount: 0, limit: 10 }]
+          : []),
       ],
-      notes: newQuotationForm.notes || 'Created via new quotation wizard.',
+      notes: newQuotationForm.notes?.trim() || 'Created via DealFlow360 Quotation Builder.',
     };
 
     setQuotations([newQuote, ...quotations]);
@@ -155,6 +214,10 @@ const Dashboard = ({ setIsAuthenticated }) => {
       gstin: '',
       title: '',
       priceList: 'Standard Indian Enterprise Tier 2026 (INR)',
+      amount: '450000',
+      stage: 'Draft',
+      contact: '',
+      initialProduct: 'Enterprise Core License & Platform',
       notes: '',
     });
 
@@ -165,12 +228,12 @@ const Dashboard = ({ setIsAuthenticated }) => {
         category: 'Quotation Created',
         time: 'Just now',
         type: 'success',
-        badge: 'Draft',
+        badge: newQuote.stage,
       },
       ...prev,
     ]);
 
-    showNotification(`Quotation ${newId} successfully created!`);
+    showNotification(`Quotation ${newId} successfully created for ${newQuote.client}!`);
   };
 
   const handleSaveQuotationChanges = (updatedQuote) => {
@@ -366,6 +429,118 @@ const Dashboard = ({ setIsAuthenticated }) => {
     showNotification(`Dispatch schedule confirmed! e-Way Bill ${ewayNumber} issued.`);
   };
 
+  const [isNewFulfillmentModalOpen, setIsNewFulfillmentModalOpen] = useState(false);
+  const [newFulfillmentForm, setNewFulfillmentForm] = useState({
+    customer: '',
+    city: 'Bengaluru, Karnataka',
+    gstin: '29AABCA9999F1Z5',
+    product: 'Laptop Pro 14',
+    qty: 10,
+    warehouses: 'Main + East Depot',
+    mainWarehouseQty: 7,
+    eastDepotQty: 3,
+    carrier: 'BlueDart Apex Express',
+    status: 'Split Pending',
+    notes: 'Dual warehouse stock allocation for rapid dispatch.',
+  });
+
+  const openNewFulfillmentModal = () => {
+    setIsNewFulfillmentModalOpen(true);
+  };
+
+  const handleCreateFulfillmentSubmit = (e) => {
+    if (e) e.preventDefault();
+    if (!newFulfillmentForm.customer?.trim()) {
+      showNotification('Please provide a customer name for the fulfillment order.');
+      return;
+    }
+
+    const nextId = `Q-${1050 + fulfillmentOrders.length + 1}`;
+    const totalQty = parseInt(newFulfillmentForm.qty, 10) || 10;
+    const mainQty = parseInt(newFulfillmentForm.mainWarehouseQty, 10) || Math.ceil(totalQty * 0.7);
+    const eastQty = totalQty >= mainQty ? totalQty - mainQty : 0;
+    const carrier = newFulfillmentForm.carrier || 'BlueDart Apex Express';
+    const status = newFulfillmentForm.status || 'Split Pending';
+    const ewayNumber = status === 'Ready to Ship' ? getNextEwayBill() : (status === 'Backorder' ? 'Pending Stock Balance' : getNextEwayBill());
+
+    const newOrder = {
+      id: nextId,
+      customer: newFulfillmentForm.customer.trim(),
+      city: newFulfillmentForm.city || 'Bengaluru, Karnataka',
+      gstin: newFulfillmentForm.gstin || '29AABCA9999F1Z5',
+      status: status,
+      warehouses: eastQty > 0 ? 'Main + East Depot' : 'Main Warehouse',
+      ewayBill: ewayNumber,
+      carrier: carrier,
+      warehouseSplit: [
+        {
+          warehouse: 'Main Warehouse',
+          hub: 'Bhiwandi Hub, Mumbai',
+          qtyFulfilled: mainQty,
+          estShipments: 1,
+          costINR: mainQty * 190,
+          costUSD: `$${Math.round(mainQty * 2.3)}`,
+        },
+        ...(eastQty > 0
+          ? [
+              {
+                warehouse: 'East Depot',
+                hub: 'Sriperumbudur Hub, Chennai',
+                qtyFulfilled: eastQty,
+                estShipments: 1,
+                costINR: eastQty * 400,
+                costUSD: `$${Math.round(eastQty * 4.8)}`,
+              },
+            ]
+          : []),
+      ],
+      splitBannerNote: eastQty > 0
+        ? '"Consolidate Remaining Backorder" prompt appears automatically once East Depot restocks.'
+        : 'Single warehouse fulfillment confirmed.',
+      allocations: [
+        {
+          product: newFulfillmentForm.product || 'Laptop Pro 14',
+          qty: totalQty,
+          mainDepot: mainQty,
+          eastDepot: eastQty,
+          status: status === 'Ready to Ship' ? 'Packed & Barcoded' : (status === 'Backorder' ? 'Shortage Pending' : 'Split Scheduled'),
+        },
+      ],
+      notes: newFulfillmentForm.notes || 'Created manually via Fulfillment Manager.',
+    };
+
+    const updated = [newOrder, ...fulfillmentOrders];
+    setFulfillmentOrders(updated);
+    setIsNewFulfillmentModalOpen(false);
+    setNewFulfillmentForm({
+      customer: '',
+      city: 'Bengaluru, Karnataka',
+      gstin: '29AABCA9999F1Z5',
+      product: 'Laptop Pro 14',
+      qty: 10,
+      warehouses: 'Main + East Depot',
+      mainWarehouseQty: 7,
+      eastDepotQty: 3,
+      carrier: 'BlueDart Apex Express',
+      status: 'Split Pending',
+      notes: 'Dual warehouse stock allocation for rapid dispatch.',
+    });
+
+    setActivities((prev) => [
+      {
+        id: getNextActivityId(),
+        title: `New Fulfillment Order ${nextId} created for ${newOrder.customer}`,
+        category: 'Fulfillment & Dispatch',
+        time: 'Just now',
+        type: 'success',
+        badge: newOrder.status,
+      },
+      ...prev,
+    ]);
+
+    showNotification(`Fulfillment order ${nextId} created successfully!`);
+  };
+
   // ==========================================
   // MODULE 5: SUBSCRIPTIONS STATE & HANDLERS (MongoDB)
   // ==========================================
@@ -526,6 +701,87 @@ const Dashboard = ({ setIsAuthenticated }) => {
   // ==========================================
   // MODULE 11: CUSTOMER PORTAL STATE & HANDLERS
   // ==========================================
+  const [customers, setCustomers] = useState(() => mongoDatabaseService.getCollection('customers') || initialCustomers);
+  const [activeCustomer, setActiveCustomer] = useState(() => initialCustomers[0]);
+  const [isAddCustomerModalOpen, setIsAddCustomerModalOpen] = useState(false);
+  const [newCustomerForm, setNewCustomerForm] = useState({
+    companyName: '',
+    legalEntity: '',
+    contactPerson: '',
+    designation: 'VP Procurement',
+    email: '',
+    phone: '',
+    city: 'Bengaluru, Karnataka',
+    gstin: '',
+    address: '',
+    priceList: 'Standard Indian Enterprise Tier 2026 (INR)',
+    paymentTerms: 'Net-30 Days from Delivery Invoice',
+    assignedRep: 'Arjun Mehta (Enterprise Sales - South)',
+    notes: '',
+  });
+
+  const handleCreateCustomerSubmit = (e) => {
+    if (e) e.preventDefault();
+    if (!newCustomerForm.companyName?.trim() || !newCustomerForm.contactPerson?.trim()) {
+      showNotification('Please provide company name and primary contact person.');
+      return;
+    }
+    const cleanCompany = newCustomerForm.companyName.trim();
+    const cleanSlug = cleanCompany.toLowerCase().replace(/[^a-z0-9]/g, '');
+    const newCustId = `CUST-${100 + customers.length + 1}`;
+    const newCust = {
+      id: newCustId,
+      companyName: cleanCompany,
+      legalEntity: newCustomerForm.legalEntity?.trim() || `${cleanCompany} Private Limited`,
+      contactPerson: newCustomerForm.contactPerson.trim(),
+      designation: newCustomerForm.designation?.trim() || 'VP Procurement',
+      email: newCustomerForm.email?.trim() || `procurement@${cleanSlug || 'corp'}.com`,
+      phone: newCustomerForm.phone?.trim() || '+91 80 4122 8900',
+      city: newCustomerForm.city?.trim() || 'Bengaluru, Karnataka',
+      gstin: newCustomerForm.gstin?.trim() || '29AABCA9999F1Z5',
+      address: newCustomerForm.address?.trim() || `${newCustomerForm.city || 'Bengaluru, Karnataka'} Tech Park`,
+      priceList: newCustomerForm.priceList || 'Standard Indian Enterprise Tier 2026 (INR)',
+      paymentTerms: newCustomerForm.paymentTerms || 'Net-30 Days from Delivery Invoice',
+      assignedRep: newCustomerForm.assignedRep || 'Arjun Mehta (Enterprise Sales - South)',
+      quotationNumber: `Q-${1040 + quotations.length + 1}`,
+      commercialBase: 1240000,
+    };
+
+    const updated = [newCust, ...customers];
+    setCustomers(updated);
+    setActiveCustomer(newCust);
+    setIsAddCustomerModalOpen(false);
+    setNewCustomerForm({
+      companyName: '',
+      legalEntity: '',
+      contactPerson: '',
+      designation: 'VP Procurement',
+      email: '',
+      phone: '',
+      city: 'Bengaluru, Karnataka',
+      gstin: '',
+      address: '',
+      priceList: 'Standard Indian Enterprise Tier 2026 (INR)',
+      paymentTerms: 'Net-30 Days from Delivery Invoice',
+      assignedRep: 'Arjun Mehta (Enterprise Sales - South)',
+      notes: '',
+    });
+
+    setActivities((prev) => [
+      {
+        id: getNextActivityId(),
+        title: `Customer ${newCust.companyName} manually registered (${newCustId})`,
+        category: 'Customer Created',
+        time: 'Just now',
+        type: 'success',
+        badge: 'Client Portal',
+      },
+      ...prev,
+    ]);
+
+    showNotification(`Customer ${newCust.companyName} added successfully!`);
+  };
+
   const [customerPortalTab, setCustomerPortalTab] = useState('My Quotation');
   const [counterDiscount, setCounterDiscount] = useState(15);
   const [requestedDeliveryDate, setRequestedDeliveryDate] = useState('2026-10-15');
@@ -554,6 +810,10 @@ const Dashboard = ({ setIsAuthenticated }) => {
   const [newPortalMessage, setNewPortalMessage] = useState('');
 
   // Auto-sync all module mutations to persistent MongoDB database
+  useEffect(() => {
+    mongoDatabaseService.saveCollection('customers', customers);
+  }, [customers]);
+
   useEffect(() => {
     mongoDatabaseService.saveCollection('quotations', quotations);
   }, [quotations]);
@@ -1669,6 +1929,12 @@ const Dashboard = ({ setIsAuthenticated }) => {
     handleOverrideSplitQty,
     handleAcceptSuggestedSplit,
     handleRebalanceStock,
+    isNewFulfillmentModalOpen,
+    setIsNewFulfillmentModalOpen,
+    newFulfillmentForm,
+    setNewFulfillmentForm,
+    openNewFulfillmentModal,
+    handleCreateFulfillmentSubmit,
 
     // Subscriptions
     subscriptions,
@@ -1805,6 +2071,15 @@ const Dashboard = ({ setIsAuthenticated }) => {
     handleUpdateTierLimit,
 
     // Customer Portal
+    customers,
+    setCustomers,
+    activeCustomer,
+    setActiveCustomer,
+    isAddCustomerModalOpen,
+    setIsAddCustomerModalOpen,
+    newCustomerForm,
+    setNewCustomerForm,
+    handleCreateCustomerSubmit,
     customerPortalTab,
     setCustomerPortalTab,
     counterDiscount,
@@ -1841,7 +2116,13 @@ const Dashboard = ({ setIsAuthenticated }) => {
     filteredSubscriptions,
     kanbanStages,
     navModules,
+    activeUser,
+    setActiveUser,
   };
+
+  const currentRoleConfig = DEMO_ROLES_CONFIG.find(
+    (r) => r.role === activeUser?.role || r.email?.toLowerCase() === activeUser?.email?.toLowerCase()
+  ) || DEMO_ROLES_CONFIG[0];
 
   return (
     <div className={`min-h-screen ${theme === 'light' ? 'bg-[#f8fafc] text-slate-800' : 'bg-[#0b0f19] text-slate-100'} font-sans flex flex-col selection:bg-blue-600 selection:text-white transition-colors duration-200`}>
@@ -1861,6 +2142,9 @@ const Dashboard = ({ setIsAuthenticated }) => {
         themeMenuRef={themeMenuRef}
         handleLogout={handleLogout}
         navModules={navModules}
+        activeUser={activeUser}
+        setActiveUser={setActiveUser}
+        showNotification={showNotification}
       />
 
       {/* Floating Toast Notification */}

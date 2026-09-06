@@ -376,11 +376,14 @@ const QuotationsSection = (props) => {
 
                   <div className="flex items-center gap-3">
                     <button
-                      onClick={() => openQuotationDetail(quotations[0])}
-                      className="py-2.5 px-4 rounded-xl font-semibold text-xs text-white bg-blue-600 hover:bg-blue-700 shadow-sm shadow-blue-500/20 flex items-center gap-1.5 transition-all cursor-pointer"
+                      id="create-new-quotation-btn"
+                      onClick={openNewQuotationModal}
+                      className="py-2.5 px-4 rounded-xl font-semibold text-xs text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 shadow-md shadow-blue-500/25 flex items-center gap-2 transition-all transform active:scale-95 cursor-pointer"
                     >
-                      <span>Open Q-1042 Detail</span>
-                      <span>→</span>
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                      </svg>
+                      <span>+ Create New Quotation</span>
                     </button>
 
                     <button
@@ -392,62 +395,115 @@ const QuotationsSection = (props) => {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-                  {kanbanStages.map((stageName) => {
-                    const stageQuotes = quotations.filter((q) => q.stage === stageName);
-                    const stageTotal = stageQuotes.reduce((acc, q) => acc + q.amount, 0);
+                {quotationViewMode === 'board' ? (
+                  <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+                    {kanbanStages.map((stageName) => {
+                      const stageQuotes = quotations.filter((q) => q.stage === stageName);
+                      const stageTotal = stageQuotes.reduce((acc, q) => acc + q.amount, 0);
 
-                    return (
-                      <div
-                        key={stageName}
-                        className="glass-card rounded-2xl p-4 border border-slate-700/70 flex flex-col min-h-[480px] bg-slate-900/40"
-                      >
-                        <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-800">
-                          <div className="flex items-center gap-2">
-                            <span className={`w-2 h-2 rounded-full ${
-                              stageName === 'Draft' ? 'bg-slate-400' :
-                              stageName === 'Pending Approval' ? 'bg-amber-400' :
-                              stageName === 'Approved' ? 'bg-emerald-400' :
-                              stageName === 'Negotiation' ? 'bg-indigo-400' : 'bg-sky-400'
-                            }`} />
-                            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-200">{stageName}</h3>
-                          </div>
-                          <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-800 text-slate-300">
-                            {stageQuotes.length}
-                          </span>
-                        </div>
-
-                        <div className="flex-1 space-y-3">
-                          {stageQuotes.map((quote) => (
-                            <div
-                              key={quote.id}
-                              onClick={() => openQuotationDetail(quote)}
-                              className="p-3.5 rounded-xl bg-slate-800/70 hover:bg-slate-800 border border-slate-700/80 hover:border-amber-500/50 shadow-md transition-all cursor-pointer group transform hover:-translate-y-0.5"
-                            >
-                              <div className="flex items-center justify-between text-xs font-bold text-white mb-1">
-                                <span className="group-hover:text-amber-300 transition-colors">{quote.client}</span>
-                                <span className="font-mono text-amber-400 font-extrabold">{formatINR(quote.amount)}</span>
-                              </div>
-                              <p className="text-[11px] text-slate-400 line-clamp-1 mb-2">{quote.title}</p>
-                              <div className="flex items-center justify-between text-[10px] text-slate-500 pt-2 border-t border-slate-700/50">
-                                <span>{quote.id}</span>
-                                <span className="group-hover:text-amber-400 flex items-center gap-0.5 transition-colors">
-                                  <span>Click to open</span>
-                                  <span>→</span>
-                                </span>
-                              </div>
+                      return (
+                        <div
+                          key={stageName}
+                          className="glass-card rounded-2xl p-4 border border-slate-700/70 flex flex-col min-h-[480px] bg-slate-900/40"
+                        >
+                          <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-800">
+                            <div className="flex items-center gap-2">
+                              <span className={`w-2 h-2 rounded-full ${
+                                stageName === 'Draft' ? 'bg-slate-400' :
+                                stageName === 'Pending Approval' ? 'bg-amber-400' :
+                                stageName === 'Approved' ? 'bg-emerald-400' :
+                                stageName === 'Negotiation' ? 'bg-indigo-400' : 'bg-sky-400'
+                              }`} />
+                              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-200">{stageName}</h3>
                             </div>
-                          ))}
-                        </div>
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-800 text-slate-300">
+                              {stageQuotes.length}
+                            </span>
+                          </div>
 
-                        <div className="pt-3 mt-3 border-t border-slate-800/80 text-right">
-                          <span className="text-[10px] text-slate-500 uppercase tracking-wider block">Stage Volume</span>
-                          <span className="text-xs font-bold text-slate-300 font-mono">{formatINRLakhCrore(stageTotal)}</span>
+                          <div className="flex-1 space-y-3">
+                            {stageQuotes.map((quote) => (
+                              <div
+                                key={quote.id}
+                                onClick={() => openQuotationDetail(quote)}
+                                className="p-3.5 rounded-xl bg-slate-800/70 hover:bg-slate-800 border border-slate-700/80 hover:border-amber-500/50 shadow-md transition-all cursor-pointer group transform hover:-translate-y-0.5"
+                              >
+                                <div className="flex items-center justify-between text-xs font-bold text-white mb-1">
+                                  <span className="group-hover:text-amber-300 transition-colors">{quote.client}</span>
+                                  <span className="font-mono text-amber-400 font-extrabold">{formatINR(quote.amount)}</span>
+                                </div>
+                                <p className="text-[11px] text-slate-400 line-clamp-1 mb-2">{quote.title}</p>
+                                <div className="flex items-center justify-between text-[10px] text-slate-500 pt-2 border-t border-slate-700/50">
+                                  <span>{quote.id}</span>
+                                  <span className="group-hover:text-amber-400 flex items-center gap-0.5 transition-colors">
+                                    <span>Click to open</span>
+                                    <span>→</span>
+                                  </span>
+                                </div>
+                              </div>
+                            ))}
+
+                            {stageQuotes.length === 0 && (
+                              <div className="h-32 border-2 border-dashed border-slate-800 rounded-xl flex items-center justify-center text-xs text-slate-600">
+                                No quotations
+                              </div>
+                            )}
+                          </div>
+
+                          <div className="pt-3 mt-3 border-t border-slate-800/80 text-right">
+                            <span className="text-[10px] text-slate-500 uppercase tracking-wider block">Stage Volume</span>
+                            <span className="text-xs font-bold text-slate-300 font-mono">{formatINRLakhCrore(stageTotal)}</span>
+                          </div>
                         </div>
-                      </div>
-                    );
-                  })}
-                </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="glass-card rounded-2xl border border-slate-800 overflow-hidden shadow-2xl">
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left text-sm text-slate-300">
+                        <thead className="bg-slate-900/80 text-[11px] font-semibold text-slate-400 uppercase tracking-wider border-b border-slate-800">
+                          <tr>
+                            <th className="py-3.5 px-6">Quotation ID</th>
+                            <th className="py-3.5 px-6">Client / Organization</th>
+                            <th className="py-3.5 px-6">Project Scope</th>
+                            <th className="py-3.5 px-6">Taxable Value</th>
+                            <th className="py-3.5 px-6">Stage</th>
+                            <th className="py-3.5 px-6 text-right">Action</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-800/60 font-sans">
+                          {quotations.map((q) => (
+                            <tr
+                              key={q.id}
+                              onClick={() => openQuotationDetail(q)}
+                              className="hover:bg-slate-800/40 transition-colors cursor-pointer"
+                            >
+                              <td className="py-3.5 px-6 font-mono text-xs text-amber-400 font-semibold">{q.id}</td>
+                              <td className="py-3.5 px-6 font-semibold text-white">{q.client}</td>
+                              <td className="py-3.5 px-6 text-xs text-slate-300 max-w-xs truncate">{q.title}</td>
+                              <td className="py-3.5 px-6 font-mono font-bold text-white">{formatINR(q.amount)}</td>
+                              <td className="py-3.5 px-6">
+                                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border ${
+                                  q.stage === 'Pending Approval' ? 'bg-amber-500/20 text-amber-300 border-amber-500/40' :
+                                  q.stage === 'Approved' ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40' :
+                                  q.stage === 'Confirmed' ? 'bg-sky-500/20 text-sky-300 border-sky-500/40' :
+                                  q.stage === 'Negotiation' ? 'bg-indigo-500/20 text-indigo-300 border-indigo-500/40' :
+                                  'bg-slate-800 text-slate-300 border-slate-700'
+                                }`}>
+                                  {q.stage}
+                                </span>
+                              </td>
+                              <td className="py-3.5 px-6 text-right">
+                                <span className="text-xs text-amber-400 hover:underline">Click to open →</span>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>

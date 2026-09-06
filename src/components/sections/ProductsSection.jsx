@@ -160,27 +160,8 @@ const ProductsSection = (props) => {
                 </button>
               </div>
 
-              {/* Quick contextual action */}
-              {!activeProductDetail ? (
-                <div className="flex items-center gap-3">
-                  <button
-                    onClick={() => setIsNewProductModalOpen(true)}
-                    className="py-2.5 px-5 rounded-xl font-extrabold text-xs text-slate-950 bg-[#38bdf8] hover:bg-[#0ea5e9] shadow-lg shadow-sky-500/20 transition-all cursor-pointer flex items-center gap-1.5 border border-sky-300/60"
-                  >
-                    <span className="text-sm font-black">+</span>
-                    <span>New Product</span>
-                  </button>
-                  <button
-                    onClick={() => {
-                      setActiveModule('Discount Chains');
-                      showNotification('Navigated to Discount Tiers & Approval Chains setup (Wireframe #18).');
-                    }}
-                    className="py-2.5 px-5 rounded-xl font-bold text-xs text-slate-200 bg-slate-900 hover:bg-slate-800 border border-slate-700 shadow-lg transition-all cursor-pointer flex items-center gap-1.5"
-                  >
-                    <span>⚙ Manage Price fields</span>
-                  </button>
-                </div>
-              ) : (
+              {/* Quick contextual action for product detail view */}
+              {activeProductDetail && (
                 <div className="flex items-center gap-3">
                   <button
                     onClick={() => setActiveProductDetail(null)}

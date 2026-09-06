@@ -121,6 +121,9 @@ const FulfillmentSection = (props) => {
     handleAcceptSuggestedSplit,
     openFulfillmentDetailView,
     handleRebalanceStock,
+    openNewFulfillmentModal,
+    isNewFulfillmentModalOpen,
+    setIsNewFulfillmentModalOpen,
   } = props;
 
   return (
@@ -327,13 +330,14 @@ const FulfillmentSection = (props) => {
                 </div>
 
                 <div className="flex flex-wrap items-center gap-3">
-                  {/* Quick Action to open Q-1042 Fulfillment Detail directly */}
+                  {/* Button to create/add new fulfillment order */}
                   <button
-                    onClick={() => openFulfillmentDetailView(fulfillmentOrders[0])}
-                    className="py-2 px-3.5 rounded-xl font-semibold text-xs text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 shadow-md shadow-blue-500/20 flex items-center gap-1.5 transition-all cursor-pointer"
+                    id="create-fulfillment-btn"
+                    onClick={openNewFulfillmentModal}
+                    className="py-2 px-3.5 rounded-xl font-bold text-xs text-white bg-gradient-to-r from-blue-600 via-indigo-600 to-sky-600 hover:from-blue-500 hover:to-sky-500 shadow-md shadow-blue-500/25 flex items-center gap-1.5 transition-all transform active:scale-95 cursor-pointer border border-blue-400/30"
                   >
-                    <span>Open Q-1042 Fulfillment Detail</span>
-                    <span>→</span>
+                    <span className="text-sm font-black">+</span>
+                    <span>Create Fulfillment Order</span>
                   </button>
 
                   <button

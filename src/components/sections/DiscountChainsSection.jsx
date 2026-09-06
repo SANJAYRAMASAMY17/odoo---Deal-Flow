@@ -128,6 +128,7 @@ const DiscountChainsSection = (props) => {
     handleUpdateRoutingRule,
     handleRemoveRoutingRule,
     handleSaveDiscountConfiguration,
+    setIsAddCustomerModalOpen,
   } = props;
 
   return (
@@ -164,21 +165,44 @@ const DiscountChainsSection = (props) => {
                 </p>
               </div>
 
-              {/* Navigation and Quick Links */}
-              <div className="flex items-center gap-2">
+              {/* Navigation and Admin Action Buttons */}
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  id="admin-add-customer-btn"
+                  onClick={() => setIsAddCustomerModalOpen(true)}
+                  className="py-2.5 px-4 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 shadow-md shadow-blue-500/25 border border-blue-400/40 transition-all cursor-pointer flex items-center gap-1.5"
+                >
+                  <span className="text-sm font-black">+</span>
+                  <span>Add Customer Account</span>
+                </button>
+                <button
+                  onClick={() => setActiveModule('Fulfillment')}
+                  className="py-2.5 px-3.5 rounded-xl text-xs font-bold text-cyan-300 bg-slate-900 hover:bg-slate-800 border border-cyan-500/30 transition-all cursor-pointer flex items-center gap-1.5"
+                  title="Manage Warehouse & Fulfillment Operations"
+                >
+                  <span>📦</span>
+                  <span>Warehouse Ops</span>
+                </button>
+                <button
+                  onClick={() => setActiveModule('Invoices')}
+                  className="py-2.5 px-3.5 rounded-xl text-xs font-bold text-violet-300 bg-slate-900 hover:bg-slate-800 border border-violet-500/30 transition-all cursor-pointer flex items-center gap-1.5"
+                  title="Manage Finance & Tax Invoicing"
+                >
+                  <span>💰</span>
+                  <span>Finance & Invoices</span>
+                </button>
                 <button
                   onClick={() => setActiveModule('Approvals')}
-                  className="py-2.5 px-4 rounded-xl text-xs font-bold text-slate-300 bg-slate-900 hover:bg-slate-800 border border-slate-700 transition-all cursor-pointer flex items-center gap-1.5"
+                  className="py-2.5 px-3 rounded-xl text-xs font-bold text-slate-300 bg-slate-900 hover:bg-slate-800 border border-slate-700 transition-all cursor-pointer flex items-center gap-1.5"
                 >
                   <span>←</span>
-                  <span>Approvals Queue</span>
+                  <span>Approvals</span>
                 </button>
                 <button
                   onClick={() => setActiveModule('Products')}
-                  className="py-2.5 px-4 rounded-xl text-xs font-bold text-slate-300 bg-slate-900 hover:bg-slate-800 border border-slate-700 transition-all cursor-pointer flex items-center gap-1.5"
+                  className="py-2.5 px-3 rounded-xl text-xs font-bold text-slate-300 bg-slate-900 hover:bg-slate-800 border border-slate-700 transition-all cursor-pointer flex items-center gap-1.5"
                 >
-                  <span>📦</span>
-                  <span>Product Catalog</span>
+                  <span>Products</span>
                 </button>
               </div>
             </div>

@@ -1,559 +1,119 @@
-DealFlow360
+# DealFlow360 — Intelligent, Self-Governing Sales Operations Platform
 
-An Intelligent, Self-Governing Sales Operations Platform
+[![React](https://img.shields.io/badge/React-19.2-61DAFB?logo=react&logoColor=black)](https://react.dev/)
+[![Vite](https://img.shields.io/badge/Vite-8.2-646CFF?logo=vite&logoColor=white)](https://vitejs.dev/)
+[![Tailwind CSS](https://img.shields.io/badge/TailwindCSS-3.4-38B2AC?logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+[![MongoDB](https://img.shields.io/badge/MongoDB-Atlas%20%7C%20Local-47A248?logo=mongodb&logoColor=white)](https://www.mongodb.com/)
+[![Node.js](https://img.shields.io/badge/Node.js-18%2B-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-DealFlow360 is a MERN-based B2B Sales Operations platform designed to manage the complete sales lifecycle — from quotation creation and discount approval to fulfillment, billing, customer negotiation, and reporting.
+**DealFlow360** is an Intelligent, Self-Governing Sales Operations and CPQ Platform built to manage the complete sales lifecycle — from dynamic quote generation and multi-tier approval governance to warehouse fulfillment, GST invoicing, hybrid billing, and interactive customer negotiation.
 
-The project was developed around the DealFlow360 hackathon problem statement, with a focus on real-world sales operations and business logic rather than only UI screens.
+Developed around real-world sales operations and business logic, DealFlow360 enforces pricing discipline, reacts dynamically to multi-hub inventory conditions, and powers a collaborative client negotiation workspace.
 
-🚀 Overview
+---
 
-Traditional sales tools generally handle a simple flow:
+## 🚀 Key Highlights & Architectural Flow
 
-Quote → Order → Invoice
+Traditional sales tools often execute a simplistic linear sequence: `Quote → Order → Invoice`. 
+DealFlow360 solves the complex reality of enterprise B2B sales:
+* **Multi-Level Discount Approvals** with automated governance matrix ceilings.
+* **Blended Risk Scoring** analyzing line-level concession variance against category thresholds.
+* **Multi-Hub Fulfillment** managing inventory distribution across Bengaluru, Mumbai, and Delhi.
+* **Hybrid Billing** uniting one-time asset sales with recurring SaaS subscriptions and pro-rata adjustments.
+* **Customer Negotiation Portal** enabling clients to review proposals, submit line-item counter-offers, and confirm orders in real time.
+* **AI Anomaly Detection** identifying margin erosion, stalled deals, and operational bottlenecks.
 
-Real B2B sales processes are more complex. Deals may involve:
+---
 
-Multi-level discount approvals
+## 🌟 Key Modules
 
-Customer-specific pricing
+### 1. 💼 CPQ & Quotation Builder
+* **Dynamic Multi-Tier Pricing**: Automated price break calculations, volume discounts, and customer-tier adjustments.
+* **GST & Tax Engine**: Automated CGST, SGST, and IGST computations based on customer billing location and SAC/HSN codes.
+* **Quotation Lifecycle**: Seamless progression from `Draft` → `Internal Review` → `Approved` → `Sent` → `Accepted` / `Declined`.
 
-Products distributed across multiple warehouses
+### 2. 🛡️ Discount Governance & Approval Chains
+* **Rule-Based Routing**: Automatically routes discount requests exceeding margin thresholds to Senior Directors or Finance VPs.
+* **Blended Concession Matrix**: Evaluates discount risk across quotation lines instead of looking only at overall order totals.
+* **Audit Trail**: Timestamped logs tracking reviewer commentary, historical requests, and approval decisions.
 
-One-time products combined with recurring subscriptions
+### 3. 🏭 Multi-Warehouse Logistics & Fulfillment
+* **Hub-Level Inventory**: Real-time stock visibility across **Bengaluru**, **Mumbai**, and **Delhi** fulfillment centers.
+* **Automated Dispatch Routing**: Intelligent stock reservation and warehouse selection to minimize shipping transit times.
+* **Carrier Integration**: Integrated tracking references (BlueDart, DTDC) with automated delivery state transitions (`Processing` → `Dispatched` → `In Transit` → `Delivered`).
 
-Customer negotiation and counter-offers
+### 4. 🔄 SaaS Subscriptions & Hybrid Billing
+* **Contract Management**: Monthly, quarterly, and annual subscription billing lifecycles.
+* **MRR & ARR Analytics**: Real-time recurring revenue metrics, churn tracking, and expansion indicators.
+* **Automated Proration**: Pro-rata billing credit and debit adjustments for mid-cycle seat expansions and tier upgrades.
 
-Margin and discount risk monitoring
+### 5. 🧾 Tax Invoicing & Compliance
+* **GST-Compliant Tax Invoices**: Full GSTIN, state code, SAC/HSN classification, and digital invoice numbering.
+* **E-Way Bill Binding**: Automatic synchronization between generated tax invoices, goods receipt notes (GRN), and verified e-Way bills.
+* **Payment Aging Buckets**: Real-time categorization of receivables across `0–30 days`, `31–60 days`, `61–90 days`, and `90+ days overdue`.
 
-Stalled deals and operational anomalies
+### 6. 🧠 Deal Health & AI Anomaly Detection
+* **Margin Breach Warnings**: Automated detection of anomalous discount combinations threatening contract profitability.
+* **Pipeline Slippage Flags**: Identifies stuck proposals with extended inactivity or stalled executive sign-offs.
+* **Discrepancy Remediation**: Integrated playbook actions to rectify pricing misalignments prior to legal closure.
 
-DealFlow360 addresses these challenges through a connected, end-to-end sales workflow.
+### 7. 🤝 Customer Collaboration & Negotiation Portal
+* **Direct Buyer Negotiation**: Clients review line items, leave feedback, and propose counter-discounts directly through a dedicated portal view.
+* **Live Chat & Messaging**: Real-time communication between the sales representative and customer procurement leads.
+* **Instant Digital Sign-Off**: 1-click quote acceptance and binding confirmation.
 
-The goal is to create a self-governing deal engine that enforces pricing discipline, reacts to inventory conditions, manages hybrid billing, and enables customers to negotiate quotations through a dedicated portal.
+### 8. 🔒 Role-Based Dynamic Authentication
+* **Single Page Portal Architecture**: Logging in automatically directs users to their tailored workspace with role-restricted permissions.
+* **Enterprise Demo Credentials**: Pre-configured accounts for Instant testing.
 
-✨ Key Features
+---
 
-1. 🔐 Authentication & Role-Based Access
+## 🛠️ Technology Stack
 
-Supports different users across the sales workflow:
+| Layer | Technologies |
+|---|---|
+| **Frontend Framework** | [React 19](https://react.dev/) + [Vite 8](https://vitejs.dev/) |
+| **Routing & Navigation** | [React Router v7](https://reactrouter.com/) |
+| **Styling & Design System** | [Tailwind CSS 3](https://tailwindcss.com/) + Custom Glassmorphism |
+| **Typography** | [Plus Jakarta Sans](https://fonts.google.com/specimen/Plus+Jakarta+Sans) |
+| **Backend API** | [Node.js](https://nodejs.org/) REST Server |
+| **Database** | [MongoDB](https://www.mongodb.com/) + [Mongoose 8](https://mongoosejs.com/) |
 
-Sales Representative
+---
 
-Sales Manager / Approver
+## 🚀 Getting Started
 
-Finance / Operations User
-
-Customer / Portal User
-
-Admin
-
-Internal users can access the sales workspace and backend configuration, while customers use a separate portal experience.
-
-2. 📋 Quotation Management
-
-Sales representatives can:
-
-Create quotations
-
-Add products from different categories
-
-Adjust quantities
-
-Apply line-level or order-level discounts
-
-View quotation totals
-
-Track quotation stages
-
-Submit quotations for approval when required
-
-3. 🛡️ Intelligent Discount Governance
-
-DealFlow360 evaluates discounts based on:
-
-Customer tier
-
-Product category
-
-Configured discount limits
-
-Overall quotation risk
-
-The platform can automatically route quotations to the appropriate approval level.
-
-Example:
-
-Bronze → Up to 5%
-Silver → Up to 10%
-Gold   → Up to 15%
-
-Category-specific limits can also apply.
-
-For example, a Gold customer may have a 15% general limit while a service category may have a stricter 10% limit.
-
-4. 📊 Blended Discount Risk Score
-
-The platform evaluates discount risk across quotation lines instead of looking only at the overall order discount.
-
-For example:
-
-Laptop
-12% discount
-Allowed: 15%
-→ Within limit
-
-Setup Service
-18% discount
-Allowed: 10%
-→ 8 points over limit
-
-The quotation can therefore be flagged for approval even when the customer's general discount tier appears acceptable.
-
-The blended approach also helps detect multiple smaller discount violations spread across an order.
-
-5. 🤝 Upsell & Cross-Sell Recommendations
-
-While building a quotation, the system can display product recommendations based on:
-
-Co-purchase relationships
-
-Active promotions
-
-Minimum margin requirements
-
-Each recommendation can show its expected margin impact before being added to the quotation.
-
-6. 🏭 Multi-Warehouse Fulfillment
-
-Orders can be fulfilled from multiple warehouses according to stock availability.
-
-The fulfillment flow can:
-
-Recommend a warehouse split
-
-Show quantities allocated to each warehouse
-
-Estimate shipment count and cost
-
-Allow manual override
-
-Handle remaining backorders
-
-Support consolidation when stock becomes available
-
-7. 🔄 Hybrid Billing & Subscriptions
-
-A single order can contain:
-
-One-time products
-
-Recurring subscription products
-
-The system supports recurring plans such as:
-
-Monthly
-
-Quarterly
-
-Yearly
-
-It also supports billing schedules and proration for applicable mid-cycle changes.
-
-8. 🌐 Customer Negotiation Portal
-
-Customers receive a dedicated quotation experience where they can:
-
-View quotation details
-
-See quotation status
-
-Comment on individual lines
-
-Request changes
-
-Counter a discount
-
-Confirm the quotation
-
-If a negotiation causes the quotation to exceed configured approval thresholds, it can automatically re-enter the approval workflow.
-
-9. ❤️ Deal Health & Anomaly Monitoring
-
-The Deal Health dashboard highlights operational risks such as:
-
-Stalled quotations
-
-Unusual discounts
-
-Delivery promise slippage
-
-Deals requiring attention
-
-Alerts can be connected directly to the relevant quotation for faster action.
-
-10. 📈 Reporting & Analytics
-
-Reporting can be filtered by:
-
-Period
-
-Sales representative / team
-
-Approval status
-
-Product / category
-
-The platform is designed to support reporting and export capabilities for sales operations.
-
-🔄 End-to-End Workflow
-
-                    ┌─────────────────┐
-                    │   User Login    │
-                    └────────┬────────┘
-                             ↓
-                    ┌─────────────────┐
-                    │ Backend Setup   │
-                    │ Products        │
-                    │ Pricing         │
-                    │ Discount Rules  │
-                    │ Warehouses      │
-                    │ Subscriptions   │
-                    └────────┬────────┘
-                             ↓
-                    ┌─────────────────┐
-                    │ Create Quote    │
-                    └────────┬────────┘
-                             ↓
-              ┌──────────────┴──────────────┐
-              ↓                             ↓
-       Upsell/Cross-sell              Discount Analysis
-              ↓                             ↓
-              └──────────────┬──────────────┘
-                             ↓
-                    ┌─────────────────┐
-                    │ Approval Engine │
-                    └────────┬────────┘
-                             ↓
-                    ┌─────────────────┐
-                    │    Approved     │
-                    └────────┬────────┘
-                             ↓
-                    ┌─────────────────┐
-                    │ Warehouse Split │
-                    └────────┬────────┘
-                             ↓
-                    ┌─────────────────┐
-                    │ Billing Engine  │
-                    │ One-time +      │
-                    │ Recurring       │
-                    └────────┬────────┘
-                             ↓
-                    ┌─────────────────┐
-                    │ Customer Portal │
-                    │ Negotiation     │
-                    └────────┬────────┘
-                             ↓
-                    ┌─────────────────┐
-                    │ Order Confirmed │
-                    └────────┬────────┘
-                             ↓
-                    ┌─────────────────┐
-                    │ Fulfillment &   │
-                    │ Reporting      │
-                    └─────────────────┘
-
-👥 User Roles
-
-Role
-
-Responsibilities
-
-Sales Representative
-
-Create quotations, apply discounts, add upsell items, track approvals and fulfillment
-
-Sales Manager / Approver
-
-Review discount exceptions, configure approval chains, monitor deal health
-
-Finance / Operations
-
-Handle high-risk approvals, warehouse fulfillment decisions, recurring billing and credit notes
-
-Customer
-
-View quotations, negotiate terms, request changes and confirm quotations
-
-Admin
-
-Configure products, pricing, discount tiers, warehouses, subscriptions and analytics
-
-🧩 Major Modules
-
-Sales Backend
-
-Authentication
-
-Product & Price List Management
-
-Discount Tier & Approval Chain Setup
-
-Warehouse & Fulfillment Setup
-
-Subscription / Recurring Plan Setup
-
-Upsell / Cross-Sell Rules
-
-Reporting & Dashboard Configuration
-
-Sales Frontend
-
-Sales Workspace
-
-Quotation List / Pipeline
-
-Quotation Builder
-
-Discount Approval
-
-Upsell & Cross-Sell Panel
-
-Fulfillment & Warehouse Split
-
-Subscription & Billing
-
-Customer Portal Negotiation
-
-Deal Health & Anomaly Dashboard
-
-🛠️ Technology Stack
-
-DealFlow360 is built using the MERN stack:
-
-MongoDB — Database
-
-Express.js — Backend API
-
-React.js — Frontend
-
-Node.js — Backend runtime
-
-Additional libraries and tools may be present in the project for authentication, UI, charts, API communication, and other application requirements.
-
-📁 Project Structure
-
-A typical structure for the project is:
-
-my-project/
-│
-├── public/
-├── src/
-│   ├── assets/
-│   ├── components/
-│   │   ├── sections/
-│   │   └── ...
-│   ├── services/
-│   ├── data/
-│   └── ...
-│
-├── server/
-├── .gitignore
-├── package.json
-└── README.md
-
-The exact structure may vary depending on the current implementation.
-
-⚙️ Getting Started
-
-Prerequisites
-
-Make sure you have installed:
-
-Node.js
-
-npm
-
-MongoDB / MongoDB connection
-
-Git
-
-1. Clone the repository
-
+### 1. Clone the Repository
+```bash
 git clone https://github.com/SANJAYRAMASAMY17/odoo---Deal-Flow.git
 cd odoo---Deal-Flow
+```
 
-2. Install dependencies
-
-If the project uses a single package configuration:
-
+### 2. Install Dependencies
+```bash
 npm install
+```
 
-If frontend and backend have separate package.json files, install dependencies in each respective directory:
-
-cd <frontend-directory>
-npm install
-
-cd ../<backend-directory>
-npm install
-
-3. Configure environment variables
-
-Create the required .env file based on the variables expected by the project.
-
-Example:
-
-MONGODB_URI=your_mongodb_connection_string
-JWT_SECRET=your_jwt_secret
-PORT=5000
-
-Do not commit .env files or credentials to GitHub.
-
-4. Start the application
-
-Use the scripts defined in the project's package.json.
-
-For example:
-
+### 3. Run the Development Server
+```bash
 npm run dev
+```
+Navigate to **`http://localhost:5173`** to access the application.
 
-or start the frontend and backend separately according to the project configuration.
+---
 
-🧪 Recommended Demo Flow
+## 🔑 Demo Access Credentials
 
-The following flow demonstrates the core business logic:
+| Role | Email | Password | Landing Portal |
+|---|---|---|---|
+| **🛡️ Enterprise Admin** | `admin@dealflow.in` | `BharatDealFlow#2026` | **System Admin Console** *(Discount Chains)* |
+| **💼 Sales Deal Lead** | `user@dealflow.in` | `BharatDealFlow#2026` | **Sales Rep Workspace** *(Quotations)* |
+| **👑 Founder / Director** | `founder@dealflow.in` | `BharatDealFlow#2026` | **Executive Founder Portal** *(Deal Health)* |
+| **🤝 Customer (Buyer)** | `customer@acme.com` | `BharatDealFlow#2026` | **Client Negotiation Portal** |
 
-Sign up or log in.
+---
 
-Configure a discount tier, warehouse and subscription plan.
+## 📜 License
 
-Create a quotation.
-
-Add a product with a discount above the normal allowed limit.
-
-Verify that the quotation automatically enters manager approval.
-
-Accept an upsell recommendation.
-
-Verify the quotation total and margin update.
-
-Approve the quotation.
-
-Verify warehouse allocation and multi-warehouse splitting when required.
-
-Add both one-time and recurring products.
-
-Review the billing schedule.
-
-Open the customer portal.
-
-Submit a higher discount as the customer.
-
-Verify that the quotation automatically returns to approval.
-
-Confirm the order and verify the resulting fulfillment/billing status.
-
-🎯 Why DealFlow360?
-
-DealFlow360 focuses on the operational problems that occur in real B2B sales environments.
-
-Instead of treating sales as:
-
-Quote → Invoice
-
-DealFlow360 models the broader process:
-
-Quotation
-    ↓
-Discount Governance
-    ↓
-Approval
-    ↓
-Customer Negotiation
-    ↓
-Fulfillment
-    ↓
-Hybrid Billing
-    ↓
-Reporting & Deal Health
-
-This makes the platform more than a quotation application — it acts as a self-governing deal engine.
-
-🏆 Hackathon Focus
-
-The project addresses the core requirements of the DealFlow360 problem statement:
-
-Automated discount approval routing
-
-Customer-tier and category-specific discount governance
-
-Blended discount risk evaluation
-
-Live upsell and cross-sell recommendations
-
-Multi-warehouse fulfillment
-
-Backorder handling
-
-Hybrid one-time and recurring billing
-
-Customer-facing quotation negotiation
-
-Deal health monitoring
-
-Anomaly detection
-
-Role-based sales operations
-
-End-to-end quotation-to-cash workflow
-
-The original problem statement emphasizes that the core business rules should be implemented in application logic rather than being hardcoded or simulated for the demo.
-
-🔮 Future Enhancements
-
-Potential improvements with additional development time include:
-
-Advanced machine-learning based deal risk prediction
-
-More sophisticated sales forecasting
-
-Historical margin analytics
-
-Advanced customer segmentation
-
-Multi-currency support
-
-Multi-company support
-
-Automated notification and escalation workflows
-
-More detailed financial reconciliation
-
-Enhanced audit and compliance reporting
-
-📌 Project Status
-
-Status: Completed Hackathon Project
-
-Project: DealFlow360
-Category: B2B Sales Operations / Deal Management
-Stack: MERN
-Purpose: Intelligent, self-governing sales operations platform
-
-👨‍💻 Author
-
-Sanjay Ramasamy
-
-GitHub: SANJAYRAMASAMY17
-
-📄 Problem Statement Reference
-
-This project is based on the DealFlow360 – An Intelligent, Self Governing Sales Operations Platform hackathon problem statement.
-
-The problem statement defines the target workflow around quotation, approval, fulfillment, billing, customer negotiation, and reporting. fileciteturn0file0L2-L21
-
-The specified end-to-end flow includes quotation creation, automated approval routing, warehouse fulfillment, hybrid billing, customer negotiation, and deal-health monitoring. fileciteturn0file0L195-L217
-
-⭐ If you find this project useful
-
-Consider giving the repository a ⭐ on GitHub.
+This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.

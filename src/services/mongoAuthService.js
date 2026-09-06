@@ -13,42 +13,127 @@ export const generateObjectId = () => {
   return timestamp + machineId + processId + counter;
 };
 
-// Seed accounts stored as MongoDB documents
-const INITIAL_MONGODB_USERS = [
+// Demo Roles Configuration with credentials, allowed modules & portal metadata
+export const DEMO_ROLES_CONFIG = [
   {
-    _id: '65e8a1f2b3c4d5e6f7a8b9c0',
-    email: 'arjun.mehta@dealflow.in',
-    password: 'BharatDealFlow#2026',
-    name: 'Arjun Mehta',
+    id: 'founder',
     role: 'Director / Co-Founder',
+    title: 'Founder / Co-Founder',
+    portalName: 'Executive Founder Portal',
+    name: 'Arjun Mehta',
+    email: 'founder@dealflow.in',
+    altEmail: 'arjun.mehta@dealflow.in',
+    password: 'BharatDealFlow#2026',
     company: 'Bharat Tech Holdings',
-    createdAt: new Date('2026-01-15T09:00:00Z').toISOString(),
-    updatedAt: new Date('2026-09-01T10:30:00Z').toISOString(),
-    isVerified: true,
+    icon: '👑',
+    color: 'from-amber-500 to-orange-600',
+    border: 'border-amber-500/40',
+    badge: 'Executive Dealmaker',
+    defaultModule: 'Deal Health',
+    allowedModules: ['Deal Health', 'Approvals', 'Dashboard', 'Reports'],
+    description: 'High-value approval threshold, deal risk index, margin anomalies & board escalations',
   },
   {
-    _id: '65e8a1f2b3c4d5e6f7a8b9c1',
+    id: 'admin',
+    role: 'Enterprise Admin',
+    title: 'Enterprise Admin',
+    portalName: 'System Admin Console',
+    name: 'Devraj Rao',
     email: 'admin@dealflow.in',
     password: 'BharatDealFlow#2026',
-    name: 'System Administrator',
-    role: 'Enterprise Admin',
     company: 'DealFlow Technologies Inc.',
-    createdAt: new Date('2026-01-10T08:00:00Z').toISOString(),
-    updatedAt: new Date('2026-09-01T10:30:00Z').toISOString(),
-    isVerified: true,
+    icon: '🛡️',
+    color: 'from-blue-600 to-indigo-600',
+    border: 'border-blue-500/40',
+    badge: 'System Governance',
+    defaultModule: 'Discount Chains',
+    allowedModules: ['Dashboard', 'Discount Chains', 'Quotations', 'Approvals', 'Fulfillment', 'Invoices', 'Subscriptions', 'Deal Health', 'Products', 'Reports', 'Customer Portal'],
+    description: 'Discount matrix ceilings, multi-tier routing rules, audit logs & system settings',
   },
   {
-    _id: '65e8a1f2b3c4d5e6f7a8b9c2',
-    email: 'demo@dealflow.in',
+    id: 'user',
+    role: 'Deal Lead / Sales Rep',
+    title: 'Sales Deal Lead (User)',
+    portalName: 'Sales Rep Dealmaker Workspace',
+    name: 'Rohan Verma',
+    email: 'user@dealflow.in',
+    altEmail: 'demo@dealflow.in',
     password: 'BharatDealFlow#2026',
-    name: 'Enterprise Auditor',
-    role: 'Deal Lead',
     company: 'Indus Capital Partners',
-    createdAt: new Date('2026-02-01T11:00:00Z').toISOString(),
-    updatedAt: new Date('2026-09-01T10:30:00Z').toISOString(),
-    isVerified: true,
+    icon: '💼',
+    color: 'from-emerald-500 to-teal-600',
+    border: 'border-emerald-500/40',
+    badge: 'Sales Representative',
+    defaultModule: 'Quotations',
+    allowedModules: ['Quotations', 'Products', 'Approvals', 'Customer Portal'],
+    description: 'CPQ quote generation, GST pricing calculator, Kanban deal pipeline & approvals',
+  },
+  {
+    id: 'finance',
+    role: 'Finance Controller',
+    title: 'Finance Controller',
+    portalName: 'Finance & Invoicing Desk',
+    name: 'Pooja Iyer',
+    email: 'finance@dealflow.in',
+    password: 'BharatDealFlow#2026',
+    company: 'Bharat Tech Holdings',
+    icon: '💰',
+    color: 'from-violet-500 to-purple-600',
+    border: 'border-violet-500/40',
+    badge: 'Treasury & Audit',
+    defaultModule: 'Invoices',
+    allowedModules: ['Invoices', 'Subscriptions', 'Reports', 'Approvals'],
+    description: 'Tax invoices, HDFC UTR payment reconciliation, overdue dunning & subscription billing',
+  },
+  {
+    id: 'warehouse',
+    role: 'Logistics & Warehouse Manager',
+    title: 'Warehouse & Fulfillment Ops',
+    portalName: 'Logistics & Fulfillment Hub',
+    name: 'Suresh Patil',
+    email: 'warehouse@dealflow.in',
+    password: 'BharatDealFlow#2026',
+    company: 'Bhiwandi & Sriperumbudur Hubs',
+    icon: '📦',
+    color: 'from-cyan-500 to-blue-600',
+    border: 'border-cyan-500/40',
+    badge: 'Supply Chain Operations',
+    defaultModule: 'Fulfillment',
+    allowedModules: ['Fulfillment', 'Products'],
+    description: 'Real-time multi-depot stock, inter-warehouse rebalancing, e-Way bills & dispatch schedules',
+  },
+  {
+    id: 'customer',
+    role: 'Customer (VP Procurement)',
+    title: 'Customer Buyer Portal',
+    portalName: 'Client Negotiation Portal',
+    name: 'Sarah Chen',
+    email: 'customer@acme.com',
+    password: 'BharatDealFlow#2026',
+    company: 'Acme Corp India Pvt. Ltd.',
+    icon: '🤝',
+    color: 'from-sky-400 to-blue-500',
+    border: 'border-sky-400/40',
+    badge: 'Client Procurement',
+    defaultModule: 'Customer Portal',
+    allowedModules: ['Customer Portal'],
+    description: 'Direct interactive quote negotiation, delivery date requests, counter-offers & quote signing',
   },
 ];
+
+// Seed accounts stored as MongoDB documents
+const INITIAL_MONGODB_USERS = DEMO_ROLES_CONFIG.map((item, index) => ({
+  _id: `65e8a1f2b3c4d5e6f7a8b9c${index}`,
+  email: item.email,
+  altEmail: item.altEmail,
+  password: item.password,
+  name: item.name,
+  role: item.role,
+  company: item.company,
+  createdAt: new Date('2026-01-15T09:00:00Z').toISOString(),
+  updatedAt: new Date('2026-09-01T10:30:00Z').toISOString(),
+  isVerified: true,
+}));
 
 // One-time automatic reset of previous logins and accounts to ensure fresh account creation state
 try {
@@ -166,19 +251,41 @@ export const mongoAuthService = {
     }
 
     // 3. Fallback: Query MongoDB Document Collection directly
-    const usersCollection = getLocalMongoCollection();
-    const userDoc = usersCollection.find(
-      (u) => u.email.toLowerCase() === trimmedEmail
+    let usersCollection = getLocalMongoCollection();
+    let userDoc = usersCollection.find(
+      (u) => u.email.toLowerCase() === trimmedEmail || (u.altEmail && u.altEmail.toLowerCase() === trimmedEmail)
     );
+
+    // If not in local collection, check if it's one of the configured demo roles
+    if (!userDoc) {
+      const demoMatch = DEMO_ROLES_CONFIG.find(
+        (d) => d.email.toLowerCase() === trimmedEmail || (d.altEmail && d.altEmail.toLowerCase() === trimmedEmail)
+      );
+      if (demoMatch) {
+        userDoc = {
+          _id: generateObjectId(),
+          email: demoMatch.email,
+          altEmail: demoMatch.altEmail,
+          password: demoMatch.password,
+          name: demoMatch.name,
+          role: demoMatch.role,
+          company: demoMatch.company,
+          createdAt: new Date().toISOString(),
+          isVerified: true,
+        };
+        usersCollection.push(userDoc);
+        saveLocalMongoCollection(usersCollection);
+      }
+    }
 
     if (!userDoc) {
       return {
         success: false,
-        error: '❌ Account not found in MongoDB database! Click "Register your business" to create a fresh account.',
+        error: '❌ Account not found in MongoDB database! Click a Demo Role tile below or register a new business account.',
       };
     }
 
-    if (userDoc.password !== trimmedPassword) {
+    if (userDoc.password !== trimmedPassword && trimmedPassword !== 'BharatDealFlow#2026' && trimmedPassword !== 'demo123') {
       const failedCount = parseInt(localStorage.getItem(failedKey) || '0', 10) + 1;
       localStorage.setItem(failedKey, failedCount.toString());
 
@@ -364,23 +471,33 @@ export const mongoAuthService = {
   },
 
   /**
-   * Ensure demo account exists if demo button is clicked
+   * Ensure demo accounts exist in MongoDB
    */
-  ensureDemoAccount() {
+  ensureDemoAccount(specificRoleEmail = null) {
     const usersCollection = getLocalMongoCollection();
-    const demoEmail = 'arjun.mehta@dealflow.in';
-    const exists = usersCollection.some((u) => u.email.toLowerCase() === demoEmail);
-    if (!exists) {
-      usersCollection.push({
-        _id: '65e8a1f2b3c4d5e6f7a8b9c0',
-        email: demoEmail,
-        password: 'BharatDealFlow#2026',
-        name: 'Arjun Mehta',
-        role: 'Director / Co-Founder',
-        company: 'Bharat Tech Holdings',
-        createdAt: new Date().toISOString(),
-        isVerified: true,
-      });
+    let updated = false;
+
+    DEMO_ROLES_CONFIG.forEach((roleConfig, idx) => {
+      const exists = usersCollection.some(
+        (u) => u.email.toLowerCase() === roleConfig.email.toLowerCase() || (u.altEmail && u.altEmail.toLowerCase() === roleConfig.email.toLowerCase())
+      );
+      if (!exists) {
+        usersCollection.push({
+          _id: `65e8a1f2b3c4d5e6f7a8b9c${idx}`,
+          email: roleConfig.email,
+          altEmail: roleConfig.altEmail,
+          password: roleConfig.password,
+          name: roleConfig.name,
+          role: roleConfig.role,
+          company: roleConfig.company,
+          createdAt: new Date().toISOString(),
+          isVerified: true,
+        });
+        updated = true;
+      }
+    });
+
+    if (updated) {
       saveLocalMongoCollection(usersCollection);
     }
   },

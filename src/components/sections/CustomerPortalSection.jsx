@@ -122,9 +122,36 @@ const CustomerPortalSection = (props) => {
     setCounterDiscount,
     requestedDeliveryDate,
     setRequestedDeliveryDate,
+    customers,
+    setCustomers,
+    activeCustomer,
+    setActiveCustomer,
+    isAddCustomerModalOpen,
+    setIsAddCustomerModalOpen,
     handleSubmitCustomerRequest,
     handleConfirmCustomerQuotation,
+    activeUser,
   } = props;
+
+  const isCustomerRole = activeUser?.role === 'Customer (VP Procurement)' || activeUser?.email === 'customer@acme.com';
+
+  const currentCust = activeCustomer || (customers && customers[0]) || {
+    id: 'CUST-101',
+    companyName: 'Acme Corp India Pvt. Ltd.',
+    legalEntity: 'Acme Corp India Private Limited',
+    contactPerson: 'Sarah Chen',
+    designation: 'VP Procurement',
+    email: 'sarah.c@acme.com',
+    phone: '+91 80 4122 8900',
+    city: 'Bengaluru, Karnataka',
+    gstin: '29AABCA1234F1Z5',
+    address: 'Prestige Tech Cloud, Building 4, Phase 1, Whitefield, Bengaluru, Karnataka - 560066',
+    priceList: 'Standard Indian Enterprise Tier 2026 (INR)',
+    paymentTerms: 'Net-30 Days from Delivery Invoice',
+    assignedRep: 'Arjun Mehta (Enterprise Sales - South)',
+    quotationNumber: 'Q-1042',
+    commercialBase: 1240000,
+  };
 
   return (
           <div className="space-y-8 animate-fadeIn">
@@ -179,74 +206,99 @@ const CustomerPortalSection = (props) => {
                 </div>
               </div>
 
-              {/* View Switcher */}
-              <div className="flex items-center gap-4">
-                <button
-                  onClick={() => setActiveModule('Quotations')}
-                  className="py-2 px-3.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 transition-colors cursor-pointer"
-                >
-                  ← Switch to Sales Rep View
-                </button>
-              </div>
+              {/* View Switcher & Action Buttons (Hidden for external customers) */}
+              {!isCustomerRole && (
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => setActiveModule('Quotations')}
+                    className="py-2 px-3.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 transition-colors cursor-pointer"
+                  >
+                    ← Switch to Sales Rep View
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* TAB 1: MY QUOTATION (WIREFRAME #11) */}
             {customerPortalTab === 'My Quotation' && (
               <div className="space-y-6">
                 {/* Header & Status Pill */}
-                <div className="space-y-3">
-                  <div className="flex items-center gap-3">
-                    <span className="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 text-white font-mono font-bold flex items-center justify-center text-sm">
-                      11
-                    </span>
-                    <div>
-                      <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white font-display">
-                        Customer Portal Negotiation
-                      </h1>
-                      <p className="mt-1 text-sm text-slate-400">
-                        Customer reviews and negotiates the quote directly, no email needed
-                      </p>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3">
+                      <span className="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 text-white font-mono font-bold flex items-center justify-center text-sm">
+                        11
+                      </span>
+                      <div>
+                        <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white font-display">
+                          Customer Portal Negotiation
+                        </h1>
+                        <p className="mt-1 text-sm text-slate-400">
+                          Customer reviews and negotiates the quote directly, no email needed
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Wireframe #11 Status Pill (Orange / Amber) */}
+                    <div className="pt-1">
+                      <span className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-xl text-xs font-bold border ${
+                        portalStatus === 'Confirmed'
+                          ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
+                          : portalStatus.includes('Screen 6')
+                          ? 'bg-rose-500/20 text-rose-300 border-rose-500/40'
+                          : 'bg-amber-500/25 text-amber-300 border-amber-500/50 shadow-lg shadow-amber-500/10'
+                      }`}>
+                        <span className={`w-2 h-2 rounded-full ${
+                          portalStatus === 'Confirmed' ? 'bg-emerald-400' : 'bg-amber-400 animate-pulse'
+                        }`} />
+                        <span>Status: {portalStatus}</span>
+                      </span>
                     </div>
                   </div>
 
-                  {/* Wireframe #11 Status Pill (Orange / Amber) */}
-                  <div className="pt-1">
-                    <span className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-xl text-xs font-bold border ${
-                      portalStatus === 'Confirmed'
-                        ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
-                        : portalStatus.includes('Screen 6')
-                        ? 'bg-rose-500/20 text-rose-300 border-rose-500/40'
-                        : 'bg-amber-500/25 text-amber-300 border-amber-500/50 shadow-lg shadow-amber-500/10'
-                    }`}>
-                      <span className={`w-2 h-2 rounded-full ${
-                        portalStatus === 'Confirmed' ? 'bg-emerald-400' : 'bg-amber-400 animate-pulse'
-                      }`} />
-                      <span>Status: {portalStatus}</span>
-                    </span>
-                  </div>
+                  {/* Customer Account Selector */}
+                  {customers && customers.length > 1 && (
+                    <div className="flex items-center gap-2 bg-slate-900/90 p-1.5 rounded-2xl border border-slate-800">
+                      <span className="text-[10px] text-slate-400 uppercase font-semibold pl-2">Client:</span>
+                      <select
+                        value={currentCust.id}
+                        onChange={(e) => {
+                          const found = customers.find((c) => c.id === e.target.value);
+                          if (found) setActiveCustomer(found);
+                        }}
+                        className="bg-slate-950 text-xs font-bold text-white py-1.5 px-3 rounded-xl border border-slate-700 outline-none cursor-pointer"
+                      >
+                        {customers.map((c) => (
+                          <option key={c.id} value={c.id}>
+                            {c.companyName}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
                 </div>
 
                 {/* Quotation Header Details Card */}
                 <div className="glass-card rounded-2xl p-5 border border-slate-700/80 grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs font-mono">
                   <div>
                     <span className="text-slate-400 block text-[11px] font-sans uppercase">Customer Entity</span>
-                    <span className="text-white font-bold text-sm font-sans">Acme Corp India Pvt. Ltd.</span>
-                    <span className="text-slate-500 block text-[10px]">Bengaluru, Karnataka (GSTIN 29AABCA1234F1Z5)</span>
+                    <span className="text-white font-bold text-sm font-sans">{currentCust.companyName}</span>
+                    <span className="text-slate-500 block text-[10px]">{currentCust.city} (GSTIN {currentCust.gstin})</span>
                   </div>
                   <div>
                     <span className="text-slate-400 block text-[11px] font-sans uppercase">Quotation Number</span>
-                    <span className="text-amber-400 font-bold text-sm">Q-1042</span>
-                    <span className="text-slate-500 block text-[10px]">Standard Price Book 2026</span>
+                    <span className="text-amber-400 font-bold text-sm">{currentCust.quotationNumber || 'Q-1042'}</span>
+                    <span className="text-slate-500 block text-[10px]">{currentCust.priceList}</span>
                   </div>
                   <div>
                     <span className="text-slate-400 block text-[11px] font-sans uppercase">Assigned Rep</span>
-                    <span className="text-white font-bold text-sm font-sans">Arjun Mehta</span>
-                    <span className="text-slate-500 block text-[10px]">VP Procurement Contact: Sarah Chen</span>
+                    <span className="text-white font-bold text-sm font-sans">{currentCust.assignedRep}</span>
+                    <span className="text-slate-500 block text-[10px]">Contact: {currentCust.contactPerson} ({currentCust.designation})</span>
                   </div>
                   <div>
                     <span className="text-slate-400 block text-[11px] font-sans uppercase">Commercial Base</span>
-                    <span className="text-emerald-400 font-bold text-sm">₹12,40,000 + 18% GST</span>
-                    <span className="text-slate-400 block text-[10px]">Total: ₹14,63,200</span>
+                    <span className="text-emerald-400 font-bold text-sm">{formatINR(currentCust.commercialBase || 1240000)} + 18% GST</span>
+                    <span className="text-slate-400 block text-[10px]">Total: {formatINR((currentCust.commercialBase || 1240000) * 1.18)}</span>
                   </div>
                 </div>
 
@@ -536,17 +588,17 @@ const CustomerPortalSection = (props) => {
                     </span>
                     <div>
                       <span className="text-slate-400 block text-[11px]">Legal Entity</span>
-                      <span className="text-white font-bold text-sm">Acme Corp India Private Limited</span>
+                      <span className="text-white font-bold text-sm">{currentCust.legalEntity}</span>
                     </div>
                     <div>
                       <span className="text-slate-400 block text-[11px]">GST Identification Number (GSTIN)</span>
-                      <span className="text-emerald-400 font-mono font-bold">29AABCA1234F1Z5</span>
-                      <span className="text-[10px] text-slate-500 block">State: Karnataka (Code 29) • Active Taxpayer</span>
+                      <span className="text-emerald-400 font-mono font-bold">{currentCust.gstin}</span>
+                      <span className="text-[10px] text-slate-500 block">State: {currentCust.city} • Active Taxpayer</span>
                     </div>
                     <div>
                       <span className="text-slate-400 block text-[11px]">Registered Address</span>
                       <span className="text-slate-300">
-                        Prestige Tech Cloud, Building 4, Phase 1, Whitefield, Bengaluru, Karnataka - 560066
+                        {currentCust.address}
                       </span>
                     </div>
                   </div>
@@ -557,16 +609,16 @@ const CustomerPortalSection = (props) => {
                     </span>
                     <div>
                       <span className="text-slate-400 block text-[11px]">Primary Procurement Lead</span>
-                      <span className="text-white font-bold text-sm">Sarah Chen (VP Procurement)</span>
-                      <span className="text-slate-500 text-[11px] block">sarah.c@acme.com • +91 80 4122 8900</span>
+                      <span className="text-white font-bold text-sm">{currentCust.contactPerson} ({currentCust.designation})</span>
+                      <span className="text-slate-500 text-[11px] block">{currentCust.email} • {currentCust.phone}</span>
                     </div>
                     <div>
                       <span className="text-slate-400 block text-[11px]">Commercial Payment Terms</span>
-                      <span className="text-amber-300 font-bold">Net-30 Days from Delivery Invoice</span>
+                      <span className="text-amber-300 font-bold">{currentCust.paymentTerms}</span>
                     </div>
                     <div>
                       <span className="text-slate-400 block text-[11px]">Assigned DealFlow360 Account Exec</span>
-                      <span className="text-white font-bold">Arjun Mehta (Enterprise Sales - South)</span>
+                      <span className="text-white font-bold">{currentCust.assignedRep}</span>
                     </div>
                   </div>
                 </div>

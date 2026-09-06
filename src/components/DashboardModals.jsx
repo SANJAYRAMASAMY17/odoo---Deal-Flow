@@ -92,6 +92,20 @@ const DashboardModals = (props) => {
     handleCreateNewProduct,
     newProductForm,
     setNewProductForm,
+    customers,
+    setCustomers,
+    activeCustomer,
+    setActiveCustomer,
+    isAddCustomerModalOpen,
+    setIsAddCustomerModalOpen,
+    newCustomerForm,
+    setNewCustomerForm,
+    handleCreateCustomerSubmit,
+    isNewFulfillmentModalOpen,
+    setIsNewFulfillmentModalOpen,
+    newFulfillmentForm,
+    setNewFulfillmentForm,
+    handleCreateFulfillmentSubmit,
   } = props;
 
   const modalContent = (
@@ -1509,6 +1523,694 @@ const DashboardModals = (props) => {
                 Close & Save Settings
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* =========================================================================
+          MODAL: CREATE NEW QUOTATION
+         ========================================================================= */}
+      {isCreateQuotationModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto animate-fadeIn">
+          <div className="glass-card max-w-2xl w-full rounded-3xl p-6 sm:p-8 border border-slate-700/80 shadow-2xl space-y-6 max-h-[92vh] overflow-y-auto">
+            {/* Modal Header */}
+            <div className="flex items-start justify-between border-b border-slate-800 pb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-500 text-white flex items-center justify-center shadow-lg shadow-blue-500/30">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                  </svg>
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-mono font-bold text-amber-400 bg-amber-500/10 px-2.5 py-0.5 rounded border border-amber-500/20">
+                      Q-{1040 + quotations.length + 1}
+                    </span>
+                    <span className="text-xs text-slate-400">Auto-assigned ID</span>
+                  </div>
+                  <h3 className="text-2xl font-bold font-display text-white mt-0.5">
+                    Create New Quotation
+                  </h3>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setIsCreateQuotationModalOpen(false)}
+                className="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-white transition-colors cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Form */}
+            <form onSubmit={handleCreateQuotationSubmit} className="space-y-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                    Client / Organization <span className="text-rose-400">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Acme Corporation Pvt Ltd"
+                    value={newQuotationForm.client}
+                    onChange={(e) => setNewQuotationForm({ ...newQuotationForm, client: e.target.value })}
+                    className="w-full py-2.5 px-3.5 rounded-xl glass-input text-sm text-white placeholder-slate-500 outline-none focus:ring-2 focus:ring-blue-500/50"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                    Contact Email
+                  </label>
+                  <input
+                    type="email"
+                    placeholder="e.g. procurement@acmecorp.com"
+                    value={newQuotationForm.contact || ''}
+                    onChange={(e) => setNewQuotationForm({ ...newQuotationForm, contact: e.target.value })}
+                    className="w-full py-2.5 px-3.5 rounded-xl glass-input text-sm text-white placeholder-slate-500 outline-none focus:ring-2 focus:ring-blue-500/50"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                  Quotation Title / Scope of Work <span className="text-rose-400">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Enterprise Cloud Infrastructure & Security Optimization"
+                  value={newQuotationForm.title}
+                  onChange={(e) => setNewQuotationForm({ ...newQuotationForm, title: e.target.value })}
+                  className="w-full py-2.5 px-3.5 rounded-xl glass-input text-sm text-white placeholder-slate-500 outline-none focus:ring-2 focus:ring-blue-500/50"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                    City / State (Destination)
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Bengaluru, Karnataka"
+                    value={newQuotationForm.city || ''}
+                    onChange={(e) => setNewQuotationForm({ ...newQuotationForm, city: e.target.value })}
+                    className="w-full py-2.5 px-3.5 rounded-xl glass-input text-sm text-white placeholder-slate-500 outline-none focus:ring-2 focus:ring-blue-500/50"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                    GSTIN
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. 29AABCA9999F1Z5"
+                    value={newQuotationForm.gstin || ''}
+                    onChange={(e) => setNewQuotationForm({ ...newQuotationForm, gstin: e.target.value })}
+                    className="w-full py-2.5 px-3.5 rounded-xl glass-input text-sm text-white placeholder-slate-500 font-mono outline-none focus:ring-2 focus:ring-blue-500/50"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                    Price List / Book
+                  </label>
+                  <select
+                    value={newQuotationForm.priceList || 'Standard Indian Enterprise Tier 2026 (INR)'}
+                    onChange={(e) => setNewQuotationForm({ ...newQuotationForm, priceList: e.target.value })}
+                    className="w-full py-2.5 px-3.5 rounded-xl glass-input text-sm text-white outline-none bg-slate-900 focus:ring-2 focus:ring-blue-500/50 cursor-pointer"
+                  >
+                    <option value="Standard Indian Enterprise Tier 2026 (INR)">Standard Indian Enterprise Tier 2026 (INR)</option>
+                    <option value="Commercial Direct (INR)">Commercial Direct (INR)</option>
+                    <option value="Manufacturing Wholesale Tier 1">Manufacturing Wholesale Tier 1</option>
+                    <option value="Retail POS Package 2026">Retail POS Package 2026</option>
+                    <option value="HPC Dedicated Cluster">HPC Dedicated Cluster</option>
+                  </select>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                    Initial Workflow Stage
+                  </label>
+                  <select
+                    value={newQuotationForm.stage || 'Draft'}
+                    onChange={(e) => setNewQuotationForm({ ...newQuotationForm, stage: e.target.value })}
+                    className="w-full py-2.5 px-3.5 rounded-xl glass-input text-sm text-white outline-none bg-slate-900 focus:ring-2 focus:ring-blue-500/50 cursor-pointer"
+                  >
+                    <option value="Draft">Draft</option>
+                    <option value="Pending Approval">Pending Approval</option>
+                    <option value="Approved">Approved</option>
+                    <option value="Negotiation">Negotiation</option>
+                    <option value="Confirmed">Confirmed</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                    Estimated Taxable Value (₹ INR)
+                  </label>
+                  <input
+                    type="number"
+                    min="1000"
+                    step="1000"
+                    placeholder="450000"
+                    value={newQuotationForm.amount || ''}
+                    onChange={(e) => setNewQuotationForm({ ...newQuotationForm, amount: e.target.value })}
+                    className="w-full py-2.5 px-3.5 rounded-xl glass-input text-sm text-white font-mono placeholder-slate-500 outline-none focus:ring-2 focus:ring-blue-500/50"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                    Initial Primary Product
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Enterprise Core License & Platform"
+                    value={newQuotationForm.initialProduct || ''}
+                    onChange={(e) => setNewQuotationForm({ ...newQuotationForm, initialProduct: e.target.value })}
+                    className="w-full py-2.5 px-3.5 rounded-xl glass-input text-sm text-white placeholder-slate-500 outline-none focus:ring-2 focus:ring-blue-500/50"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                  Notes & Special Commercial Terms
+                </label>
+                <textarea
+                  rows="2"
+                  placeholder="e.g. Standard 30-day payment term upon milestone verification. Discount subject to VP approval."
+                  value={newQuotationForm.notes || ''}
+                  onChange={(e) => setNewQuotationForm({ ...newQuotationForm, notes: e.target.value })}
+                  className="w-full py-2.5 px-3.5 rounded-xl glass-input text-sm text-white placeholder-slate-500 outline-none resize-none focus:ring-2 focus:ring-blue-500/50"
+                />
+              </div>
+
+              {/* Action Buttons */}
+              <div className="pt-3 border-t border-slate-800 flex items-center justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => setIsCreateQuotationModalOpen(false)}
+                  className="py-2.5 px-5 rounded-xl text-xs font-semibold text-slate-400 hover:text-white bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 transition-colors cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="py-2.5 px-6 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 shadow-lg shadow-blue-500/25 flex items-center gap-2 transition-all transform active:scale-95 cursor-pointer"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                  </svg>
+                  <span>Create Quotation</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* =========================================================================
+          MODAL: ADD CUSTOMER MANUALLY (Customer Portal & Governance)
+         ========================================================================= */}
+      {isAddCustomerModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto animate-fadeIn">
+          <div className="glass-card max-w-2xl w-full rounded-3xl p-6 sm:p-8 border border-slate-700/80 shadow-2xl space-y-6 max-h-[92vh] overflow-y-auto">
+            {/* Modal Header */}
+            <div className="flex items-start justify-between border-b border-slate-800 pb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-sky-400 to-blue-600 text-white flex items-center justify-center shadow-lg shadow-sky-500/30">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM4 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 0110.374 21c-2.331 0-4.512-.645-6.374-1.765z" />
+                  </svg>
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-mono font-bold text-sky-400 bg-sky-500/10 px-2.5 py-0.5 rounded border border-sky-500/20">
+                      CUST-{100 + (customers?.length || 5) + 1}
+                    </span>
+                    <span className="text-xs text-slate-400">Manual Registration</span>
+                  </div>
+                  <h3 className="text-2xl font-bold font-display text-white mt-0.5">
+                    Add Customer Manually
+                  </h3>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setIsAddCustomerModalOpen(false)}
+                className="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-white transition-colors cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Form */}
+            <form onSubmit={handleCreateCustomerSubmit} className="space-y-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                    Company / Organization <span className="text-rose-400">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Infosys Technologies Ltd"
+                    value={newCustomerForm?.companyName || ''}
+                    onChange={(e) => setNewCustomerForm({ ...newCustomerForm, companyName: e.target.value })}
+                    className="w-full py-2.5 px-3.5 rounded-xl glass-input text-sm text-white placeholder-slate-500 outline-none focus:ring-2 focus:ring-sky-500/50"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                    Legal Entity Name
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Infosys Technologies India Private Limited"
+                    value={newCustomerForm?.legalEntity || ''}
+                    onChange={(e) => setNewCustomerForm({ ...newCustomerForm, legalEntity: e.target.value })}
+                    className="w-full py-2.5 px-3.5 rounded-xl glass-input text-sm text-white placeholder-slate-500 outline-none focus:ring-2 focus:ring-sky-500/50"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                    Primary Contact Person <span className="text-rose-400">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Rajesh Kumar"
+                    value={newCustomerForm?.contactPerson || ''}
+                    onChange={(e) => setNewCustomerForm({ ...newCustomerForm, contactPerson: e.target.value })}
+                    className="w-full py-2.5 px-3.5 rounded-xl glass-input text-sm text-white placeholder-slate-500 outline-none focus:ring-2 focus:ring-sky-500/50"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                    Role / Designation
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Head of Enterprise Procurement"
+                    value={newCustomerForm?.designation || ''}
+                    onChange={(e) => setNewCustomerForm({ ...newCustomerForm, designation: e.target.value })}
+                    className="w-full py-2.5 px-3.5 rounded-xl glass-input text-sm text-white placeholder-slate-500 outline-none focus:ring-2 focus:ring-sky-500/50"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                    Contact Email
+                  </label>
+                  <input
+                    type="email"
+                    placeholder="e.g. rajesh.k@infosys.com"
+                    value={newCustomerForm?.email || ''}
+                    onChange={(e) => setNewCustomerForm({ ...newCustomerForm, email: e.target.value })}
+                    className="w-full py-2.5 px-3.5 rounded-xl glass-input text-sm text-white placeholder-slate-500 outline-none focus:ring-2 focus:ring-sky-500/50"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                    Contact Phone
+                  </label>
+                  <input
+                    type="tel"
+                    placeholder="e.g. +91 80 2852 0261"
+                    value={newCustomerForm?.phone || ''}
+                    onChange={(e) => setNewCustomerForm({ ...newCustomerForm, phone: e.target.value })}
+                    className="w-full py-2.5 px-3.5 rounded-xl glass-input text-sm text-white placeholder-slate-500 outline-none focus:ring-2 focus:ring-sky-500/50"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                    City & State
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Bengaluru, Karnataka"
+                    value={newCustomerForm?.city || ''}
+                    onChange={(e) => setNewCustomerForm({ ...newCustomerForm, city: e.target.value })}
+                    className="w-full py-2.5 px-3.5 rounded-xl glass-input text-sm text-white placeholder-slate-500 outline-none focus:ring-2 focus:ring-sky-500/50"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                    GSTIN Identification No.
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. 29AABCI1234F1Z8"
+                    value={newCustomerForm?.gstin || ''}
+                    onChange={(e) => setNewCustomerForm({ ...newCustomerForm, gstin: e.target.value })}
+                    className="w-full py-2.5 px-3.5 rounded-xl glass-input text-sm text-white placeholder-slate-500 font-mono outline-none focus:ring-2 focus:ring-sky-500/50"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                  Registered Business Address
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. Electronics City, Hosur Road, Bengaluru, Karnataka - 560100"
+                  value={newCustomerForm?.address || ''}
+                  onChange={(e) => setNewCustomerForm({ ...newCustomerForm, address: e.target.value })}
+                  className="w-full py-2.5 px-3.5 rounded-xl glass-input text-sm text-white placeholder-slate-500 outline-none focus:ring-2 focus:ring-sky-500/50"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                    Default Price Book
+                  </label>
+                  <select
+                    value={newCustomerForm?.priceList || 'Standard Indian Enterprise Tier 2026 (INR)'}
+                    onChange={(e) => setNewCustomerForm({ ...newCustomerForm, priceList: e.target.value })}
+                    className="w-full py-2.5 px-3.5 rounded-xl glass-input text-sm text-white outline-none bg-slate-900 focus:ring-2 focus:ring-sky-500/50 cursor-pointer"
+                  >
+                    <option value="Standard Indian Enterprise Tier 2026 (INR)">Standard Indian Enterprise Tier 2026 (INR)</option>
+                    <option value="Commercial Direct (INR)">Commercial Direct (INR)</option>
+                    <option value="Manufacturing Wholesale Tier 1">Manufacturing Wholesale Tier 1</option>
+                    <option value="Retail POS Package 2026">Retail POS Package 2026</option>
+                    <option value="HPC Dedicated Cluster">HPC Dedicated Cluster</option>
+                  </select>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                    Payment Terms
+                  </label>
+                  <select
+                    value={newCustomerForm?.paymentTerms || 'Net-30 Days from Delivery Invoice'}
+                    onChange={(e) => setNewCustomerForm({ ...newCustomerForm, paymentTerms: e.target.value })}
+                    className="w-full py-2.5 px-3.5 rounded-xl glass-input text-sm text-white outline-none bg-slate-900 focus:ring-2 focus:ring-sky-500/50 cursor-pointer"
+                  >
+                    <option value="Net-30 Days from Delivery Invoice">Net-30 Days from Delivery Invoice</option>
+                    <option value="Net-15 Days from Invoice">Net-15 Days from Invoice</option>
+                    <option value="Net-45 Days from Delivery Invoice">Net-45 Days from Delivery Invoice</option>
+                    <option value="100% Advance Payment">100% Advance Payment</option>
+                    <option value="50% Advance, 50% on Delivery">50% Advance, 50% on Delivery</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                  Assigned Account Executive
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. Arjun Mehta (Enterprise Sales - South)"
+                  value={newCustomerForm?.assignedRep || ''}
+                  onChange={(e) => setNewCustomerForm({ ...newCustomerForm, assignedRep: e.target.value })}
+                  className="w-full py-2.5 px-3.5 rounded-xl glass-input text-sm text-white placeholder-slate-500 outline-none focus:ring-2 focus:ring-sky-500/50"
+                />
+              </div>
+
+              {/* Action Buttons */}
+              <div className="pt-3 border-t border-slate-800 flex items-center justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => setIsAddCustomerModalOpen(false)}
+                  className="py-2.5 px-5 rounded-xl text-xs font-semibold text-slate-400 hover:text-white bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 transition-colors cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="py-2.5 px-6 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-sky-500 via-blue-600 to-indigo-600 hover:from-sky-400 hover:to-indigo-500 shadow-lg shadow-sky-500/25 flex items-center gap-2 transition-all transform active:scale-95 cursor-pointer"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                  </svg>
+                  <span>Register Customer</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+      {/* =========================================================================
+          MODAL: CREATE NEW FULFILLMENT ORDER (Fulfillment & Multi-Depot Logistics)
+         ========================================================================= */}
+      {isNewFulfillmentModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto animate-fadeIn">
+          <div className="glass-card max-w-2xl w-full rounded-3xl p-6 sm:p-8 border border-slate-700/80 shadow-2xl space-y-6 max-h-[92vh] overflow-y-auto">
+            {/* Modal Header */}
+            <div className="flex items-start justify-between border-b border-slate-800 pb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-blue-500 via-indigo-600 to-sky-500 text-white flex items-center justify-center shadow-lg shadow-blue-500/30">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.25V4.875c0-.621-.504-1.125-1.125-1.125H4.5c-.621 0-1.125.504-1.125 1.125v10.5c0 .621.504 1.125 1.125 1.125h1.125m9.75-11.25h3.375c.39 0 .754.152 1.026.424l2.56 2.56c.272.272.424.636.424 1.026v2.24m-7.385-6.25v6.25m0 0h7.385" />
+                  </svg>
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-mono font-bold text-blue-400 bg-blue-500/10 px-2.5 py-0.5 rounded border border-blue-500/20">
+                      Q-{1050 + (fulfillmentOrders?.length || 4) + 1}
+                    </span>
+                    <span className="text-xs text-slate-400">Warehouse Allocation & Dispatch</span>
+                  </div>
+                  <h3 className="text-2xl font-bold font-display text-white mt-0.5">
+                    Create Fulfillment Order
+                  </h3>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setIsNewFulfillmentModalOpen(false)}
+                className="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-white transition-colors cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Form */}
+            <form onSubmit={handleCreateFulfillmentSubmit} className="space-y-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                    Customer / Account <span className="text-rose-400">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Tata Digital Enterprise Ltd"
+                    value={newFulfillmentForm?.customer || ''}
+                    onChange={(e) => setNewFulfillmentForm({ ...newFulfillmentForm, customer: e.target.value })}
+                    className="w-full py-2.5 px-3.5 rounded-xl glass-input text-sm text-white placeholder-slate-500 outline-none focus:ring-2 focus:ring-blue-500/50"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                    Destination City & State
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Bengaluru, Karnataka"
+                    value={newFulfillmentForm?.city || ''}
+                    onChange={(e) => setNewFulfillmentForm({ ...newFulfillmentForm, city: e.target.value })}
+                    className="w-full py-2.5 px-3.5 rounded-xl glass-input text-sm text-white placeholder-slate-500 outline-none focus:ring-2 focus:ring-blue-500/50"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                    GSTIN Identification
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. 29AABCA9999F1Z5"
+                    value={newFulfillmentForm?.gstin || ''}
+                    onChange={(e) => setNewFulfillmentForm({ ...newFulfillmentForm, gstin: e.target.value })}
+                    className="w-full py-2.5 px-3.5 rounded-xl glass-input text-sm text-white placeholder-slate-500 outline-none focus:ring-2 focus:ring-blue-500/50"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                    Hardware Product Line
+                  </label>
+                  <select
+                    value={newFulfillmentForm?.product || 'Laptop Pro 14'}
+                    onChange={(e) => setNewFulfillmentForm({ ...newFulfillmentForm, product: e.target.value })}
+                    className="w-full py-2.5 px-3.5 rounded-xl glass-input text-sm text-white bg-slate-900 border border-slate-700 outline-none focus:ring-2 focus:ring-blue-500/50"
+                  >
+                    <option value="Laptop Pro 14">Laptop Pro 14 (16GB/512GB)</option>
+                    <option value="Smart POS Terminals">Smart POS Terminals (Dual Display)</option>
+                    <option value="Automated Compliance Appliance">Automated Compliance Appliance</option>
+                    <option value="H100 AI Node Rack">H100 AI Node Rack (8x SXM5)</option>
+                    <option value="Enterprise Hardware Appliance">Enterprise Hardware Appliance</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                    Total Order Quantity
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    max="1000"
+                    value={newFulfillmentForm?.qty || 10}
+                    onChange={(e) => {
+                      const total = parseInt(e.target.value, 10) || 1;
+                      const main = Math.ceil(total * 0.7);
+                      const east = total - main;
+                      setNewFulfillmentForm({
+                        ...newFulfillmentForm,
+                        qty: total,
+                        mainWarehouseQty: main,
+                        eastDepotQty: east,
+                      });
+                    }}
+                    className="w-full py-2.5 px-3.5 rounded-xl glass-input text-sm text-white outline-none focus:ring-2 focus:ring-blue-500/50"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                    Main Warehouse (Bhiwandi)
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    max={newFulfillmentForm?.qty || 100}
+                    value={newFulfillmentForm?.mainWarehouseQty || 0}
+                    onChange={(e) => {
+                      const main = parseInt(e.target.value, 10) || 0;
+                      const total = newFulfillmentForm?.qty || 10;
+                      setNewFulfillmentForm({
+                        ...newFulfillmentForm,
+                        mainWarehouseQty: main,
+                        eastDepotQty: Math.max(0, total - main),
+                      });
+                    }}
+                    className="w-full py-2.5 px-3.5 rounded-xl glass-input text-sm text-white outline-none focus:ring-2 focus:ring-blue-500/50"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                    East Depot (Chennai)
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    max={newFulfillmentForm?.qty || 100}
+                    value={newFulfillmentForm?.eastDepotQty || 0}
+                    onChange={(e) => {
+                      const east = parseInt(e.target.value, 10) || 0;
+                      const total = newFulfillmentForm?.qty || 10;
+                      setNewFulfillmentForm({
+                        ...newFulfillmentForm,
+                        eastDepotQty: east,
+                        mainWarehouseQty: Math.max(0, total - east),
+                      });
+                    }}
+                    className="w-full py-2.5 px-3.5 rounded-xl glass-input text-sm text-white outline-none focus:ring-2 focus:ring-blue-500/50"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                    Logistics Carrier
+                  </label>
+                  <select
+                    value={newFulfillmentForm?.carrier || 'BlueDart Apex Express'}
+                    onChange={(e) => setNewFulfillmentForm({ ...newFulfillmentForm, carrier: e.target.value })}
+                    className="w-full py-2.5 px-3.5 rounded-xl glass-input text-sm text-white bg-slate-900 border border-slate-700 outline-none focus:ring-2 focus:ring-blue-500/50"
+                  >
+                    <option value="BlueDart Apex Express">BlueDart Apex Express (Air Express)</option>
+                    <option value="DTDC Priority Air Cargo">DTDC Priority Air Cargo</option>
+                    <option value="Delhivery Surface Pro">Delhivery Surface Pro</option>
+                    <option value="Gati-KWE Heavy Transport">Gati-KWE Heavy Transport</option>
+                  </select>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                    Initial Fulfillment Status
+                  </label>
+                  <select
+                    value={newFulfillmentForm?.status || 'Split Pending'}
+                    onChange={(e) => setNewFulfillmentForm({ ...newFulfillmentForm, status: e.target.value })}
+                    className="w-full py-2.5 px-3.5 rounded-xl glass-input text-sm text-white bg-slate-900 border border-slate-700 outline-none focus:ring-2 focus:ring-blue-500/50"
+                  >
+                    <option value="Split Pending">Split Pending (Dual Depot Sync)</option>
+                    <option value="Ready to Ship">Ready to Ship (e-Way Bill Ready)</option>
+                    <option value="Backorder">Backorder (Awaiting Restock)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                  Fulfillment Notes & Compliance Tags
+                </label>
+                <textarea
+                  rows="2"
+                  placeholder="e.g. Dual warehouse stock allocation for rapid dispatch with 18% IGST declaration."
+                  value={newFulfillmentForm?.notes || ''}
+                  onChange={(e) => setNewFulfillmentForm({ ...newFulfillmentForm, notes: e.target.value })}
+                  className="w-full py-2.5 px-3.5 rounded-xl glass-input text-sm text-white placeholder-slate-500 outline-none focus:ring-2 focus:ring-blue-500/50"
+                />
+              </div>
+
+              {/* Action Buttons */}
+              <div className="pt-3 border-t border-slate-800 flex items-center justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => setIsNewFulfillmentModalOpen(false)}
+                  className="py-2.5 px-5 rounded-xl text-xs font-semibold text-slate-400 hover:text-white bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 transition-colors cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="py-2.5 px-6 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-blue-600 via-indigo-600 to-sky-600 hover:from-blue-500 hover:to-sky-500 shadow-lg shadow-blue-500/25 flex items-center gap-2 transition-all transform active:scale-95 cursor-pointer"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                  </svg>
+                  <span>Create Fulfillment Order</span>
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
