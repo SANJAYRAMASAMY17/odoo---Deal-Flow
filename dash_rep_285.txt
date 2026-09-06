@@ -1,0 +1,186 @@
+        {/* =========================================================================
+            MODULE 4: FULFILLMENT & STOCK (LIST) — Exact Match to Excalidraw Wireframe #7!
+           ========================================================================= */}
+        {activeModule === 'Fulfillment' && (
+          <div className="space-y-8">
+            {/* Header matching Wireframe #7 */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div>
+                <h1 className="text-3xl font-extrabold tracking-tight text-white font-display">
+                  Fulfillment and Stock (List)
+                </h1>
+                <p className="mt-1 text-sm text-slate-400">
+                  Live stock per warehouse, plus every order that still needs fulfilling
+                </p>
+              </div>
+
+              {/* Warehouse Quick Rebalance Action & Summary */}
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => handleRebalanceStock('Main Warehouse', 'East Depot', 'Laptop Pro 14', 2)}
+                  className="py-2.5 px-4 rounded-xl text-xs font-semibold text-slate-200 bg-slate-800 hover:bg-slate-700 border border-slate-700 transition-all flex items-center gap-1.5 cursor-pointer"
+                  title="Simulate inter-depot stock transfer (Bhiwandi to Sriperumbudur)"
+                >
+                  <span>🔄 Rebalance Depots</span>
+                </button>
+                <div className="hidden sm:flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-900/80 border border-slate-800 text-xs text-slate-300">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400" />
+                  <span>2 Active Logistics Hubs</span>
+                </div>
+              </div>
+            </div>
+
+            {/* TABLE 1: Live Stock Per Warehouse (5 columns matching Wireframe #7) */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <h3 className="text-base font-bold font-display text-white flex items-center gap-2">
+                  <span>Warehouse Inventory Levels</span>
+                  <span className="text-xs font-mono font-normal text-slate-400">(Real-Time Multi-Depot Sync)</span>
+                </h3>
+                <span className="text-xs text-slate-400 font-mono">Bhiwandi Hub & Sriperumbudur Depot</span>
+              </div>
+
+              <div className="glass-card rounded-2xl border border-slate-700/80 overflow-hidden shadow-2xl">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-sm text-slate-300">
+                    <thead className="bg-slate-900/90 text-xs font-semibold text-slate-400 border-b border-slate-800">
+                      <tr>
+                        <th className="py-4 px-6">Warehouse</th>
+                        <th className="py-4 px-6">Product</th>
+                        <th className="py-4 px-6 font-mono text-center">In Stock</th>
+                        <th className="py-4 px-6 font-mono text-center">Reserved</th>
+                        <th className="py-4 px-6 font-mono text-center">Available</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-800/70 font-sans">
+                      {warehouseStock.map((stock) => (
+                        <tr key={stock.id} className="hover:bg-slate-800/30 transition-colors">
+                          {/* Warehouse */}
+                          <td className="py-4 px-6">
+                            <div className="font-semibold text-white flex items-center gap-2">
+                              <span>{stock.warehouse}</span>
+                              <span className="text-[10px] text-slate-400 font-mono hidden lg:inline">
+                                ({stock.hub})
+                              </span>
+                            </div>
+                          </td>
+
+                          {/* Product */}
+                          <td className="py-4 px-6 text-slate-200 font-medium">
+                            {stock.product}
+                          </td>
+
+                          {/* In Stock */}
+                          <td className="py-4 px-6 font-mono font-bold text-center text-slate-200">
+                            {stock.inStock}
+                          </td>
+
+                          {/* Reserved */}
+                          <td className="py-4 px-6 font-mono text-center text-amber-400 font-semibold">
+                            {stock.reserved}
+                          </td>
+
+                          {/* Available */}
+                          <td className="py-4 px-6 font-mono text-center">
+                            <span
+                              className={`inline-flex items-center px-3 py-0.5 rounded-full text-xs font-extrabold ${
+                                stock.available <= 5
+                                  ? 'bg-rose-500/20 text-rose-300 border border-rose-500/40'
+                                  : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
+                              }`}
+                            >
+                              {stock.available}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            {/* TABLE 2: Orders Awaiting Fulfillment matching Wireframe #7 */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <h3 className="text-xl font-extrabold font-display text-white">
+                  Orders Awaiting Fulfillment
+                </h3>
+                <span className="text-xs text-slate-400 font-mono">
+                  {fulfillmentOrders.filter(o => o.status !== 'Dispatched').length} Orders Pending Dispatch
+                </span>
+              </div>
+
+              <div className="glass-card rounded-2xl border border-slate-700/80 overflow-hidden shadow-2xl">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-sm text-slate-300">
+                    <thead className="bg-slate-900/90 text-xs font-semibold text-slate-400 border-b border-slate-800">
+                      <tr>
+                        <th className="py-4 px-6">Order</th>
+                        <th className="py-4 px-6">Customer</th>
+                        <th className="py-4 px-6">Status</th>
+                        <th className="py-4 px-6">Warehouses</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-800/70 font-sans">
+                      {fulfillmentOrders.map((order) => (
+                        <tr
+                          key={order.id}
+                          onClick={() => setSelectedFulfillmentOrder(order)}
+                          className="hover:bg-slate-800/40 transition-colors cursor-pointer group"
+                        >
+                          {/* Order ID */}
+                          <td className="py-4 px-6 font-mono text-sm font-bold text-white group-hover:text-amber-400 transition-colors">
+                            <div className="flex items-center gap-1.5">
+                              <span>{order.id}</span>
+                              <span className="text-xs text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity">→</span>
+                            </div>
+                          </td>
+
+                          {/* Customer */}
+                          <td className="py-4 px-6">
+                            <div className="font-semibold text-white">{order.customer}</div>
+                            <div className="text-[11px] text-slate-400">{order.city}</div>
+                          </td>
+
+                          {/* Status */}
+                          <td className="py-4 px-6">
+                            <span
+                              className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-extrabold tracking-wider border ${
+                                order.status === 'Split Pending'
+                                  ? 'bg-amber-500/20 text-amber-300 border-amber-500/40'
+                                  : order.status === 'Backorder'
+                                  ? 'bg-rose-500/20 text-rose-300 border-rose-500/40'
+                                  : order.status === 'Ready to Ship'
+                                  ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
+                                  : 'bg-sky-500/20 text-sky-300 border-sky-500/40'
+                              }`}
+                            >
+                              {order.status}
+                            </span>
+                          </td>
+
+                          {/* Warehouses */}
+                          <td className="py-4 px-6 font-medium text-slate-200">
+                            <span className="font-mono text-xs text-slate-300 bg-slate-800/70 px-2.5 py-1 rounded-lg border border-slate-700/60">
+                              {order.warehouses}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* Callout Banner matching Wireframe #7 */}
+              <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-200 text-xs sm:text-sm font-medium flex items-center justify-between gap-3 shadow-md">
+                <div className="flex items-center gap-2.5">
+                  <span className="text-base">📦</span>
+                  <span>Click an order row to open its warehouse split detail.</span>
+                </div>
+                <span className="text-xs text-amber-400/80 font-mono hidden sm:inline">Row Selection Active</span>
+              </div>
+            </div>
+          </div>
+        )}

@@ -1,0 +1,30 @@
+                    <button
+                      onClick={handleSubmitForApproval}
+                      className="py-3 px-7 rounded-xl font-semibold text-sm text-white bg-blue-600 hover:bg-blue-700 shadow-md shadow-blue-500/25 transition-all transform active:scale-95 cursor-pointer"
+                    >
+                      Submit for Approval
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              /* WIREFRAME #3 KANBAN LIST VIEW */
+              <div className="space-y-6">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  <div>
+                    <h1 className="text-3xl font-extrabold tracking-tight text-white font-display">
+                      Quotations (List)
+                    </h1>
+                    <p className="mt-1 text-sm text-slate-400">
+                      Every quotation in the system, one row per quotation, click a row to open it
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={() => openQuotationDetail(quotations[0])}
+                      className="py-2.5 px-4 rounded-xl font-semibold text-xs text-white bg-blue-600 hover:bg-blue-700 shadow-sm shadow-blue-500/20 flex items-center gap-1.5 transition-all cursor-pointer"
+                    >
+                      <span>Open Q-1042 Detail</span>
+                      <span>→</span>
+                    </button>

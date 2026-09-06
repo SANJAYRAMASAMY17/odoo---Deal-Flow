@@ -1,0 +1,5 @@
+    badge: 'Stock Synced',
+  },
+];
+
+// Initial Discount Tiers & Approval Chains matching Wireframe #18

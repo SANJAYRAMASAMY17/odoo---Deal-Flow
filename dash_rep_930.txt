@@ -1,0 +1,80 @@
+    showNotification(`Exporting Platform Usage & Commercial Ledger (XLS) for ${reportsSalesTeam}...`);
+  };
+
+  // Wireframe #16: Product Catalog States & Handlers
+  const [catalogProducts, setCatalogProducts] = useState(initialCatalogProducts);
+  const [selectedCatalogProduct, setSelectedCatalogProduct] = useState(null);
+  const [isNewProductModalOpen, setIsNewProductModalOpen] = useState(false);
+  const [isManagePriceFieldsModalOpen, setIsManagePriceFieldsModalOpen] = useState(false);
+  const [productCategoryFilter, setProductCategoryFilter] = useState('ALL'); // 'ALL' | 'Hardware' | 'Services' | 'Subscription'
+
+  const [newProductForm, setNewProductForm] = useState({
+    name: '',
+    category: 'Hardware',
+    priceUSD: '',
+    unit: 'Each',
+    tax: '15%',
+    variants: '-',
+    description: '',
+  });
+
+  const handleCreateNewProduct = (e) => {
+    if (e) e.preventDefault();
+    if (!newProductForm.name || !newProductForm.priceUSD) {
+      showNotification('Please enter a product name and base USD price.');
+      return;
+    }
+
+    const priceNum = Number(newProductForm.priceUSD.replace(/[^0-9.]/g, '')) || 100;
+    const priceINR = Math.round(priceNum * 83);
+    const generatedSku = `SKU-${newProductForm.name.slice(0, 4).toUpperCase()}-${getNextActivityId()}`;
+
+    const newProd = {
+      id: `PROD-${100 + catalogProducts.length + 1}`,
+      name: newProductForm.name,
+      sku: generatedSku,
+      category: newProductForm.category,
+      variants: newProductForm.variants || '-',
+      variantList: [],
+      priceUSD: `$${priceNum}`,
+      priceINR: priceINR,
+      unit: newProductForm.unit,
+      tax: newProductForm.tax,
+      taxRate: Number(newProductForm.tax.replace('%', '')) || 15,
+      taxCode: newProductForm.category === 'Services' ? 'SAC 9987 (Deployment)' : 'HSN 8471 (Appliance)',
+      status: 'Active',
+      description: newProductForm.description || 'Enterprise catalog equipment.',
+      discountLimit: 15,
+      tierPricing: [
+        { tier: 'Standard Indian Enterprise Tier 2026', currency: 'INR', price: formatINR(priceINR), discountLimit: '15%' },
+        { tier: 'Commercial Direct Tier', currency: 'INR', price: formatINR(Math.round(priceINR * 1.08)), discountLimit: '10%' },
+        { tier: 'Global Export USD Tier', currency: 'USD', price: `$${priceNum}`, discountLimit: '15%' },
+      ],
+    };
+
+    setCatalogProducts([newProd, ...catalogProducts]);
+    setIsNewProductModalOpen(false);
+    setNewProductForm({
+      name: '',
+      category: 'Hardware',
+      priceUSD: '',
+      unit: 'Each',
+      tax: '15%',
+      variants: '-',
+      description: '',
+    });
+
+    setActivities((prev) => [
+      {
+        id: getNextActivityId(),
+        title: `New product "${newProd.name}" (${newProd.sku}) added to catalog`,
+        category: 'Catalog Management',
+        time: 'Just now',
+        type: 'success',
+        badge: 'Product Added',
+      },
+      ...prev,
+    ]);
+
+    showNotification(`New product "${newProd.name}" added to catalog!`);
+  };

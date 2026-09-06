@@ -1,0 +1,1652 @@
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+
+// Indian currency formatters (en-IN comma grouping & Lakh/Crore notation)
+const formatINR = (val) => {
+  if (val === undefined || val === null || isNaN(val)) return '₹0';
+  return '₹' + Number(val).toLocaleString('en-IN');
+};
+
+const formatINRLakhCrore = (val) => {
+  if (val === undefined || val === null || isNaN(val)) return '₹0';
+  if (val >= 10000000) {
+    return `₹${(val / 10000000).toFixed(2)} Cr`;
+  }
+  if (val >= 100000) {
+    return `₹${(val / 100000).toFixed(2)} L`;
+  }
+  return '₹' + Number(val).toLocaleString('en-IN');
+};
+
+// Initial quotations matching wireframes #3, #4 and #5
+const initialQuotations = [
+  { 
+    id: 'Q-1042', 
+    client: 'Acme Corp', 
+    city: 'Bengaluru, Karnataka',
+    gstin: '29AABCA1234F1Z5',
+    title: 'Enterprise Hardware & Deployment Package', 
+    amount: 1240000, 
+    stage: 'Draft', 
+    contact: 'sarah.c@acme.com', 
+    priceList: 'Standard Indian Enterprise Tier 2026 (INR)',
+    date: '2026-09-04',
+    lineItems: [
+      { id: 1, product: 'Laptop Pro 14', qty: 2, price: 120000, discount: 12, limit: 15 },
+      { id: 2, product: 'Onsite Setup Service', qty: 1, price: 45000, discount: 18, limit: 10 },
+      { id: 3, product: 'Extended Warranty', qty: 1, price: 18000, discount: 10, limit: 15 },
+    ],
+    notes: 'Awaiting line-item discount review for onsite deployment service.'
+  },
+  { 
+    id: 'QT-1002', 
+    client: 'Delta LLC', 
+    city: 'Gurugram, Haryana',
+    gstin: '06AABCD5678G1Z2',
+    title: 'Operations Fleet Optimization', 
+    amount: 320000, 
+    stage: 'Draft', 
+    contact: 'ops@deltallc.io', 
+    priceList: 'Commercial Direct (INR)',
+    date: '2026-09-03',
+    lineItems: [
+      { id: 1, product: 'Fleet Tracking Module License', qty: 2, price: 160000, discount: 5, limit: 10 },
+    ],
+    notes: 'Initial scope draft shared with regional operations team.'
+  },
+  { 
+    id: 'QT-1003', 
+    client: 'Beta Industries', 
+    city: 'Pune, Maharashtra',
+    gstin: '27AABCB9101H1Z9',
+    title: 'Industrial Telemetry Sensor Network', 
+    amount: 2890000, 
+    stage: 'Pending Approval', 
+    contact: 'marcus.v@betaind.com', 
+    priceList: 'Manufacturing Wholesale Tier 1',
+    date: '2026-09-02',
+    lineItems: [
+      { id: 1, product: 'Industrial IoT Hub Appliance', qty: 5, price: 420000, discount: 15, limit: 10 },
+      { id: 2, product: 'API Ingestion Stream Tier 2', qty: 1, price: 790000, discount: 8, limit: 10 },
+    ],
+    notes: 'Client requested 15% discount adjustment; awaiting VP concession.'
+  },
+  { 
+    id: 'QT-1004', 
+    client: 'Nova Retail', 
+    city: 'Mumbai, Maharashtra',
+    gstin: '27AABCN3344J1Z1',
+    title: 'Omnichannel POS & Store Analytics', 
+    amount: 975000, 
+    stage: 'Approved', 
+    contact: 'elena.r@novaretail.com', 
+    priceList: 'Retail POS Package 2026',
+    date: '2026-09-01',
+    lineItems: [
+      { id: 1, product: 'Smart Retail Engine Annual License', qty: 3, price: 275000, discount: 10, limit: 15 },
+      { id: 2, product: 'Store Staff Onboarding', qty: 2, price: 75000, discount: 5, limit: 10 },
+    ],
+    notes: 'Approved by Finance on 2026-09-04. Ready for contract signing.'
+  },
+  { 
+    id: 'QT-1005', 
+    client: 'Zenith Co', 
+    city: 'Hyderabad, Telangana',
+    gstin: '36AABCZ7788K1Z3',
+    title: 'FinTech Compliance & Ledger Audit', 
+    amount: 1530000, 
+    stage: 'Negotiation', 
+    contact: 'compliance@zenithco.net', 
+    priceList: 'Banking & FinTech Custom',
+    date: '2026-08-30',
+    lineItems: [
+      { id: 1, product: 'RBI Automated Compliance Engine', qty: 1, price: 1250000, discount: 12, limit: 15 },
+      { id: 2, product: 'Custom Banking API Connectors', qty: 1, price: 280000, discount: 10, limit: 15 },
+    ],
+    notes: 'Final contract terms under redline negotiation with procurement.'
+  },
+  { 
+    id: 'QT-1006', 
+    client: 'Orion Ltd', 
+    city: 'Chennai, Tamil Nadu',
+    gstin: '33AABCO9900L1Z7',
+    title: 'Dedicated Cloud GPU Computing Node', 
+    amount: 4100000, 
+    stage: 'Confirmed', 
+    contact: 'tech@orionltd.ai', 
+    priceList: 'HPC Dedicated Cluster',
+    date: '2026-08-28',
+    lineItems: [
+      { id: 1, product: 'Dedicated H100 AI Server Node', qty: 1, price: 3600000, discount: 8, limit: 10 },
+      { id: 2, product: 'Direct Connect High-Speed Leased Line', qty: 1, price: 500000, discount: 5, limit: 10 },
+    ],
+    notes: 'Purchase order confirmed with 18% IGST. e-Invoice generated.'
+  },
+];
+
+// Initial Approvals data matching Wireframe #5
+const initialApprovals = [
+  {
+    id: 'APP-101',
+    quotationId: 'Q-1042',
+    customer: 'Acme Corp',
+    blendedRisk: 'HIGH',
+    stage: 'Sales Manager',
+    assignedTo: 'M. Shah',
+    status: 'Pending',
+    riskScore: 82,
+    factors: [
+      'Line item discount breach: Onsite Setup Service 18% vs 10% limit (+8pt).',
+      'Blended contract margin compressed to 32.4% (target: 40%).',
+      'Client relationship: High-value tier-1 account renewal.'
+    ],
+    auditTrail: [
+      { time: '09:15 AM (Today)', user: 'Arjun Mehta (Sales Rep)', action: 'Submitted Q-1042 for discount approval' },
+      { time: '09:16 AM (Today)', user: 'Risk Engine AI', action: 'Flagged HIGH risk (+8pt discount threshold breach)' },
+      { time: '09:20 AM (Today)', user: 'Workflow Router', action: 'Assigned to M. Shah (Sales Manager) for authorization' },
+    ]
+  },
+  {
+    id: 'APP-102',
+    quotationId: 'Q-1039',
+    customer: 'Beta Industries',
+    blendedRisk: 'MEDIUM',
+    stage: 'Finance',
+    assignedTo: 'R. Iyer',
+    status: 'Pending',
+    riskScore: 58,
+    factors: [
+      'Hardware gateway discount at 15% vs 10% limit (+5pt).',
+      'Contract payment terms: Net-45 requested instead of Net-30.',
+    ],
+    auditTrail: [
+      { time: 'Yesterday 04:30 PM', user: 'Nikhil Wagle (Rep)', action: 'Submitted commercial concession request' },
+      { time: 'Yesterday 05:15 PM', user: 'M. Shah (Sales Mgr)', action: 'Endorsed and escalated to Finance review' },
+      { time: 'Today 09:00 AM', user: 'Workflow Router', action: 'Assigned to R. Iyer (Finance Controller)' },
+    ]
+  },
+  {
+    id: 'APP-103',
+    quotationId: 'Q-1035',
+    customer: 'Nova Retail',
+    blendedRisk: 'LOW',
+    stage: 'Auto-Approved',
+    assignedTo: '-',
+    status: 'Approved',
+    riskScore: 18,
+    factors: [
+      'All discount percentages within predefined price book limits.',
+      'Gross margin exceeds 48% target.',
+    ],
+    auditTrail: [
+      { time: '2026-09-01 11:20 AM', user: 'Elena Roy (Rep)', action: 'Created quotation Q-1035' },
+      { time: '2026-09-01 11:21 AM', user: 'Rule Engine', action: 'Auto-approved: Zero threshold violations detected' },
+    ]
+  },
+  {
+    id: 'APP-104',
+    quotationId: 'Q-1038',
+    customer: 'Delta LLC',
+    blendedRisk: 'HIGH',
+    stage: 'Returned to Rep',
+    assignedTo: 'M. Shah',
+    status: 'Returned',
+    riskScore: 78,
+    factors: [
+      'Fleet license discount below 25% gross margin floor.',
+      'Returned for tenure extension or support add-on requirement.',
+    ],
+    auditTrail: [
+      { time: '2026-09-03 02:10 PM', user: 'Sales Rep', action: 'Submitted concession' },
+      { time: '2026-09-03 04:45 PM', user: 'M. Shah', action: 'Returned with comment: Please bundle 2yr warranty to offset margin' },
+    ]
+  },
+  {
+    id: 'APP-105',
+    quotationId: 'Q-1031',
+    customer: 'Zenith Co',
+    blendedRisk: 'MEDIUM',
+    stage: 'VP Commercial',
+    assignedTo: 'K. Menon',
+    status: 'Pending',
+    riskScore: 64,
+    factors: [
+      'Custom SLA penalty clauses requested by bank compliance.',
+    ],
+    auditTrail: [
+      { time: '2026-08-30', user: 'Legal Ops', action: 'Escalated to VP Commercial' },
+    ]
+  }
+];
+
+const initialActivities = [
+  {
+    id: 1,
+    title: 'Acme Corp quotation approved by Finance',
+    category: 'Finance Approval',
+    time: '12 mins ago',
+    type: 'success',
+    badge: 'Approved',
+  },
+  {
+    id: 2,
+    title: 'Beta Industries requested a discount change',
+    category: 'Quotation Update',
+    time: '1 hour ago',
+    type: 'warning',
+    badge: 'Pending Review',
+  },
+  {
+    id: 3,
+    title: 'East Depot stock updated for Order #2291',
+    category: 'Fulfillment & Inventory',
+    time: '3 hours ago',
+    type: 'info',
+    badge: 'Stock Synced',
+  },
+];
+
+const teamMembers = [
+  { initial: 'P', name: 'Pranav L. (Mumbai)', bg: 'bg-orange-500' },
+  { initial: 'G', name: 'Gaurav M. (Bengaluru)', bg: 'bg-sky-500' },
+  { initial: 'I', name: 'Isha K. (Delhi-NCR)', bg: 'bg-rose-500' },
+  { initial: 'S', name: 'Sneha R. (Hyderabad)', bg: 'bg-indigo-500' },
+  { initial: 'N', name: 'Nikhil W. (Pune)', bg: 'bg-amber-500' },
+  { initial: 'S', name: 'Sanjay T. (Chennai)', bg: 'bg-purple-500' },
+  { initial: 'S', name: 'Shreya B. (Kolkata)', bg: 'bg-pink-500' },
+  { initial: 'A', name: 'Alex M. (Ahmedabad)', bg: 'bg-emerald-500' },
+];
+
+const navModules = [
+  'Dashboard',
+  'Quotations',
+  'Approvals',
+  'Fulfillment',
+  'Subscriptions',
+  'Invoices',
+  'Deal Health',
+  'Reports',
+  'Product',
+];
+
+const kanbanStages = ['Draft', 'Pending Approval', 'Approved', 'Negotiation', 'Confirmed'];
+
+const Dashboard = ({ setIsAuthenticated }) => {
+  const navigate = useNavigate();
+  const [activeModule, setActiveModule] = useState('Dashboard');
+  const [quotations, setQuotations] = useState(initialQuotations);
+  const [approvals, setApprovals] = useState(initialApprovals);
+  const [activities, setActivities] = useState(initialActivities);
+
+  // View switch for Quotations list: 'board' or 'table'
+  const [quotationViewMode, setQuotationViewMode] = useState('board');
+
+  // Currently opened quotation for WIREFRAME #4 Quotation Detail View
+  const [activeQuotationDetail, setActiveQuotationDetail] = useState(null);
+
+  // Currently opened approval for WIREFRAME #5 Approval Detail Modal
+  const [selectedApprovalDetail, setSelectedApprovalDetail] = useState(null);
+
+  // Filter for Approvals page (Wireframe #5)
+  // 'ALL', 'Pending', 'Returned', 'Approved'
+  const [approvalFilter, setApprovalFilter] = useState('ALL');
+
+  // Toast notification
+  const [notification, setNotification] = useState(null);
+
+  const showNotification = (msg) => {
+    setNotification(msg);
+    setTimeout(() => setNotification(null), 3500);
+  };
+
+  // Approvals metrics
+  const pendingCount = approvals.filter((a) => a.status === 'Pending').length;
+  const returnedCount = approvals.filter((a) => a.status === 'Returned').length;
+  const approvedCount = 12; // Static base + approved items matching wireframe #5
+
+  // Quotation metrics
+  const openQuotationsCount = quotations.length;
+  const atRiskDealsCount = 3;
+  const totalPipelineValue = quotations.reduce((acc, q) => acc + q.amount, 0);
+
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+    navigate('/login');
+  };
+
+  // Open Quotation Detail (Wireframe #4)
+  const openQuotationDetail = (quote) => {
+    setActiveQuotationDetail(JSON.parse(JSON.stringify(quote)));
+    setActiveModule('Quotations');
+  };
+
+  // Open Approval Detail (Wireframe #5)
+  const openApprovalDetail = (app) => {
+    setSelectedApprovalDetail(app);
+  };
+
+  // 1-Click Approve in Approvals (Wireframe #5)
+  const handleApproveQuotation = (appId) => {
+    const app = approvals.find((a) => a.id === appId);
+    if (!app) return;
+
+    setApprovals(
+      approvals.map((a) => (a.id === appId ? { ...a, status: 'Approved', stage: 'Approved by ' + a.assignedTo } : a))
+    );
+
+    // Also update corresponding quotation in quotations list
+    setQuotations(
+      quotations.map((q) => (q.id === app.quotationId ? { ...q, stage: 'Approved' } : q))
+    );
+
+    setActivities([
+      {
+        id: Date.now(),
+        title: `${app.customer} quotation ${app.quotationId} approved by ${app.assignedTo}`,
+        category: 'Executive Approval',
+        time: 'Just now',
+        type: 'success',
+        badge: 'Approved',
+      },
+      ...activities,
+    ]);
+
+    if (selectedApprovalDetail && selectedApprovalDetail.id === appId) {
+      setSelectedApprovalDetail({
+        ...selectedApprovalDetail,
+        status: 'Approved',
+        stage: 'Approved by ' + app.assignedTo,
+        auditTrail: [
+          ...selectedApprovalDetail.auditTrail,
+          { time: 'Just now', user: app.assignedTo, action: 'Officially approved quotation discount & commercial terms' },
+        ],
+      });
+    }
+
+    showNotification(`Quotation ${app.quotationId} (${app.customer}) approved!`);
+  };
+
+  // 1-Click Return in Approvals (Wireframe #5)
+  const handleReturnQuotation = (appId) => {
+    const app = approvals.find((a) => a.id === appId);
+    if (!app) return;
+
+    setApprovals(
+      approvals.map((a) => (a.id === appId ? { ...a, status: 'Returned', stage: 'Returned to Sales Rep' } : a))
+    );
+
+    setQuotations(
+      quotations.map((q) => (q.id === app.quotationId ? { ...q, stage: 'Draft' } : q))
+    );
+
+    if (selectedApprovalDetail && selectedApprovalDetail.id === appId) {
+      setSelectedApprovalDetail({
+        ...selectedApprovalDetail,
+        status: 'Returned',
+        stage: 'Returned to Sales Rep',
+        auditTrail: [
+          ...selectedApprovalDetail.auditTrail,
+          { time: 'Just now', user: app.assignedTo, action: 'Returned with feedback: Margin concession rejected. Please adjust line discounts.' },
+        ],
+      });
+    }
+
+    showNotification(`Quotation ${app.quotationId} returned to sales representative.`);
+  };
+
+  // Line item updater in Quotation Detail (Wireframe #4)
+  const updateLineItem = (itemId, field, value) => {
+    if (!activeQuotationDetail) return;
+    const updatedItems = activeQuotationDetail.lineItems.map((item) => {
+      if (item.id === itemId) {
+        return { ...item, [field]: value };
+      }
+      return item;
+    });
+
+    const newTotal = updatedItems.reduce((acc, item) => {
+      const lineSubtotal = (parseFloat(item.price) || 0) * (parseInt(item.qty) || 1);
+      const lineDiscount = lineSubtotal * ((parseFloat(item.discount) || 0) / 100);
+      return acc + (lineSubtotal - lineDiscount);
+    }, 0);
+
+    setActiveQuotationDetail({
+      ...activeQuotationDetail,
+      lineItems: updatedItems,
+      amount: newTotal,
+    });
+  };
+
+  // Upsell adder
+  const addUpsellItem = (productName, price, promoDiscount = 0, limit = 15) => {
+    if (!activeQuotationDetail) return;
+    const newItem = {
+      id: Date.now(),
+      product: productName,
+      qty: 1,
+      price: price,
+      discount: promoDiscount,
+      limit: limit,
+    };
+    const updatedItems = [...activeQuotationDetail.lineItems, newItem];
+    const newTotal = updatedItems.reduce((acc, item) => {
+      const lineSubtotal = (parseFloat(item.price) || 0) * (parseInt(item.qty) || 1);
+      const lineDiscount = lineSubtotal * ((parseFloat(item.discount) || 0) / 100);
+      return acc + (lineSubtotal - lineDiscount);
+    }, 0);
+
+    setActiveQuotationDetail({
+      ...activeQuotationDetail,
+      lineItems: updatedItems,
+      amount: newTotal,
+    });
+
+    showNotification(`Added ${productName} to quotation line items!`);
+  };
+
+  const deleteLineItem = (itemId) => {
+    if (!activeQuotationDetail) return;
+    const updatedItems = activeQuotationDetail.lineItems.filter((i) => i.id !== itemId);
+    const newTotal = updatedItems.reduce((acc, item) => {
+      const lineSubtotal = (parseFloat(item.price) || 0) * (parseInt(item.qty) || 1);
+      const lineDiscount = lineSubtotal * ((parseFloat(item.discount) || 0) / 100);
+      return acc + (lineSubtotal - lineDiscount);
+    }, 0);
+
+    setActiveQuotationDetail({
+      ...activeQuotationDetail,
+      lineItems: updatedItems,
+      amount: newTotal,
+    });
+  };
+
+  const handleSaveDraft = () => {
+    if (!activeQuotationDetail) return;
+    setQuotations(
+      quotations.map((q) => (q.id === activeQuotationDetail.id ? activeQuotationDetail : q))
+    );
+    showNotification(`Quotation ${activeQuotationDetail.id} draft saved.`);
+  };
+
+  const handleSubmitForApproval = () => {
+    if (!activeQuotationDetail) return;
+    const hasOverLimitDiscount = activeQuotationDetail.lineItems.some(
+      (item) => parseFloat(item.discount) > parseFloat(item.limit)
+    );
+
+    const updated = {
+      ...activeQuotationDetail,
+      stage: 'Pending Approval',
+    };
+
+    setQuotations(
+      quotations.map((q) => (q.id === activeQuotationDetail.id ? updated : q))
+    );
+    setActiveQuotationDetail(updated);
+
+    // Also add to approvals queue
+    const existingApp = approvals.find((a) => a.quotationId === activeQuotationDetail.id);
+    if (!existingApp) {
+      setApprovals([
+        {
+          id: `APP-${Date.now()}`,
+          quotationId: activeQuotationDetail.id,
+          customer: activeQuotationDetail.client,
+          blendedRisk: hasOverLimitDiscount ? 'HIGH' : 'LOW',
+          stage: 'Sales Manager',
+          assignedTo: 'M. Shah',
+          status: 'Pending',
+          riskScore: hasOverLimitDiscount ? 82 : 25,
+          factors: hasOverLimitDiscount
+            ? ['Discount limit breach: One or more items exceed line limit threshold.']
+            : ['Standard approval routing.'],
+          auditTrail: [
+            { time: 'Just now', user: 'Sales Representative', action: 'Submitted for discount approval' },
+            { time: 'Just now', user: 'Risk Engine', action: hasOverLimitDiscount ? 'Flagged HIGH risk' : 'LOW risk' }
+          ]
+        },
+        ...approvals,
+      ]);
+    }
+
+    showNotification(`Quotation ${updated.id} submitted to Approvals Queue!`);
+  };
+
+  // Filtered approvals list
+  const filteredApprovals = approvals.filter((a) => {
+    if (approvalFilter === 'Pending') return a.status === 'Pending';
+    if (approvalFilter === 'Returned') return a.status === 'Returned';
+    if (approvalFilter === 'Approved') return a.status === 'Approved';
+    return true;
+  });
+
+  return (
+    <div className="min-h-screen bg-[#080c14] text-slate-100 font-sans flex flex-col selection:bg-amber-500 selection:text-white">
+      {/* Top Header Bar */}
+      <header className="sticky top-0 z-40 bg-[#0b1222]/95 backdrop-blur-xl border-b border-slate-800/80 shadow-xl px-4 lg:px-8 py-2.5">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
+          {/* Brand Logo & Tag */}
+          <div 
+            onClick={() => {
+              setActiveQuotationDetail(null);
+              setActiveModule('Dashboard');
+            }}
+            className="flex items-center gap-3 shrink-0 cursor-pointer"
+          >
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-amber-500 via-blue-600 to-emerald-500 flex items-center justify-center shadow-md shadow-amber-500/20 ring-1 ring-white/20">
+              <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-xl font-extrabold font-display tracking-tight text-white">
+                DealFlow<span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-sky-400 to-emerald-400">360</span>
+              </span>
+              <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-800/90 border border-slate-700 text-[10px] font-semibold text-slate-300">
+                <span>🇮🇳</span>
+                <span>India • GST Ready</span>
+              </span>
+            </div>
+          </div>
+
+          {/* 9 Navigation Module Tabs */}
+          <nav className="flex items-center gap-1 overflow-x-auto py-1 px-1 scrollbar-none max-w-2xl lg:max-w-3xl">
+            {navModules.map((module) => (
+              <button
+                key={module}
+                onClick={() => {
+                  setActiveModule(module);
+                  if (module !== 'Quotations') {
+                    setActiveQuotationDetail(null);
+                  }
+                }}
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all whitespace-nowrap cursor-pointer ${
+                  activeModule === module
+                    ? 'bg-gradient-to-r from-amber-500 to-blue-600 text-white shadow-md shadow-amber-500/20 font-semibold ring-1 ring-white/20'
+                    : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
+                }`}
+              >
+                {module}
+              </button>
+            ))}
+          </nav>
+
+          {/* Right Section: Team Presence + Logout */}
+          <div className="flex items-center gap-3 shrink-0">
+            <div className="hidden xl:flex items-center -space-x-1.5" title="Indian regional sales team">
+              {teamMembers.map((member, i) => (
+                <div
+                  key={i}
+                  className={`w-7 h-7 rounded-full ${member.bg} border-2 border-[#0b1222] flex items-center justify-center text-[10px] font-bold text-white shadow-sm hover:z-10 hover:scale-110 transition-transform cursor-pointer`}
+                  title={member.name}
+                >
+                  {member.initial}
+                </div>
+              ))}
+            </div>
+
+            <button
+              onClick={handleLogout}
+              className="p-2 rounded-xl text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 border border-transparent hover:border-rose-500/20 transition-all cursor-pointer"
+              title="Sign Out"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {/* Floating Toast Notification */}
+      {notification && (
+        <div className="fixed bottom-6 right-6 z-50 py-3 px-5 rounded-2xl bg-amber-500 text-slate-950 font-semibold text-xs shadow-2xl flex items-center gap-2 animate-bounce">
+          <span>⚡</span>
+          <span>{notification}</span>
+        </div>
+      )}
+
+      {/* Main Content Area */}
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-8 py-8 space-y-8">
+        {/* =========================================================================
+            MODULE 1: DASHBOARD (HOME)
+           ========================================================================= */}
+        {activeModule === 'Dashboard' && (
+          <div className="space-y-8">
+            <div>
+              <div className="flex items-center gap-2 mb-1">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                <span className="text-xs font-semibold uppercase tracking-wider text-emerald-400">DealFlow360 India • IST (UTC+5:30)</span>
+              </div>
+              <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white font-display">
+                Sales Dashboard / Home
+              </h1>
+              <p className="mt-1 text-sm text-slate-400">
+                Central hub, links out to every module below
+              </p>
+            </div>
+
+            {/* 3 Core Metric Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+              <div
+                onClick={() => setActiveModule('Approvals')}
+                className="group glass-card glass-card-hover rounded-2xl p-6 border border-slate-700/70 cursor-pointer relative overflow-hidden"
+              >
+                <div className="absolute top-0 right-0 w-28 h-28 bg-amber-500/10 rounded-full blur-2xl group-hover:bg-amber-500/20 transition-all pointer-events-none" />
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-xs font-bold uppercase tracking-wider text-amber-400/90 flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-amber-400" />
+                    Pending Approvals
+                  </span>
+                  <span className="p-2 rounded-xl bg-amber-500/10 text-amber-400 group-hover:scale-110 transition-transform">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </span>
+                </div>
+                <div className="text-2xl sm:text-3xl font-extrabold text-white font-display">
+                  {pendingCount} quotations waiting
+                </div>
+                <p className="mt-2 text-xs text-slate-400 flex items-center gap-1">
+                  <span>Awaiting VP / Finance authorization</span>
+                  <span className="text-amber-400 group-hover:translate-x-1 transition-transform">→</span>
+                </p>
+              </div>
+
+              <div
+                onClick={() => {
+                  setActiveQuotationDetail(null);
+                  setActiveModule('Quotations');
+                }}
+                className="group glass-card glass-card-hover rounded-2xl p-6 border border-slate-700/70 cursor-pointer relative overflow-hidden"
+              >
+                <div className="absolute top-0 right-0 w-28 h-28 bg-sky-500/10 rounded-full blur-2xl group-hover:bg-sky-500/20 transition-all pointer-events-none" />
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-xs font-bold uppercase tracking-wider text-sky-400 flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-sky-400" />
+                    Open Quotations
+                  </span>
+                  <span className="p-2 rounded-xl bg-sky-500/10 text-sky-400 group-hover:scale-110 transition-transform">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                    </svg>
+                  </span>
+                </div>
+                <div className="text-2xl sm:text-3xl font-extrabold text-white font-display">
+                  {openQuotationsCount} active deals
+                </div>
+                <p className="mt-2 text-xs text-slate-400 flex items-center gap-1">
+                  <span>Total volume: {formatINRLakhCrore(totalPipelineValue)}</span>
+                  <span className="text-sky-400 group-hover:translate-x-1 transition-transform">→</span>
+                </p>
+              </div>
+
+              <div
+                onClick={() => setActiveModule('Deal Health')}
+                className="group glass-card glass-card-hover rounded-2xl p-6 border border-slate-700/70 cursor-pointer relative overflow-hidden"
+              >
+                <div className="absolute top-0 right-0 w-28 h-28 bg-rose-500/10 rounded-full blur-2xl group-hover:bg-rose-500/20 transition-all pointer-events-none" />
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-xs font-bold uppercase tracking-wider text-rose-400 flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-rose-400" />
+                    At-Risk Deals
+                  </span>
+                  <span className="p-2 rounded-xl bg-rose-500/10 text-rose-400 group-hover:scale-110 transition-transform">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                    </svg>
+                  </span>
+                </div>
+                <div className="text-2xl sm:text-3xl font-extrabold text-white font-display">
+                  {atRiskDealsCount} flagged by Deal Health
+                </div>
+                <p className="mt-2 text-xs text-slate-400 flex items-center gap-1">
+                  <span>Discount & procurement delays</span>
+                  <span className="text-rose-400 group-hover:translate-x-1 transition-transform">→</span>
+                </p>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex items-center gap-3.5">
+              <button
+                onClick={() => openQuotationDetail(quotations[0])}
+                className="py-3 px-6 rounded-xl font-semibold text-sm text-white bg-gradient-to-r from-amber-500 via-blue-600 to-emerald-600 hover:from-amber-400 hover:to-emerald-500 shadow-xl shadow-amber-500/20 ring-1 ring-white/20 transition-all transform active:scale-95 flex items-center gap-2 cursor-pointer"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                </svg>
+                <span>Open Quotation Q-1042 (Detail View)</span>
+              </button>
+
+              <button
+                onClick={() => setActiveModule('Approvals')}
+                className="py-3 px-6 rounded-xl font-semibold text-sm text-slate-200 bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700/80 hover:border-slate-600 shadow-md transition-all flex items-center gap-2 cursor-pointer"
+              >
+                <svg className="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>View Approvals ({pendingCount})</span>
+              </button>
+            </div>
+
+            {/* Recent Activity */}
+            <div className="glass-card rounded-3xl p-6 sm:p-8 border border-slate-700/60 shadow-xl space-y-6">
+              <div className="flex items-center justify-between border-b border-slate-800/80 pb-4">
+                <div>
+                  <h2 className="text-xl font-bold font-display text-white">Recent Activity</h2>
+                  <p className="text-xs text-slate-400 mt-0.5">Live operational event log and GST audit stream across Indian hubs</p>
+                </div>
+                <span className="text-xs text-amber-400 font-medium bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/20">
+                  IST Realtime
+                </span>
+              </div>
+
+              <div className="space-y-3 font-sans">
+                {activities.map((item) => (
+                  <div
+                    key={item.id}
+                    className="flex items-start sm:items-center justify-between p-4 rounded-2xl bg-slate-900/50 hover:bg-slate-800/40 border border-slate-800 transition-all gap-4"
+                  >
+                    <div className="flex items-center gap-3.5">
+                      <div
+                        className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
+                          item.type === 'success'
+                            ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
+                            : item.type === 'warning'
+                            ? 'bg-amber-500/15 text-amber-400 border border-amber-500/30'
+                            : 'bg-sky-500/15 text-sky-400 border border-sky-500/30'
+                        }`}
+                      >
+                        {item.type === 'success' ? (
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                          </svg>
+                        ) : item.type === 'warning' ? (
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+                          </svg>
+                        ) : (
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
+                          </svg>
+                        )}
+                      </div>
+
+                      <div>
+                        <div className="text-sm font-semibold text-white tracking-tight">
+                          {item.title}
+                        </div>
+                        <div className="text-xs text-slate-400 flex items-center gap-2 mt-0.5">
+                          <span>{item.category}</span>
+                          <span>•</span>
+                          <span>{item.time}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <span
+                      className={`hidden sm:inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border ${
+                        item.type === 'success'
+                          ? 'bg-emerald-500/10 text-emerald-300 border-emerald-500/20'
+                          : item.type === 'warning'
+                          ? 'bg-amber-500/10 text-amber-300 border-amber-500/20'
+                          : 'bg-sky-500/10 text-sky-300 border-sky-500/20'
+                      }`}
+                    >
+                      {item.badge}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* =========================================================================
+            MODULE 2: QUOTATIONS
+           ========================================================================= */}
+        {activeModule === 'Quotations' && (
+          <div>
+            {activeQuotationDetail ? (
+              /* WIREFRAME #4 VIEW */
+              <div className="space-y-6">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+                  <div>
+                    <button
+                      onClick={() => setActiveQuotationDetail(null)}
+                      className="inline-flex items-center gap-1.5 text-xs text-amber-400 hover:text-amber-300 transition-colors font-medium mb-2 cursor-pointer"
+                    >
+                      <span>←</span>
+                      <span>Back to Quotations List</span>
+                    </button>
+                    <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white font-display">
+                      Quotation Detail: {activeQuotationDetail.id} ({activeQuotationDetail.client})
+                    </h1>
+                    <p className="mt-1 text-xs sm:text-sm text-slate-400">
+                      Opened by clicking a row on the Quotations list. Add products, apply discounts, review upsells.
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-slate-400">Current Stage:</span>
+                    <span className={`px-3 py-1 rounded-full text-xs font-bold border ${
+                      activeQuotationDetail.stage === 'Pending Approval' ? 'bg-amber-500/20 text-amber-300 border-amber-500/40' :
+                      activeQuotationDetail.stage === 'Approved' ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40' :
+                      activeQuotationDetail.stage === 'Confirmed' ? 'bg-sky-500/20 text-sky-300 border-sky-500/40' :
+                      'bg-slate-800 text-slate-300 border-slate-700'
+                    }`}>
+                      {activeQuotationDetail.stage}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                      Customer
+                    </label>
+                    <input
+                      type="text"
+                      value={activeQuotationDetail.client}
+                      onChange={(e) => setActiveQuotationDetail({ ...activeQuotationDetail, client: e.target.value })}
+                      className="w-full py-3 px-4 rounded-xl glass-input text-sm text-white outline-none"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                      Price List
+                    </label>
+                    <select
+                      value={activeQuotationDetail.priceList || 'Standard Indian Enterprise Tier 2026 (INR)'}
+                      onChange={(e) => setActiveQuotationDetail({ ...activeQuotationDetail, priceList: e.target.value })}
+                      className="w-full py-3 px-4 rounded-xl glass-input text-sm text-white outline-none bg-slate-900 cursor-pointer"
+                    >
+                      <option value="Standard Indian Enterprise Tier 2026 (INR)">Standard Indian Enterprise Tier 2026 (INR)</option>
+                      <option value="Commercial Direct (INR)">Commercial Direct (INR)</option>
+                      <option value="Manufacturing Wholesale Tier 1">Manufacturing Wholesale Tier 1</option>
+                      <option value="Retail POS Package 2026">Retail POS Package 2026</option>
+                      <option value="HPC Dedicated Cluster">HPC Dedicated Cluster</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* Line Item Table */}
+                <div className="glass-card rounded-2xl border border-slate-700/80 overflow-hidden shadow-2xl">
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left text-sm text-slate-300">
+                      <thead className="bg-slate-900/90 text-xs font-semibold text-slate-400 border-b border-slate-800">
+                        <tr>
+                          <th className="py-3.5 px-6">Product</th>
+                          <th className="py-3.5 px-4 text-center">Qty</th>
+                          <th className="py-3.5 px-6">Price</th>
+                          <th className="py-3.5 px-6">Discount</th>
+                          <th className="py-3.5 px-4 text-center">Limit</th>
+                          <th className="py-3.5 px-6 text-center">Status</th>
+                          <th className="py-3.5 px-4 text-right"></th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-800/70 font-sans">
+                        {activeQuotationDetail.lineItems && activeQuotationDetail.lineItems.map((item) => {
+                          const discountNum = parseFloat(item.discount) || 0;
+                          const limitNum = parseFloat(item.limit) || 0;
+                          const isOverLimit = discountNum > limitNum;
+                          const excessPts = (discountNum - limitNum).toFixed(0);
+
+                          return (
+                            <tr key={item.id} className="hover:bg-slate-800/30 transition-colors">
+                              <td className="py-4 px-6 font-semibold text-white">{item.product}</td>
+                              <td className="py-4 px-4 text-center">
+                                <input
+                                  type="number"
+                                  min="1"
+                                  value={item.qty}
+                                  onChange={(e) => updateLineItem(item.id, 'qty', parseInt(e.target.value) || 1)}
+                                  className="w-14 py-1.5 px-2 rounded-lg bg-slate-900 border border-slate-700 text-center text-xs text-white outline-none"
+                                />
+                              </td>
+                              <td className="py-4 px-6 font-mono font-bold text-white">{formatINR(item.price)}</td>
+                              <td className="py-4 px-6">
+                                <div className="flex items-center gap-1">
+                                  <input
+                                    type="number"
+                                    min="0"
+                                    max="100"
+                                    value={item.discount}
+                                    onChange={(e) => updateLineItem(item.id, 'discount', parseFloat(e.target.value) || 0)}
+                                    className={`w-16 py-1.5 px-2 rounded-lg font-mono text-center text-xs outline-none ${
+                                      isOverLimit 
+                                        ? 'bg-amber-500/15 text-amber-300 border border-amber-500/50' 
+                                        : 'bg-slate-900 text-white border border-slate-700'
+                                    }`}
+                                  />
+                                  <span className="text-xs text-slate-400">%</span>
+                                </div>
+                              </td>
+                              <td className="py-4 px-4 text-center font-mono text-xs text-slate-400">{item.limit}%</td>
+                              <td className="py-4 px-6 text-center">
+                                {isOverLimit ? (
+                                  <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-amber-500/20 text-amber-300 border border-amber-500/50 animate-pulse">
+                                    OVER (+{excessPts}pt)
+                                  </span>
+                                ) : (
+                                  <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+                                    OK
+                                  </span>
+                                )}
+                              </td>
+                              <td className="py-4 px-4 text-right">
+                                <button
+                                  onClick={() => deleteLineItem(item.id)}
+                                  className="p-1.5 rounded-lg text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 transition-colors cursor-pointer"
+                                  title="Delete Line"
+                                >
+                                  ✕
+                                </button>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                {/* Live discount banner */}
+                <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-200 text-xs sm:text-sm font-medium flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                    </svg>
+                  </div>
+                  <span>
+                    <strong>Discount is checked against each line's own limit live,</strong> as soon as it is entered, not only at submit time. Lines flagged <span className="font-bold text-amber-300">OVER (+pt)</span> require VP / Finance sign-off upon submission.
+                  </span>
+                </div>
+
+                {/* Upsell Cards */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-base font-bold font-display text-white">Upsell and Cross-Sell Suggestions</h3>
+                    <span className="text-xs text-slate-400">Click any card to add to quote</span>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div
+                      onClick={() => addUpsellItem('Ergonomic Wireless Mouse', 1800, 0, 15)}
+                      className="group glass-card glass-card-hover rounded-2xl p-4 border border-slate-700/80 cursor-pointer flex flex-col justify-between space-y-2 transform hover:-translate-y-1 transition-all"
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-bold text-white group-hover:text-amber-300">+ Wireless Mouse</span>
+                        <span className="text-xs font-mono font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">Margin +₹1,800</span>
+                      </div>
+                      <p className="text-xs text-slate-400">Precision ergonomic peripheral for enterprise workstations.</p>
+                      <div className="pt-2 text-[11px] text-amber-400 font-semibold group-hover:underline">+ Add to Quotation →</div>
+                    </div>
+
+                    <div
+                      onClick={() => addUpsellItem('Thunderbolt Universal Docking Station', 18500, 12, 15)}
+                      className="group glass-card glass-card-hover rounded-2xl p-4 border border-slate-700/80 cursor-pointer flex flex-col justify-between space-y-2 transform hover:-translate-y-1 transition-all"
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-bold text-white group-hover:text-amber-300">+ Docking Station</span>
+                        <span className="text-xs font-mono font-bold text-sky-400 bg-sky-500/10 px-2 py-0.5 rounded-full border border-sky-500/20">Promo: 12% off</span>
+                      </div>
+                      <p className="text-xs text-slate-400">Dual 4K display output & 100W Power Delivery hub.</p>
+                      <div className="pt-2 text-[11px] text-amber-400 font-semibold group-hover:underline">+ Add to Quotation →</div>
+                    </div>
+
+                    <div
+                      onClick={() => addUpsellItem('Enterprise Extended Care Plan (2 Year)', 45000, 5, 10)}
+                      className="group glass-card glass-card-hover rounded-2xl p-4 border border-slate-700/80 cursor-pointer flex flex-col justify-between space-y-2 transform hover:-translate-y-1 transition-all"
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-bold text-white group-hover:text-amber-300">+ Care Plan 2yr</span>
+                        <span className="text-xs font-mono font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">Margin +₹4,500</span>
+                      </div>
+                      <p className="text-xs text-slate-400">Priority replacement warranty & on-site technician coverage.</p>
+                      <div className="pt-2 text-[11px] text-amber-400 font-semibold group-hover:underline">+ Add to Quotation →</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Summary & Buttons */}
+                <div className="glass-card rounded-2xl p-6 border border-slate-700 flex flex-col md:flex-row items-center justify-between gap-6">
+                  <div className="space-y-1 font-mono text-xs w-full md:w-auto">
+                    <div className="text-slate-400">Taxable Subtotal: <span className="text-white font-bold">{formatINR(activeQuotationDetail.amount)}</span></div>
+                    <div className="text-slate-400">GST (18%): <span className="text-amber-300 font-bold">{formatINR(activeQuotationDetail.amount * 0.18)}</span></div>
+                    <div className="text-sm text-white font-extrabold pt-1 border-t border-slate-800">Commercial Total: <span className="text-emerald-400 text-lg">{formatINR(activeQuotationDetail.amount * 1.18)}</span></div>
+                  </div>
+
+                  <div className="flex items-center gap-3 w-full md:w-auto justify-end">
+                    <button
+                      onClick={handleSaveDraft}
+                      className="py-3 px-6 rounded-xl font-semibold text-sm text-slate-200 bg-slate-800 hover:bg-slate-700 border border-slate-700 shadow-md transition-all cursor-pointer"
+                    >
+                      Save Draft
+                    </button>
+                    <button
+                      onClick={handleSubmitForApproval}
+                      className="py-3 px-7 rounded-xl font-semibold text-sm text-white bg-gradient-to-r from-amber-500 via-blue-600 to-emerald-600 hover:from-amber-400 hover:to-emerald-500 shadow-xl shadow-amber-500/25 transition-all transform active:scale-95 cursor-pointer"
+                    >
+                      Submit for Approval
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              /* WIREFRAME #3 KANBAN LIST VIEW */
+              <div className="space-y-6">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  <div>
+                    <h1 className="text-3xl font-extrabold tracking-tight text-white font-display">
+                      Quotations (List)
+                    </h1>
+                    <p className="mt-1 text-sm text-slate-400">
+                      Every quotation in the system, one row per quotation, click a row to open it
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={() => openQuotationDetail(quotations[0])}
+                      className="py-2.5 px-4 rounded-xl font-semibold text-xs text-white bg-gradient-to-r from-amber-500 to-blue-600 hover:from-amber-400 hover:to-blue-500 shadow-md shadow-amber-500/20 flex items-center gap-1.5 transition-all cursor-pointer"
+                    >
+                      <span>Open Q-1042 Detail</span>
+                      <span>→</span>
+                    </button>
+
+                    <button
+                      onClick={() => setQuotationViewMode(quotationViewMode === 'board' ? 'table' : 'board')}
+                      className="py-2.5 px-4 rounded-xl font-medium text-xs text-slate-200 bg-slate-800 hover:bg-slate-700 border border-slate-700 transition-all flex items-center gap-1.5 cursor-pointer"
+                    >
+                      {quotationViewMode === 'board' ? 'Switch to Table View' : 'Switch to Board View'}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+                  {kanbanStages.map((stageName) => {
+                    const stageQuotes = quotations.filter((q) => q.stage === stageName);
+                    const stageTotal = stageQuotes.reduce((acc, q) => acc + q.amount, 0);
+
+                    return (
+                      <div
+                        key={stageName}
+                        className="glass-card rounded-2xl p-4 border border-slate-700/70 flex flex-col min-h-[480px] bg-slate-900/40"
+                      >
+                        <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-800">
+                          <div className="flex items-center gap-2">
+                            <span className={`w-2 h-2 rounded-full ${
+                              stageName === 'Draft' ? 'bg-slate-400' :
+                              stageName === 'Pending Approval' ? 'bg-amber-400' :
+                              stageName === 'Approved' ? 'bg-emerald-400' :
+                              stageName === 'Negotiation' ? 'bg-indigo-400' : 'bg-sky-400'
+                            }`} />
+                            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-200">{stageName}</h3>
+                          </div>
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-800 text-slate-300">
+                            {stageQuotes.length}
+                          </span>
+                        </div>
+
+                        <div className="flex-1 space-y-3">
+                          {stageQuotes.map((quote) => (
+                            <div
+                              key={quote.id}
+                              onClick={() => openQuotationDetail(quote)}
+                              className="p-3.5 rounded-xl bg-slate-800/70 hover:bg-slate-800 border border-slate-700/80 hover:border-amber-500/50 shadow-md transition-all cursor-pointer group transform hover:-translate-y-0.5"
+                            >
+                              <div className="flex items-center justify-between text-xs font-bold text-white mb-1">
+                                <span className="group-hover:text-amber-300 transition-colors">{quote.client}</span>
+                                <span className="font-mono text-amber-400 font-extrabold">{formatINR(quote.amount)}</span>
+                              </div>
+                              <p className="text-[11px] text-slate-400 line-clamp-1 mb-2">{quote.title}</p>
+                              <div className="flex items-center justify-between text-[10px] text-slate-500 pt-2 border-t border-slate-700/50">
+                                <span>{quote.id}</span>
+                                <span className="group-hover:text-amber-400 flex items-center gap-0.5 transition-colors">
+                                  <span>Click to open</span>
+                                  <span>→</span>
+                                </span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+
+                        <div className="pt-3 mt-3 border-t border-slate-800/80 text-right">
+                          <span className="text-[10px] text-slate-500 uppercase tracking-wider block">Stage Volume</span>
+                          <span className="text-xs font-bold text-slate-300 font-mono">{formatINRLakhCrore(stageTotal)}</span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* =========================================================================
+            MODULE 3: APPROVALS (LIST) — Exact Match to Excalidraw Wireframe #5!
+           ========================================================================= */}
+        {activeModule === 'Approvals' && (
+          <div className="space-y-6">
+            {/* Header matching Wireframe #5 */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div>
+                <h1 className="text-3xl font-extrabold tracking-tight text-white font-display">
+                  Approvals (List)
+                </h1>
+                <p className="mt-1 text-sm text-slate-400">
+                  Every quotation that needed, needs, or is going through discount approval
+                </p>
+              </div>
+
+              {/* Status Metric Filter Badges from Wireframe #5 */}
+              <div className="flex items-center gap-2.5">
+                {/* 3 Pending Badge */}
+                <button
+                  onClick={() => setApprovalFilter(approvalFilter === 'Pending' ? 'ALL' : 'Pending')}
+                  className={`py-2 px-4 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
+                    approvalFilter === 'Pending'
+                      ? 'bg-amber-500 text-slate-950 shadow-lg shadow-amber-500/25 ring-2 ring-white/30'
+                      : 'bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40'
+                  }`}
+                >
+                  <span className="w-2 h-2 rounded-full bg-amber-400" />
+                  <span>{pendingCount} Pending</span>
+                </button>
+
+                {/* 1 Returned Badge */}
+                <button
+                  onClick={() => setApprovalFilter(approvalFilter === 'Returned' ? 'ALL' : 'Returned')}
+                  className={`py-2 px-4 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
+                    approvalFilter === 'Returned'
+                      ? 'bg-rose-500 text-white shadow-lg shadow-rose-500/25 ring-2 ring-white/30'
+                      : 'bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/40'
+                  }`}
+                >
+                  <span className="w-2 h-2 rounded-full bg-rose-400" />
+                  <span>{returnedCount} Returned</span>
+                </button>
+
+                {/* 12 Approved Badge */}
+                <button
+                  onClick={() => setApprovalFilter(approvalFilter === 'Approved' ? 'ALL' : 'Approved')}
+                  className={`py-2 px-4 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
+                    approvalFilter === 'Approved'
+                      ? 'bg-emerald-500 text-slate-950 shadow-lg shadow-emerald-500/25 ring-2 ring-white/30'
+                      : 'bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40'
+                  }`}
+                >
+                  <span className="w-2 h-2 rounded-full bg-emerald-400" />
+                  <span>{approvedCount} Approved</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Approvals Table (5 Columns matching Wireframe #5) */}
+            <div className="glass-card rounded-2xl border border-slate-700/80 overflow-hidden shadow-2xl">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-sm text-slate-300">
+                  <thead className="bg-slate-900/90 text-xs font-semibold text-slate-400 border-b border-slate-800">
+                    <tr>
+                      <th className="py-4 px-6">Quotation</th>
+                      <th className="py-4 px-6">Customer</th>
+                      <th className="py-4 px-6">Blended Risk</th>
+                      <th className="py-4 px-6">Stage</th>
+                      <th className="py-4 px-6">Assigned To</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-800/70 font-sans">
+                    {filteredApprovals.map((item) => (
+                      <tr
+                        key={item.id}
+                        onClick={() => openApprovalDetail(item)}
+                        className="hover:bg-slate-800/40 transition-colors cursor-pointer group"
+                      >
+                        {/* Quotation ID */}
+                        <td className="py-4 px-6 font-mono text-sm font-bold text-white group-hover:text-amber-400 transition-colors">
+                          {item.quotationId}
+                        </td>
+
+                        {/* Customer */}
+                        <td className="py-4 px-6 font-semibold text-white">
+                          {item.customer}
+                        </td>
+
+                        {/* Blended Risk (HIGH / MEDIUM / LOW) */}
+                        <td className="py-4 px-6">
+                          <span
+                            className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-extrabold tracking-wider border ${
+                              item.blendedRisk === 'HIGH'
+                                ? 'bg-rose-500/20 text-rose-300 border-rose-500/40'
+                                : item.blendedRisk === 'MEDIUM'
+                                ? 'bg-amber-500/20 text-amber-300 border-amber-500/40'
+                                : 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
+                            }`}
+                          >
+                            {item.blendedRisk}
+                          </span>
+                        </td>
+
+                        {/* Stage */}
+                        <td className="py-4 px-6 text-xs font-medium text-slate-300">
+                          {item.stage}
+                        </td>
+
+                        {/* Assigned To */}
+                        <td className="py-4 px-6 font-medium text-slate-200">
+                          {item.assignedTo}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Callout Banner matching Wireframe #5 */}
+            <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-200 text-xs sm:text-sm font-medium flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2.5">
+                <span className="text-base">💡</span>
+                <span>Click any row to open its full approval detail, risk breakdown, and audit trail.</span>
+              </div>
+              <span className="text-xs text-amber-400/80 font-mono hidden sm:inline">Row Selection Active</span>
+            </div>
+
+            {/* Filter: Pending Only Button matching Wireframe #5 */}
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setApprovalFilter(approvalFilter === 'Pending' ? 'ALL' : 'Pending')}
+                className={`py-3 px-6 rounded-xl text-xs sm:text-sm font-semibold border transition-all cursor-pointer ${
+                  approvalFilter === 'Pending'
+                    ? 'bg-amber-500 text-slate-950 border-amber-400 shadow-lg shadow-amber-500/20'
+                    : 'bg-slate-800/80 hover:bg-slate-700 text-slate-300 border-slate-700'
+                }`}
+              >
+                {approvalFilter === 'Pending' ? '✓ Showing: Pending Only' : 'Filter: Pending Only'}
+              </button>
+
+              {approvalFilter !== 'ALL' && (
+                <button
+                  onClick={() => setApprovalFilter('ALL')}
+                  className="text-xs text-slate-400 hover:text-white transition-colors"
+                >
+                  Clear Filter (Show All)
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* =========================================================================
+            MODULE 4: FULFILLMENT
+           ========================================================================= */}
+        {activeModule === 'Fulfillment' && (
+          <div className="glass-card rounded-3xl p-6 sm:p-8 border border-slate-700/60 shadow-xl space-y-6">
+            <div className="border-b border-slate-800 pb-4">
+              <h2 className="text-2xl font-bold font-display text-white">Fulfillment & Warehouses</h2>
+              <p className="text-xs text-slate-400 mt-0.5">National warehouse dispatch, stock balance, and e-Way Bill generation</p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="p-5 rounded-2xl bg-slate-900/70 border border-slate-800 space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="font-mono text-xs text-amber-400 font-bold">Order #2291</span>
+                  <span className="px-2.5 py-0.5 rounded-full text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                    Stock Synced • e-Way Bill Active
+                  </span>
+                </div>
+                <h4 className="text-sm font-bold text-white">East Depot / Bhiwandi Hub Fulfillment Batch</h4>
+                <p className="text-xs text-slate-400">Telemetry Hardware Units (24 Units, HSN: 851762) verified and cleared for regional dispatch.</p>
+                <div className="pt-2 flex items-center justify-between text-xs text-slate-500 border-t border-slate-800">
+                  <span>Warehouse: East Depot (Bhiwandi Hub B-12)</span>
+                  <span className="text-amber-400 font-mono">e-Way Bill: EWB-991204812</span>
+                </div>
+              </div>
+
+              <div className="p-5 rounded-2xl bg-slate-900/70 border border-slate-800 space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="font-mono text-xs text-amber-400 font-bold">Order #2290</span>
+                  <span className="px-2.5 py-0.5 rounded-full text-xs bg-sky-500/10 text-sky-400 border border-sky-500/20">
+                    Dispatched
+                  </span>
+                </div>
+                <h4 className="text-sm font-bold text-white">Nova Retail POS Hub Terminals</h4>
+                <p className="text-xs text-slate-400">3x POS Smart Engine Terminals dispatched to Mumbai flagship store.</p>
+                <div className="pt-2 flex items-center justify-between text-xs text-slate-500 border-t border-slate-800">
+                  <span>Warehouse: Sriperumbudur Logistics Park</span>
+                  <span className="text-amber-400 font-mono">AWB: BLUEDART-882190</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* =========================================================================
+            MODULE 5: SUBSCRIPTIONS
+           ========================================================================= */}
+        {activeModule === 'Subscriptions' && (
+          <div className="glass-card rounded-3xl p-6 sm:p-8 border border-slate-700/60 shadow-xl space-y-6">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+              <div>
+                <h2 className="text-2xl font-bold font-display text-white">Active Subscriptions</h2>
+                <p className="text-xs text-slate-400 mt-0.5">Recurring enterprise software licenses, MRR, and auto-renewals</p>
+              </div>
+              <span className="text-sm font-mono font-bold text-amber-400">MRR: ₹68,50,000 / month</span>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-sm text-slate-300">
+                <thead className="bg-slate-900/80 text-[11px] font-semibold text-slate-400 uppercase tracking-wider border-b border-slate-800">
+                  <tr>
+                    <th className="py-3 px-4">Client</th>
+                    <th className="py-3 px-4">Plan / Solution</th>
+                    <th className="py-3 px-4">GSTIN</th>
+                    <th className="py-3 px-4">Billing Cycle</th>
+                    <th className="py-3 px-4">Renewal Date</th>
+                    <th className="py-3 px-4">Status</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-800/60">
+                  <tr className="hover:bg-slate-800/30">
+                    <td className="py-3.5 px-4 font-semibold text-white">Orion Ltd</td>
+                    <td className="py-3.5 px-4 text-xs">Dedicated GPU Compute Node</td>
+                    <td className="py-3.5 px-4 text-xs font-mono">33AABCO9900L1Z7</td>
+                    <td className="py-3.5 px-4 text-xs font-mono font-bold">₹13,60,000 / mo</td>
+                    <td className="py-3.5 px-4 text-xs text-slate-400">2027-08-28</td>
+                    <td className="py-3.5 px-4"><span className="px-2 py-0.5 rounded-full text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Active</span></td>
+                  </tr>
+                  <tr className="hover:bg-slate-800/30">
+                    <td className="py-3.5 px-4 font-semibold text-white">Nova Retail</td>
+                    <td className="py-3.5 px-4 text-xs">Omnichannel POS Engine</td>
+                    <td className="py-3.5 px-4 text-xs font-mono">27AABCN3344J1Z1</td>
+                    <td className="py-3.5 px-4 text-xs font-mono font-bold">₹3,25,000 / mo</td>
+                    <td className="py-3.5 px-4 text-xs text-slate-400">2027-09-01</td>
+                    <td className="py-3.5 px-4"><span className="px-2 py-0.5 rounded-full text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Active</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* =========================================================================
+            MODULE 6: INVOICES
+           ========================================================================= */}
+        {activeModule === 'Invoices' && (
+          <div className="glass-card rounded-3xl p-6 sm:p-8 border border-slate-700/60 shadow-xl space-y-6">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+              <div>
+                <h2 className="text-2xl font-bold font-display text-white">GST Invoices & e-Invoicing</h2>
+                <p className="text-xs text-slate-400 mt-0.5">IRN-verified tax invoices with automated GST filing sync</p>
+              </div>
+              <span className="text-xs text-emerald-400 font-semibold bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">100% GST Compliant</span>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-sm text-slate-300">
+                <thead className="bg-slate-900/80 text-[11px] font-semibold text-slate-400 uppercase tracking-wider border-b border-slate-800">
+                  <tr>
+                    <th className="py-3 px-4">Tax Invoice #</th>
+                    <th className="py-3 px-4">Client</th>
+                    <th className="py-3 px-4">Date</th>
+                    <th className="py-3 px-4">Taxable Amount</th>
+                    <th className="py-3 px-4">IGST (18%)</th>
+                    <th className="py-3 px-4">Total Amount</th>
+                    <th className="py-3 px-4">Status</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-800/60 font-mono text-xs">
+                  <tr className="hover:bg-slate-800/30">
+                    <td className="py-3.5 px-4 text-amber-400">GST-INV-2026-081</td>
+                    <td className="py-3.5 px-4 font-sans font-semibold text-white">Orion Ltd</td>
+                    <td className="py-3.5 px-4 text-slate-400">2026-08-28</td>
+                    <td className="py-3.5 px-4">₹41,00,000</td>
+                    <td className="py-3.5 px-4 text-slate-300">₹7,38,000</td>
+                    <td className="py-3.5 px-4 font-bold text-white">₹48,38,000</td>
+                    <td className="py-3.5 px-4"><span className="px-2 py-0.5 rounded-full text-xs font-sans bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Paid</span></td>
+                  </tr>
+                  <tr className="hover:bg-slate-800/30">
+                    <td className="py-3.5 px-4 text-amber-400">GST-INV-2026-082</td>
+                    <td className="py-3.5 px-4 font-sans font-semibold text-white">Nova Retail</td>
+                    <td className="py-3.5 px-4 text-slate-400">2026-09-01</td>
+                    <td className="py-3.5 px-4">₹9,75,000</td>
+                    <td className="py-3.5 px-4 text-slate-300">₹1,75,500</td>
+                    <td className="py-3.5 px-4 font-bold text-white">₹11,50,500</td>
+                    <td className="py-3.5 px-4"><span className="px-2 py-0.5 rounded-full text-xs font-sans bg-amber-500/10 text-amber-400 border border-amber-500/20">Pending</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* =========================================================================
+            MODULE 7: DEAL HEALTH
+           ========================================================================= */}
+        {activeModule === 'Deal Health' && (
+          <div className="glass-card rounded-3xl p-6 sm:p-8 border border-slate-700/60 shadow-xl space-y-6">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+              <div>
+                <h2 className="text-2xl font-bold font-display text-white">Deal Health & AI Risk Scoring</h2>
+                <p className="text-xs text-slate-400 mt-0.5">Automated drop-off flags, stalled velocity alerts, and recovery playbooks</p>
+              </div>
+              <span className="px-3 py-1 rounded-full text-xs font-semibold bg-rose-500/15 text-rose-300 border border-rose-500/30">3 Flagged by Deal Health</span>
+            </div>
+
+            <div className="space-y-4">
+              <div className="p-5 rounded-2xl bg-rose-500/10 border border-rose-500/20 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-bold text-white">Beta Industries — Quotation QT-1003</span>
+                  <span className="text-xs font-bold text-rose-400">Health Score: 48/100 (High Risk)</span>
+                </div>
+                <p className="text-xs text-rose-200/90">
+                  Client requested 15% discount concession; awaiting response over 48h.
+                </p>
+                <div className="pt-2 flex items-center justify-between text-xs text-slate-400">
+                  <span>Action: Open Approvals to approve concession</span>
+                  <button onClick={() => setActiveModule('Approvals')} className="text-amber-400 hover:underline font-semibold cursor-pointer">
+                    Go to Approvals →
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* =========================================================================
+            MODULE 8: REPORTS
+           ========================================================================= */}
+        {activeModule === 'Reports' && (
+          <div className="glass-card rounded-3xl p-6 sm:p-8 border border-slate-700/60 shadow-xl space-y-6">
+            <div className="border-b border-slate-800 pb-4">
+              <h2 className="text-2xl font-bold font-display text-white">Executive Sales Analytics</h2>
+              <p className="text-xs text-slate-400 mt-0.5">National pipeline conversion pacing, quarterly targets, and revenue forecasts</p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+              <div className="p-5 rounded-2xl bg-slate-900/70 border border-slate-800">
+                <span className="text-xs text-slate-400 uppercase tracking-wider">FY26 Target Pacing</span>
+                <div className="text-2xl font-extrabold text-white mt-1">₹4.80 Cr / ₹5.50 Cr (87.2%)</div>
+                <div className="w-full bg-slate-800 rounded-full h-2 mt-3 overflow-hidden">
+                  <div className="bg-gradient-to-r from-amber-400 to-emerald-500 h-full rounded-full" style={{ width: '87.2%' }} />
+                </div>
+              </div>
+              <div className="p-5 rounded-2xl bg-slate-900/70 border border-slate-800">
+                <span className="text-xs text-slate-400 uppercase tracking-wider">Average Deal Size</span>
+                <div className="text-2xl font-extrabold text-white mt-1">₹24,80,000</div>
+                <p className="text-xs text-emerald-400 mt-2">+18.4% YoY B2B enterprise growth</p>
+              </div>
+              <div className="p-5 rounded-2xl bg-slate-900/70 border border-slate-800">
+                <span className="text-xs text-slate-400 uppercase tracking-wider">Avg Sales Cycle</span>
+                <div className="text-2xl font-extrabold text-white mt-1">14 Days</div>
+                <p className="text-xs text-sky-400 mt-2">Accelerated with live discount approval</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* =========================================================================
+            MODULE 9: PRODUCT
+           ========================================================================= */}
+        {activeModule === 'Product' && (
+          <div className="glass-card rounded-3xl p-6 sm:p-8 border border-slate-700/60 shadow-xl space-y-6">
+            <div className="border-b border-slate-800 pb-4">
+              <h2 className="text-2xl font-bold font-display text-white">Product Catalog & Price Books</h2>
+              <p className="text-xs text-slate-400 mt-0.5">Sellable enterprise software tiers, hardware appliances, and GST tax codes</p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+              <div className="p-5 rounded-2xl bg-slate-900/70 border border-slate-800 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-sky-500/10 text-sky-400 border border-sky-500/20">SKU-LAP-14</span>
+                  <span className="text-[10px] font-mono text-slate-400">Limit: 15% (18% GST)</span>
+                </div>
+                <h4 className="text-base font-bold text-white">Laptop Pro 14 (Enterprise Tier)</h4>
+                <p className="text-xs text-slate-400">High-performance corporate engineering workstation with security enclave.</p>
+                <div className="pt-2 text-sm font-mono font-bold text-amber-300">₹1,20,000 / unit</div>
+              </div>
+
+              <div className="p-5 rounded-2xl bg-slate-900/70 border border-slate-800 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20">SKU-SVC-ONSITE</span>
+                  <span className="text-[10px] font-mono text-slate-400">Limit: 10% (18% GST)</span>
+                </div>
+                <h4 className="text-base font-bold text-white">Onsite Setup & Deployment Service</h4>
+                <p className="text-xs text-slate-400">Expert on-premise installation, zero-trust network binding, and user onboarding.</p>
+                <div className="pt-2 text-sm font-mono font-bold text-amber-300">₹45,000 / day</div>
+              </div>
+
+              <div className="p-5 rounded-2xl bg-slate-900/70 border border-slate-800 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">SKU-WAR-EXT</span>
+                  <span className="text-[10px] font-mono text-slate-400">Limit: 15% (18% GST)</span>
+                </div>
+                <h4 className="text-base font-bold text-white">Extended Hardware Warranty</h4>
+                <p className="text-xs text-slate-400">2-year comprehensive accidental damage, priority RMA, and onsite coverage.</p>
+                <div className="pt-2 text-sm font-mono font-bold text-amber-300">₹18,000 / asset</div>
+              </div>
+            </div>
+          </div>
+        )}
+      </main>
+
+      {/* =========================================================================
+          MODAL: APPROVAL DETAIL & AUDIT TRAIL (Wireframe #5 Row Inspector)
+         ========================================================================= */}
+      {selectedApprovalDetail && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+          <div className="relative w-full max-w-2xl glass-card rounded-3xl p-6 sm:p-8 border border-slate-700 shadow-2xl space-y-6 animate-float">
+            {/* Header */}
+            <div className="flex items-start justify-between border-b border-slate-800 pb-4">
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="font-mono text-sm font-bold text-white">{selectedApprovalDetail.quotationId}</span>
+                  <span className="text-slate-500">•</span>
+                  <span
+                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-extrabold border ${
+                      selectedApprovalDetail.blendedRisk === 'HIGH'
+                        ? 'bg-rose-500/20 text-rose-300 border-rose-500/40'
+                        : selectedApprovalDetail.blendedRisk === 'MEDIUM'
+                        ? 'bg-amber-500/20 text-amber-300 border-amber-500/40'
+                        : 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
+                    }`}
+                  >
+                    {selectedApprovalDetail.blendedRisk} RISK
+                  </span>
+                  <span className="text-xs text-slate-400 font-mono">
+                    (Score: {selectedApprovalDetail.riskScore}/100)
+                  </span>
+                </div>
+
+                <h3 className="text-2xl font-extrabold font-display text-white">
+                  {selectedApprovalDetail.customer} Approval Review
+                </h3>
+                <p className="text-xs text-slate-400 mt-0.5">
+                  Workflow Stage: <strong className="text-slate-200">{selectedApprovalDetail.stage}</strong> • Assignee: <strong className="text-amber-400">{selectedApprovalDetail.assignedTo}</strong>
+                </p>
+              </div>
+
+              <button
+                onClick={() => setSelectedApprovalDetail(null)}
+                className="p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Risk Breakdown */}
+            <div className="p-4 rounded-2xl bg-slate-900/70 border border-slate-800 space-y-2.5">
+              <span className="text-xs font-semibold text-slate-300 uppercase tracking-wider block">
+                Blended Risk Factor Breakdown
+              </span>
+              <ul className="space-y-1.5 text-xs text-slate-300">
+                {selectedApprovalDetail.factors && selectedApprovalDetail.factors.map((f, i) => (
+                  <li key={i} className="flex items-start gap-2">
+                    <span className="text-amber-400 font-bold">•</span>
+                    <span>{f}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Audit Trail */}
+            <div className="space-y-2.5">
+              <span className="text-xs font-semibold text-slate-300 uppercase tracking-wider block">
+                Chronological Audit Trail
+              </span>
+              <div className="p-4 rounded-2xl bg-slate-900/50 border border-slate-800 space-y-3 font-mono text-xs">
+                {selectedApprovalDetail.auditTrail && selectedApprovalDetail.auditTrail.map((entry, idx) => (
+                  <div key={idx} className="flex items-start gap-3 border-l-2 border-slate-700 pl-3">
+                    <div className="text-slate-500 shrink-0 w-28 text-[11px]">{entry.time}</div>
+                    <div>
+                      <span className="text-amber-400 font-semibold">{entry.user}: </span>
+                      <span className="text-slate-300">{entry.action}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="pt-2 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3">
+              <button
+                onClick={() => {
+                  const targetQuote = quotations.find((q) => q.id === selectedApprovalDetail.quotationId) || quotations[0];
+                  setSelectedApprovalDetail(null);
+                  openQuotationDetail(targetQuote);
+                }}
+                className="text-xs text-amber-400 hover:underline font-semibold cursor-pointer"
+              >
+                Inspect Line Items on Q-1042 →
+              </button>
+
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => handleReturnQuotation(selectedApprovalDetail.id)}
+                  className="py-2.5 px-4 rounded-xl text-xs font-semibold text-slate-300 bg-slate-800 hover:bg-slate-700 border border-slate-700 transition-colors cursor-pointer"
+                >
+                  ↩ Return with Comments
+                </button>
+
+                <button
+                  onClick={() => handleApproveQuotation(selectedApprovalDetail.id)}
+                  className="py-2.5 px-5 rounded-xl text-xs font-semibold text-white bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 shadow-lg shadow-emerald-600/25 transition-all cursor-pointer"
+                >
+                  ✓ Approve Quotation
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default Dashboard;

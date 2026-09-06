@@ -1,0 +1,63 @@
+    setPortalMessages((prev) => [...prev, newMsg]);
+    setNewPortalMessage('');
+  };
+
+  // Invoices (Wireframe #12) State & Handlers
+  const [invoices, setInvoices] = useState(initialInvoices);
+  const [invoiceFilter, setInvoiceFilter] = useState('ALL'); // 'ALL' | 'Unpaid' | 'Paid'
+  const [selectedInvoiceDetail, setSelectedInvoiceDetail] = useState(null);
+
+  // Mark Invoice as Paid & Record Bank UTR (Wireframe #12)
+  const handleMarkInvoicePaid = (invoiceId) => {
+    const matched = invoices.find((inv) => inv.id === invoiceId);
+    if (!matched) return;
+
+    const utrNumber = `HDFC-UTR-${getNextActivityId()}910`;
+    const updated = {
+      ...matched,
+      status: 'Paid',
+      utr: utrNumber,
+      paymentMode: 'NEFT / RTGS (Direct Settlement)',
+    };
+
+    setInvoices((prev) => prev.map((inv) => (inv.id === invoiceId ? updated : inv)));
+    if (selectedInvoiceDetail && selectedInvoiceDetail.id === invoiceId) {
+      setSelectedInvoiceDetail(updated);
+    }
+
+    setActivities((prev) => [
+      {
+        id: getNextActivityId(),
+        title: `Payment recorded for ${matched.customer} (${invoiceId}) • ${utrNumber}`,
+        category: 'Invoice Settlement',
+        time: 'Just now',
+        type: 'success',
+        badge: 'Paid',
+      },
+      ...prev,
+    ]);
+
+    showNotification(`Invoice ${invoiceId} marked as Paid! UTR: ${utrNumber}`);
+  };
+
+  // Send Invoice Payment Reminder (Wireframe #12)
+  const handleSendInvoiceReminder = (invoiceId) => {
+    const matched = invoices.find((inv) => inv.id === invoiceId);
+    if (!matched) return;
+
+    setActivities((prev) => [
+      {
+        id: getNextActivityId(),
+        title: `Payment reminder dispatched for ${matched.customer} (${invoiceId})`,
+        category: 'Accounts Receivable',
+        time: 'Just now',
+        type: 'warning',
+        badge: 'Reminder Sent',
+      },
+      ...prev,
+    ]);
+
+    showNotification(`Automated payment reminder sent to ${matched.customer} finance team!`);
+  };
+
+  // Open Billing Detail Dedicated View (Wireframe #10)

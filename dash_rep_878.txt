@@ -1,0 +1,159 @@
+      {/* =========================================================================
+          MODAL: DEAL ANOMALY ROOT-CAUSE INSPECTOR (WIREFRAME #14 ROW CLICK)
+         ========================================================================= */}
+      {inspectingAnomalyDeal && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto animate-fadeIn">
+          <div className="glass-card max-w-2xl w-full rounded-3xl p-6 sm:p-8 border border-slate-700/80 shadow-2xl space-y-6 max-h-[90vh] overflow-y-auto">
+            {/* Modal Header */}
+            <div className="flex items-start justify-between border-b border-slate-800 pb-4">
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-xs font-mono font-bold text-amber-400 bg-amber-500/10 px-2.5 py-0.5 rounded border border-amber-500/20">
+                    {inspectingAnomalyDeal.id}
+                  </span>
+                  <span className="text-xs font-mono text-slate-400">
+                    Ref: {inspectingAnomalyDeal.dealId}
+                  </span>
+                  <span
+                    className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full border ${
+                      inspectingAnomalyDeal.severity === 'High'
+                        ? 'bg-rose-500/20 text-rose-300 border-rose-500/30'
+                        : 'bg-amber-500/20 text-amber-300 border-amber-500/30'
+                    }`}
+                  >
+                    {inspectingAnomalyDeal.severity} Severity
+                  </span>
+                </div>
+                <h3 className="text-2xl font-bold font-display text-white">
+                  {inspectingAnomalyDeal.deal} Anomaly Analysis
+                </h3>
+                <p className="text-xs text-slate-400 mt-0.5">
+                  {inspectingAnomalyDeal.city} • Rep: <strong className="text-slate-200">{inspectingAnomalyDeal.rep}</strong>
+                </p>
+              </div>
+
+              <button
+                onClick={() => setInspectingAnomalyDeal(null)}
+                className="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-white transition-colors cursor-pointer ml-2"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Score & Issue Banner */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="p-4 rounded-2xl bg-slate-900/80 border border-slate-800">
+                <span className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Deal Value</span>
+                <div className="text-xl font-bold font-mono text-white mt-1">
+                  {formatINR(inspectingAnomalyDeal.amount)}
+                </div>
+                <span className="text-[11px] text-slate-400">{inspectingAnomalyDeal.amountUSD} USD</span>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-slate-900/80 border border-slate-800">
+                <span className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Risk Score</span>
+                <div className="text-xl font-bold font-mono text-rose-400 mt-1">
+                  {inspectingAnomalyDeal.riskScore}/100
+                </div>
+                <span className="text-[11px] text-slate-400">{inspectingAnomalyDeal.type} Anomaly</span>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-slate-900/80 border border-slate-800">
+                <span className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Current Action</span>
+                <div className="text-sm font-bold text-sky-400 mt-1">
+                  {inspectingAnomalyDeal.action}
+                </div>
+                <span className="text-[11px] text-slate-400">Flagged: {inspectingAnomalyDeal.flagged}</span>
+              </div>
+            </div>
+
+            {/* Root-Cause Breakdown */}
+            <div className="p-4 rounded-2xl bg-slate-900/70 border border-slate-800 space-y-2">
+              <span className="text-xs font-bold uppercase tracking-wider text-amber-400 block">
+                Anomaly Diagnosis & Root Cause
+              </span>
+              <p className="text-xs text-slate-200 leading-relaxed">
+                <strong>Detected Flag:</strong> {inspectingAnomalyDeal.issue}
+              </p>
+              <p className="text-xs text-slate-400 leading-relaxed">
+                {inspectingAnomalyDeal.issueDetail}
+              </p>
+            </div>
+
+            {/* AI Recommendation Playbook */}
+            <div className="p-4 rounded-2xl bg-sky-500/10 border border-sky-500/30 text-sky-200 text-xs space-y-1.5">
+              <div className="flex items-center gap-2">
+                <span className="text-base">🤖</span>
+                <span className="font-bold text-sky-300">DealFlow360 AI Recovery Playbook:</span>
+              </div>
+              <p className="text-slate-300 leading-relaxed">
+                {inspectingAnomalyDeal.aiRecommendation}
+              </p>
+            </div>
+
+            {/* Navigation Jump buttons */}
+            <div className="space-y-2">
+              <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">
+                Quick Navigation Jumps
+              </span>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  onClick={() => {
+                    const quote = quotations.find((q) => q.client === inspectingAnomalyDeal.deal || q.id === inspectingAnomalyDeal.dealId) || quotations[0];
+                    setInspectingAnomalyDeal(null);
+                    openQuotationDetail(quote);
+                  }}
+                  className="py-2 px-3.5 rounded-xl text-xs font-semibold text-amber-300 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 transition-colors cursor-pointer"
+                >
+                  View Quotation ({inspectingAnomalyDeal.dealId}) →
+                </button>
+                <button
+                  onClick={() => {
+                    setInspectingAnomalyDeal(null);
+                    setActiveModule('Approvals');
+                  }}
+                  className="py-2 px-3.5 rounded-xl text-xs font-semibold text-indigo-300 bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/30 transition-colors cursor-pointer"
+                >
+                  Open Approvals Queue →
+                </button>
+                <button
+                  onClick={() => {
+                    setInspectingAnomalyDeal(null);
+                    setActiveModule('Fulfillment');
+                  }}
+                  className="py-2 px-3.5 rounded-xl text-xs font-semibold text-teal-300 bg-teal-500/10 hover:bg-teal-500/20 border border-teal-500/30 transition-colors cursor-pointer"
+                >
+                  Inspect Fulfillment & Depots →
+                </button>
+              </div>
+            </div>
+
+            {/* Modal Actions */}
+            <div className="pt-3 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3">
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => handleEscalateDeal(inspectingAnomalyDeal.id)}
+                  className="py-2.5 px-5 rounded-xl font-bold text-xs text-white bg-[#f87171] hover:bg-[#ef4444] border border-rose-400 transition-colors cursor-pointer"
+                >
+                  ⚠️ Escalate to Manager
+                </button>
+                <button
+                  onClick={() => handleNudgeRep(inspectingAnomalyDeal.id)}
+                  className="py-2.5 px-5 rounded-xl font-bold text-xs text-slate-950 bg-[#38bdf8] hover:bg-[#0ea5e9] border border-sky-300 transition-colors cursor-pointer"
+                >
+                  ✉ Nudge Rep ({inspectingAnomalyDeal.rep})
+                </button>
+              </div>
+
+              <button
+                onClick={() => setInspectingAnomalyDeal(null)}
+                className="py-2.5 px-5 rounded-xl font-bold text-xs text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 transition-colors cursor-pointer"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );

@@ -1,0 +1,78 @@
+    auditTrail: [
+      { time: '2026-08-30', user: 'Legal Ops', action: 'Escalated to VP Commercial' },
+    ]
+  }
+];
+
+// Initial Warehouse Inventory matching Wireframe #7
+const initialWarehouseStock = [
+  { id: 1, warehouse: 'Main Warehouse', hub: 'Bhiwandi Hub, Mumbai', product: 'Laptop Pro 14', inStock: 40, reserved: 18, available: 22 },
+  { id: 2, warehouse: 'East Depot', hub: 'Sriperumbudur Hub, Chennai', product: 'Laptop Pro 14', inStock: 10, reserved: 6, available: 4 },
+  { id: 3, warehouse: 'Main Warehouse', hub: 'Bhiwandi Hub, Mumbai', product: 'Docking Station', inStock: 65, reserved: 12, available: 53 },
+  { id: 4, warehouse: 'East Depot', hub: 'Sriperumbudur Hub, Chennai', product: 'Industrial IoT Hub Appliance', inStock: 30, reserved: 14, available: 16 },
+  { id: 5, warehouse: 'Main Warehouse', hub: 'Bhiwandi Hub, Mumbai', product: 'POS Smart Engine', inStock: 25, reserved: 8, available: 17 },
+];
+
+// Orders awaiting fulfillment matching Wireframe #7
+const initialFulfillmentOrders = [
+  {
+    id: 'Q-1042',
+    customer: 'Acme Corp',
+    city: 'Bengaluru, Karnataka',
+    gstin: '29AABCA1234F1Z5',
+    status: 'Split Pending',
+    warehouses: 'Main + East Depot',
+    ewayBill: 'EWB-991204812',
+    carrier: 'BlueDart Apex Express',
+    allocations: [
+      { product: 'Laptop Pro 14', qty: 2, mainDepot: 2, eastDepot: 0, status: 'Allocated' },
+      { product: 'Onsite Setup Service', qty: 1, mainDepot: 0, eastDepot: 0, status: 'Field Tech Assigned' },
+      { product: 'Extended Warranty', qty: 1, mainDepot: 0, eastDepot: 0, status: 'Digital Certificate' },
+    ],
+    notes: 'Requires dual warehouse stock synchronization and GST inter-state e-Way Bill generation.',
+  },
+  {
+    id: 'Q-1030',
+    customer: 'Zenith Co',
+    city: 'Hyderabad, Telangana',
+    gstin: '36AABCZ7788K1Z3',
+    status: 'Backorder',
+    warehouses: 'East Depot',
+    ewayBill: 'Pending Stock Balance',
+    carrier: 'Delhivery Surface Pro',
+    allocations: [
+      { product: 'Automated Compliance Appliance', qty: 3, mainDepot: 0, eastDepot: 1, status: 'Shortage (-2 units)' },
+    ],
+    notes: 'East Depot awaiting next shipment batch from OEM supplier before dispatch clearance.',
+  },
+  {
+    id: 'QT-1004',
+    customer: 'Nova Retail',
+    city: 'Mumbai, Maharashtra',
+    gstin: '27AABCN3344J1Z1',
+    status: 'Ready to Ship',
+    warehouses: 'Main Warehouse',
+    ewayBill: 'EWB-883910245',
+    carrier: 'DTDC Priority Air Cargo',
+    allocations: [
+      { product: 'Smart POS Terminals', qty: 3, mainDepot: 3, eastDepot: 0, status: 'Packed & Barcoded' },
+    ],
+    notes: 'Inspected and palletized at Bhiwandi Bay 4. Scheduled for courier pickup.',
+  },
+  {
+    id: 'QT-1006',
+    customer: 'Orion Ltd',
+    city: 'Chennai, Tamil Nadu',
+    gstin: '33AABCO9900L1Z7',
+    status: 'Dispatched',
+    warehouses: 'Main Warehouse',
+    ewayBill: 'EWB-771829011',
+    carrier: 'Gati-KWE Heavy Transport',
+    allocations: [
+      { product: 'H100 AI Node Rack', qty: 1, mainDepot: 1, eastDepot: 0, status: 'In Transit' },
+    ],
+    notes: 'Dispatched with active GPS tracking and 18% IGST declaration documentation.',
+  },
+];
+
+const initialActivities = [

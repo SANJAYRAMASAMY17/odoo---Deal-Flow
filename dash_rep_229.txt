@@ -1,0 +1,168 @@
+  // Currently opened approval for WIREFRAME #5 Approval Detail Modal
+  const [selectedApprovalDetail, setSelectedApprovalDetail] = useState(null);
+
+  // Currently opened approval for WIREFRAME #6 Dedicated Approval Detail View
+  const [activeApprovalDetail, setActiveApprovalDetail] = useState(null);
+
+  // Filter for Approvals page (Wireframe #5)
+  // 'ALL', 'Pending', 'Returned', 'Approved'
+  const [approvalFilter, setApprovalFilter] = useState('ALL');
+
+  // Toast notification
+  const [notification, setNotification] = useState(null);
+
+  const showNotification = (msg) => {
+    setNotification(msg);
+    setTimeout(() => setNotification(null), 3500);
+  };
+
+  // Approvals metrics
+  const pendingCount = approvals.filter((a) => a.status === 'Pending').length;
+  const returnedCount = approvals.filter((a) => a.status === 'Returned').length;
+  const approvedCount = 11 + approvals.filter((a) => a.status === 'Approved').length;
+
+  // Quotation metrics
+  const openQuotationsCount = quotations.length;
+  const atRiskDealsCount = 3;
+  const totalPipelineValue = quotations.reduce((acc, q) => acc + q.amount, 0);
+
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+    navigate('/login');
+  };
+
+  // Open Quotation Detail (Wireframe #4)
+  const openQuotationDetail = (quote) => {
+    setActiveQuotationDetail(JSON.parse(JSON.stringify(quote)));
+    setActiveModule('Quotations');
+  };
+
+  // Open Approval Detail Dedicated View (Wireframe #6)
+  const openApprovalDetailView = (app) => {
+    setActiveApprovalDetail(JSON.parse(JSON.stringify(app)));
+    setActiveModule('Approvals');
+  };
+
+  // Open Approval Detail Modal (Wireframe #5)
+  const openApprovalDetail = (app) => {
+    setSelectedApprovalDetail(app);
+  };
+
+  // Wireframe #6: 1-Click Approve on dedicated Approval Detail page
+  const handleDetailApprove = () => {
+    if (!activeApprovalDetail) return;
+    const appId = activeApprovalDetail.id;
+    const currentIdx = activeApprovalDetail.currentStageIndex ?? 1;
+    const stages = activeApprovalDetail.workflowStages || ['Submitted', 'Sales Manager', 'Finance', 'Confirmed'];
+    const nextIdx = Math.min(currentIdx + 1, stages.length - 1);
+    const isFinalStage = nextIdx === stages.length - 1;
+
+    const newAuditEntry = {
+      user: 'M. Shah (Sales Mgr)',
+      action: isFinalStage ? 'Fully Approved' : 'Approved & Advanced',
+      date: 'Aug 23',
+      note: isFinalStage ? 'Final commercial authorization confirmed.' : 'Authorized discount concession. Escalated to Finance review.',
+    };
+
+    const updatedApproval = {
+      ...activeApprovalDetail,
+      currentStageIndex: nextIdx,
+      stage: stages[nextIdx],
+      status: isFinalStage ? 'Approved' : 'Pending',
+      auditHistory: [...(activeApprovalDetail.auditHistory || []), newAuditEntry],
+    };
+
+    setActiveApprovalDetail(updatedApproval);
+    setApprovals(approvals.map((a) => (a.id === appId ? updatedApproval : a)));
+
+    if (isFinalStage) {
+      setQuotations(
+        quotations.map((q) => (q.id === activeApprovalDetail.quotationId ? { ...q, stage: 'Approved' } : q))
+      );
+    }
+
+    setActivities([
+      {
+        id: Date.now(),
+        title: `${activeApprovalDetail.customer} quotation ${activeApprovalDetail.quotationId} approved by M. Shah`,
+        category: 'Executive Approval',
+        time: 'Just now',
+        type: 'success',
+        badge: 'Approved',
+      },
+      ...activities,
+    ]);
+
+    showNotification(`Quotation ${activeApprovalDetail.quotationId} approved and forwarded to ${stages[nextIdx]}!`);
+  };
+
+  // Wireframe #6: Return for Revision action
+  const handleDetailReturnForRevision = () => {
+    if (!activeApprovalDetail) return;
+    const appId = activeApprovalDetail.id;
+
+    const newAuditEntry = {
+      user: 'M. Shah (Sales Mgr)',
+      action: 'Returned for Revision',
+      date: 'Aug 23',
+      note: 'Returned for revision: Setup service discount (18%) exceeds 10% limit. Adjust pricing.',
+    };
+
+    const updatedApproval = {
+      ...activeApprovalDetail,
+      currentStageIndex: 0,
+      stage: 'Returned to Rep',
+      status: 'Returned',
+      auditHistory: [...(activeApprovalDetail.auditHistory || []), newAuditEntry],
+    };
+
+    setActiveApprovalDetail(updatedApproval);
+    setApprovals(approvals.map((a) => (a.id === appId ? updatedApproval : a)));
+
+    setQuotations(
+      quotations.map((q) => (q.id === activeApprovalDetail.quotationId ? { ...q, stage: 'Draft' } : q))
+    );
+
+    setActivities([
+      {
+        id: Date.now(),
+        title: `${activeApprovalDetail.customer} quotation ${activeApprovalDetail.quotationId} returned for revision`,
+        category: 'Revision Requested',
+        time: 'Just now',
+        type: 'warning',
+        badge: 'Returned',
+      },
+      ...activities,
+    ]);
+
+    showNotification(`Quotation ${activeApprovalDetail.quotationId} returned to rep for revision.`);
+  };
+
+  // Wireframe #6: Reject action
+  const handleDetailReject = () => {
+    if (!activeApprovalDetail) return;
+    const appId = activeApprovalDetail.id;
+
+    const newAuditEntry = {
+      user: 'M. Shah (Sales Mgr)',
+      action: 'Rejected',
+      date: 'Aug 23',
+      note: 'Concession request rejected. Exceeds permissible company margin thresholds.',
+    };
+
+    const updatedApproval = {
+      ...activeApprovalDetail,
+      stage: 'Rejected',
+      status: 'Returned',
+      auditHistory: [...(activeApprovalDetail.auditHistory || []), newAuditEntry],
+    };
+
+    setActiveApprovalDetail(updatedApproval);
+    setApprovals(approvals.map((a) => (a.id === appId ? updatedApproval : a)));
+
+    setQuotations(
+      quotations.map((q) => (q.id === activeApprovalDetail.quotationId ? { ...q, stage: 'Draft' } : q))
+    );
+
+    showNotification(`Quotation ${activeApprovalDetail.quotationId} discount concession rejected.`);
+  };

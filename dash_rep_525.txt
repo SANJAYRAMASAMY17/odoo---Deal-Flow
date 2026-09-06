@@ -1,0 +1,221 @@
+    setActivities((prev) => [
+      {
+        id: getNextActivityId(),
+        title: `New plan "${newSub.plan}" created for ${newSub.customer} (${formatINR(newSub.amount)}/${newSub.cycle})`,
+        category: 'Subscription Activation',
+        time: 'Just now',
+        type: 'success',
+        badge: 'Plan Created',
+      },
+      ...prev,
+    ]);
+
+    showNotification(`New subscription plan "${newSub.plan}" created for ${newSub.customer}!`);
+  };
+
+  // Toggle Pause/Resume on a Subscription - Wireframe #9
+  const handleTogglePauseSubscription = (subId) => {
+    const sub = subscriptions.find((s) => s.id === subId);
+    if (!sub) return;
+
+    const isCurrentlyActive = sub.status === 'Active';
+    const newStatus = isCurrentlyActive ? 'Paused' : 'Active';
+    const newNextBill = isCurrentlyActive ? '-' : 'Oct 15';
+
+    const newLog = {
+      date: '2026-09-05',
+      title: isCurrentlyActive ? 'Subscription Paused by Admin' : 'Subscription Resumed by Admin',
+      amount: isCurrentlyActive ? '₹0 (Paused)' : `${formatINR(sub.amount)} (${sub.cycle})`,
+      note: isCurrentlyActive
+        ? 'Billing suspended by Admin operations. Prorated credits preserved.'
+        : 'Billing reactivated by Admin operations. Next cycle scheduled for Oct 15.',
+    };
+
+    const updated = {
+      ...sub,
+      status: newStatus,
+      nextBill: newNextBill,
+      prorationLog: [newLog, ...(sub.prorationLog || [])],
+    };
+
+    setSubscriptions(subscriptions.map((s) => (s.id === subId ? updated : s)));
+
+    if (selectedSubscriptionDetail && selectedSubscriptionDetail.id === subId) {
+      setSelectedSubscriptionDetail(updated);
+    }
+    if (activeSubscriptionDetail && activeSubscriptionDetail.id === subId) {
+      setActiveSubscriptionDetail(updated);
+    }
+
+    setActivities((prev) => [
+      {
+        id: getNextActivityId(),
+        title: `${sub.customer} plan "${sub.plan}" ${isCurrentlyActive ? 'paused' : 'resumed'} by Admin`,
+        category: 'Subscription Lifecycle',
+        time: 'Just now',
+        type: isCurrentlyActive ? 'warning' : 'success',
+        badge: newStatus,
+      },
+      ...prev,
+    ]);
+
+    showNotification(`Subscription for ${sub.customer} has been ${isCurrentlyActive ? 'paused' : 'resumed'}.`);
+  };
+
+  // Modify Subscription (Wireframe #10)
+  const handleModifySubscription = (e) => {
+    if (e) e.preventDefault();
+    if (!activeSubscriptionDetail) return;
+    const subId = activeSubscriptionDetail.id;
+
+    const updatedRecurring = (activeSubscriptionDetail.recurringLines || []).map((line) => {
+      if (line.plan === activeSubscriptionDetail.plan || line.plan === modifyForm.plan) {
+        return {
+          ...line,
+          plan: modifyForm.plan || line.plan,
+          cycle: modifyForm.cycle || line.cycle,
+          nextBillDate: modifyForm.nextBill || line.nextBillDate,
+          amountINR: modifyForm.amount ? Number(modifyForm.amount) : line.amountINR,
+          amountUSD: modifyForm.amount ? `$${Math.round(Number(modifyForm.amount) / 83)}` : line.amountUSD,
+        };
+      }
+      return line;
+    });
+
+    const newLog = {
+      date: '2026-09-05',
+      title: 'Subscription Terms Modified',
+      amount: `${formatINR(modifyForm.amount || activeSubscriptionDetail.amount)} (${modifyForm.cycle || activeSubscriptionDetail.cycle})`,
+      note: `Plan updated to ${modifyForm.plan || activeSubscriptionDetail.plan}. Next billing cycle set to ${modifyForm.nextBill || activeSubscriptionDetail.nextBill}.`,
+    };
+
+    const updated = {
+      ...activeSubscriptionDetail,
+      plan: modifyForm.plan || activeSubscriptionDetail.plan,
+      cycle: modifyForm.cycle || activeSubscriptionDetail.cycle,
+      amount: modifyForm.amount ? Number(modifyForm.amount) : activeSubscriptionDetail.amount,
+      nextBill: modifyForm.nextBill || activeSubscriptionDetail.nextBill,
+      recurringLines: updatedRecurring,
+      prorationLog: [newLog, ...(activeSubscriptionDetail.prorationLog || [])],
+    };
+
+    setActiveSubscriptionDetail(updated);
+    setSubscriptions(subscriptions.map((s) => (s.id === subId ? updated : s)));
+    setIsModifySubscriptionOpen(false);
+
+    setActivities((prev) => [
+      {
+        id: getNextActivityId(),
+        title: `${updated.customer} subscription terms modified to ${updated.plan} (${updated.cycle})`,
+        category: 'Subscription Update',
+        time: 'Just now',
+        type: 'info',
+        badge: 'Modified',
+      },
+      ...prev,
+    ]);
+
+    showNotification(`Subscription updated for ${updated.customer}!`);
+  };
+
+  // Cancel Subscription (Wireframe #10)
+  const handleCancelSubscription = () => {
+    if (!activeSubscriptionDetail) return;
+    const subId = activeSubscriptionDetail.id;
+
+    const newLog = {
+      date: '2026-09-05',
+      title: 'Subscription Cancelled',
+      amount: '₹0 (Cancelled)',
+      note: 'Subscription cancelled via Billing Detail screen. Future recurring billing halted.',
+    };
+
+    const updated = {
+      ...activeSubscriptionDetail,
+      status: 'Cancelled',
+      nextBill: '-',
+      prorationLog: [newLog, ...(activeSubscriptionDetail.prorationLog || [])],
+    };
+
+    setActiveSubscriptionDetail(updated);
+    setSubscriptions(subscriptions.map((s) => (s.id === subId ? updated : s)));
+
+    setActivities((prev) => [
+      {
+        id: getNextActivityId(),
+        title: `${updated.customer} recurring plan "${updated.plan}" cancelled`,
+        category: 'Subscription Cancellation',
+        time: 'Just now',
+        type: 'warning',
+        badge: 'Cancelled',
+      },
+      ...prev,
+    ]);
+
+    showNotification(`Subscription for ${updated.customer} has been cancelled.`);
+  };
+
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+    navigate('/login');
+  };
+
+  // Open Quotation Detail (Wireframe #4)
+  const openQuotationDetail = (quote) => {
+    setActiveQuotationDetail(JSON.parse(JSON.stringify(quote)));
+    setActiveModule('Quotations');
+  };
+
+  // Open Approval Detail Dedicated View (Wireframe #6)
+  const openApprovalDetailView = (app) => {
+    setActiveApprovalDetail(JSON.parse(JSON.stringify(app)));
+    setActiveModule('Approvals');
+  };
+
+  // Wireframe #6: 1-Click Approve on dedicated Approval Detail page
+  const handleDetailApprove = () => {
+    if (!activeApprovalDetail) return;
+    const appId = activeApprovalDetail.id;
+    const currentIdx = activeApprovalDetail.currentStageIndex ?? 1;
+    const stages = activeApprovalDetail.workflowStages || ['Submitted', 'Sales Manager', 'Finance', 'Confirmed'];
+    const nextIdx = Math.min(currentIdx + 1, stages.length - 1);
+    const isFinalStage = nextIdx === stages.length - 1;
+
+    const newAuditEntry = {
+      user: 'M. Shah (Sales Mgr)',
+      action: isFinalStage ? 'Fully Approved' : 'Approved & Advanced',
+      date: 'Aug 23',
+      note: isFinalStage ? 'Final commercial authorization confirmed.' : 'Authorized discount concession. Escalated to Finance review.',
+    };
+
+    const updatedApproval = {
+      ...activeApprovalDetail,
+      currentStageIndex: nextIdx,
+      stage: stages[nextIdx],
+      status: isFinalStage ? 'Approved' : 'Pending',
+      auditHistory: [...(activeApprovalDetail.auditHistory || []), newAuditEntry],
+    };
+
+    setActiveApprovalDetail(updatedApproval);
+    setApprovals(approvals.map((a) => (a.id === appId ? updatedApproval : a)));
+
+    if (isFinalStage) {
+      setQuotations(
+        quotations.map((q) => (q.id === activeApprovalDetail.quotationId ? { ...q, stage: 'Approved' } : q))
+      );
+    }
+
+    setActivities((prev) => [
+      {
+        id: getNextActivityId(),
+        title: `${activeApprovalDetail.customer} quotation ${activeApprovalDetail.quotationId} approved by M. Shah`,
+        category: 'Executive Approval',
+        time: 'Just now',
+        type: 'success',
+        badge: 'Approved',
+      },
+      ...prev,
+    ]);
+
+    showNotification(`Quotation ${activeApprovalDetail.quotationId} approved and forwarded to ${stages[nextIdx]}!`);
+  };

@@ -1,0 +1,9 @@
+                    <button
+                      onClick={() => {
+                        setActiveModule('Discount Chains');
+                        showNotification('Navigated to Discount Tiers & Approval Chains setup (Wireframe #18).');
+                      }}
+                      className="py-3 px-6 rounded-2xl font-bold text-sm text-slate-200 bg-slate-900 hover:bg-slate-800 border border-slate-700 hover:border-slate-500 shadow-xl transition-all cursor-pointer flex items-center gap-2"
+                    >
+                      <span>⚙ Manage Price fields</span>
+                    </button>

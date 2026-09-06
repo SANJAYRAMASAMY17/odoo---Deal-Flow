@@ -1,0 +1,42 @@
+// Orders awaiting fulfillment matching Wireframe #7 & #8
+const initialFulfillmentOrders = [
+  {
+    id: 'Q-1042',
+    customer: 'Acme Corp',
+    city: 'Bengaluru, Karnataka',
+    gstin: '29AABCA1234F1Z5',
+    status: 'Split Pending',
+    warehouses: 'Main + East Depot',
+    ewayBill: 'EWB-991204812',
+    carrier: 'BlueDart Apex Express',
+    warehouseSplit: [
+      { warehouse: 'Main Warehouse', hub: 'Bhiwandi Hub, Mumbai', qtyFulfilled: 18, estShipments: 1, costINR: 3480, costUSD: '$42' },
+      { warehouse: 'East Depot', hub: 'Sriperumbudur Hub, Chennai', qtyFulfilled: 6, estShipments: 1, costINR: 2400, costUSD: '$29' },
+    ],
+    splitBannerNote: '"Consolidate Remaining Backorder" prompt appears automatically once East Depot restocks.',
+    allocations: [
+      { product: 'Laptop Pro 14', qty: 24, mainDepot: 18, eastDepot: 6, status: 'Split Scheduled' },
+      { product: 'Onsite Setup Service', qty: 1, mainDepot: 0, eastDepot: 0, status: 'Field Tech Assigned' },
+      { product: 'Extended Warranty', qty: 1, mainDepot: 0, eastDepot: 0, status: 'Digital Certificate' },
+    ],
+    notes: 'Requires dual warehouse stock synchronization and GST inter-state e-Way Bill generation.',
+  },
+  {
+    id: 'Q-1030',
+    customer: 'Zenith Co',
+    city: 'Hyderabad, Telangana',
+    gstin: '36AABCZ7788K1Z3',
+    status: 'Backorder',
+    warehouses: 'East Depot',
+    ewayBill: 'Pending Stock Balance',
+    carrier: 'Delhivery Surface Pro',
+    warehouseSplit: [
+      { warehouse: 'East Depot', hub: 'Sriperumbudur Hub, Chennai', qtyFulfilled: 1, estShipments: 1, costINR: 1200, costUSD: '$15' },
+      { warehouse: 'Main Warehouse', hub: 'Bhiwandi Hub, Mumbai', qtyFulfilled: 0, estShipments: 0, costINR: 0, costUSD: '$0' },
+    ],
+    splitBannerNote: '"Consolidate Remaining Backorder" prompt appears automatically once East Depot restocks.',
+    allocations: [
+      { product: 'Automated Compliance Appliance', qty: 3, mainDepot: 0, eastDepot: 1, status: 'Shortage (-2 units)' },
+    ],
+    notes: 'East Depot awaiting next shipment batch from OEM supplier before dispatch clearance.',
+  },

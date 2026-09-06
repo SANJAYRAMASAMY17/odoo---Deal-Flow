@@ -1,0 +1,38 @@
+    showNotification(`Nudge notification sent to ${dealDetails} via Slack & Email!`);
+  };
+
+  // Wireframe #15: Admin / Reporting Dashboard States & Handlers
+  const [reportsPeriod, setReportsPeriod] = useState('This Month');
+  const [reportsSalesTeam, setReportsSalesTeam] = useState('All Sales Teams');
+  const [reportsApprovalStatus, setReportsApprovalStatus] = useState('All Approval Statuses');
+  const [reportsProduct, setReportsProduct] = useState('All Products & Services');
+
+  const handleExportPDF = () => {
+    setActivities((prev) => [
+      {
+        id: getNextActivityId(),
+        title: `Executive Sales & Approval Audit Report exported (PDF) for ${reportsPeriod}`,
+        category: 'Compliance & Reporting',
+        time: 'Just now',
+        type: 'info',
+        badge: 'Exported',
+      },
+      ...prev,
+    ]);
+    showNotification(`Exporting Executive Sales & Approval Audit Report (PDF) for ${reportsPeriod}...`);
+  };
+
+  const handleExportXLS = () => {
+    setActivities((prev) => [
+      {
+        id: getNextActivityId(),
+        title: `Commercial Ledger & Quotations raw dataset exported (XLS) for ${reportsSalesTeam}`,
+        category: 'Compliance & Reporting',
+        time: 'Just now',
+        type: 'info',
+        badge: 'Exported',
+      },
+      ...prev,
+    ]);
+    showNotification(`Exporting Platform Usage & Commercial Ledger (XLS) for ${reportsSalesTeam}...`);
+  };

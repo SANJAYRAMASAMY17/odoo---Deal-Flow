@@ -1,0 +1,209 @@
+    setActivities((prev) => [
+      {
+        id: getNextActivityId(),
+        title: `${activeApprovalDetail.customer} quotation ${activeApprovalDetail.quotationId} returned for revision`,
+        category: 'Revision Requested',
+        time: 'Just now',
+        type: 'warning',
+        badge: 'Returned',
+      },
+      ...prev,
+    ]);
+
+    showNotification(`Quotation ${activeApprovalDetail.quotationId} returned to rep for revision.`);
+  };
+
+  // Wireframe #6: Reject action
+  const handleDetailReject = () => {
+    if (!activeApprovalDetail) return;
+    const appId = activeApprovalDetail.id;
+
+    const newAuditEntry = {
+      user: 'M. Shah (Sales Mgr)',
+      action: 'Rejected',
+      date: 'Aug 23',
+      note: 'Concession request rejected. Exceeds permissible company margin thresholds.',
+    };
+
+    const updatedApproval = {
+      ...activeApprovalDetail,
+      stage: 'Rejected',
+      status: 'Returned',
+      auditHistory: [...(activeApprovalDetail.auditHistory || []), newAuditEntry],
+    };
+
+    setActiveApprovalDetail(updatedApproval);
+    setApprovals(approvals.map((a) => (a.id === appId ? updatedApproval : a)));
+
+    setQuotations(
+      quotations.map((q) => (q.id === activeApprovalDetail.quotationId ? { ...q, stage: 'Draft' } : q))
+    );
+
+    showNotification(`Quotation ${activeApprovalDetail.quotationId} discount concession rejected.`);
+  };
+
+  // 1-Click Approve in Approvals (Wireframe #5)
+  const handleApproveQuotation = (appId) => {
+    const app = approvals.find((a) => a.id === appId);
+    if (!app) return;
+
+    setApprovals(
+      approvals.map((a) => (a.id === appId ? { ...a, status: 'Approved', stage: 'Approved by ' + a.assignedTo } : a))
+    );
+
+    // Also update corresponding quotation in quotations list
+    setQuotations(
+      quotations.map((q) => (q.id === app.quotationId ? { ...q, stage: 'Approved' } : q))
+    );
+
+    setActivities((prev) => [
+      {
+        id: getNextActivityId(),
+        title: `${app.customer} quotation ${app.quotationId} approved by ${app.assignedTo}`,
+        category: 'Executive Approval',
+        time: 'Just now',
+        type: 'success',
+        badge: 'Approved',
+      },
+      ...prev,
+    ]);
+
+    if (selectedApprovalDetail && selectedApprovalDetail.id === appId) {
+      setSelectedApprovalDetail({
+        ...selectedApprovalDetail,
+        status: 'Approved',
+        stage: 'Approved by ' + app.assignedTo,
+        auditTrail: [
+          ...selectedApprovalDetail.auditTrail,
+          { time: 'Just now', user: app.assignedTo, action: 'Officially approved quotation discount & commercial terms' },
+        ],
+      });
+    }
+
+    showNotification(`Quotation ${app.quotationId} (${app.customer}) approved!`);
+  };
+
+  // 1-Click Return in Approvals (Wireframe #5)
+  const handleReturnQuotation = (appId) => {
+    const app = approvals.find((a) => a.id === appId);
+    if (!app) return;
+
+    setApprovals(
+      approvals.map((a) => (a.id === appId ? { ...a, status: 'Returned', stage: 'Returned to Sales Rep' } : a))
+    );
+
+    setQuotations(
+      quotations.map((q) => (q.id === app.quotationId ? { ...q, stage: 'Draft' } : q))
+    );
+
+    if (selectedApprovalDetail && selectedApprovalDetail.id === appId) {
+      setSelectedApprovalDetail({
+        ...selectedApprovalDetail,
+        status: 'Returned',
+        stage: 'Returned to Sales Rep',
+        auditTrail: [
+          ...selectedApprovalDetail.auditTrail,
+          { time: 'Just now', user: app.assignedTo, action: 'Returned with feedback: Margin concession rejected. Please adjust line discounts.' },
+        ],
+      });
+    }
+
+    showNotification(`Quotation ${app.quotationId} returned to sales representative.`);
+  };
+
+  // Line item updater in Quotation Detail (Wireframe #4)
+  const updateLineItem = (itemId, field, value) => {
+    if (!activeQuotationDetail) return;
+    const updatedItems = activeQuotationDetail.lineItems.map((item) => {
+      if (item.id === itemId) {
+        return { ...item, [field]: value };
+      }
+      return item;
+    });
+
+    const newTotal = updatedItems.reduce((acc, item) => {
+      const lineSubtotal = (parseFloat(item.price) || 0) * (parseInt(item.qty) || 1);
+      const lineDiscount = lineSubtotal * ((parseFloat(item.discount) || 0) / 100);
+      return acc + (lineSubtotal - lineDiscount);
+    }, 0);
+
+    setActiveQuotationDetail({
+      ...activeQuotationDetail,
+      lineItems: updatedItems,
+      amount: newTotal,
+    });
+  };
+
+  // Upsell adder
+  const addUpsellItem = (productName, price, promoDiscount = 0, limit = 15) => {
+    if (!activeQuotationDetail) return;
+    const newItem = {
+      id: getNextActivityId(),
+      product: productName,
+      qty: 1,
+      price: price,
+      discount: promoDiscount,
+      limit: limit,
+    };
+    const updatedItems = [...activeQuotationDetail.lineItems, newItem];
+    const newTotal = updatedItems.reduce((acc, item) => {
+      const lineSubtotal = (parseFloat(item.price) || 0) * (parseInt(item.qty) || 1);
+      const lineDiscount = lineSubtotal * ((parseFloat(item.discount) || 0) / 100);
+      return acc + (lineSubtotal - lineDiscount);
+    }, 0);
+
+    setActiveQuotationDetail({
+      ...activeQuotationDetail,
+      lineItems: updatedItems,
+      amount: newTotal,
+    });
+
+    showNotification(`Added ${productName} to quotation line items!`);
+  };
+
+  const deleteLineItem = (itemId) => {
+    if (!activeQuotationDetail) return;
+    const updatedItems = activeQuotationDetail.lineItems.filter((i) => i.id !== itemId);
+    const newTotal = updatedItems.reduce((acc, item) => {
+      const lineSubtotal = (parseFloat(item.price) || 0) * (parseInt(item.qty) || 1);
+      const lineDiscount = lineSubtotal * ((parseFloat(item.discount) || 0) / 100);
+      return acc + (lineSubtotal - lineDiscount);
+    }, 0);
+
+    setActiveQuotationDetail({
+      ...activeQuotationDetail,
+      lineItems: updatedItems,
+      amount: newTotal,
+    });
+  };
+
+  const handleSaveDraft = () => {
+    if (!activeQuotationDetail) return;
+    setQuotations(
+      quotations.map((q) => (q.id === activeQuotationDetail.id ? activeQuotationDetail : q))
+    );
+    showNotification(`Quotation ${activeQuotationDetail.id} draft saved.`);
+  };
+
+  const handleSubmitForApproval = () => {
+    if (!activeQuotationDetail) return;
+    const hasOverLimitDiscount = activeQuotationDetail.lineItems.some(
+      (item) => parseFloat(item.discount) > parseFloat(item.limit)
+    );
+
+    const updated = {
+      ...activeQuotationDetail,
+      stage: 'Pending Approval',
+    };
+
+    setQuotations(
+      quotations.map((q) => (q.id === activeQuotationDetail.id ? updated : q))
+    );
+    setActiveQuotationDetail(updated);
+
+    // Also add to approvals queue
+    const existingApp = approvals.find((a) => a.quotationId === activeQuotationDetail.id);
+    if (!existingApp) {
+      setApprovals([
+        {
+          id: getNextAppId(),

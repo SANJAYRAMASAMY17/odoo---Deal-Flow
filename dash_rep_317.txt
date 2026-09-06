@@ -1,0 +1,70 @@
+  // Fulfillment & Warehouse state matching Wireframe #7 & #8
+  const [warehouseStock, setWarehouseStock] = useState(initialWarehouseStock);
+  const [fulfillmentOrders, setFulfillmentOrders] = useState(initialFulfillmentOrders);
+  const [selectedFulfillmentOrder, setSelectedFulfillmentOrder] = useState(null);
+
+  // Dedicated Wireframe #8 Fulfillment Detail View
+  const [activeFulfillmentDetail, setActiveFulfillmentDetail] = useState(null);
+  const [isManualOverrideOpen, setIsManualOverrideOpen] = useState(false);
+
+  // Open Fulfillment Detail Dedicated View (Wireframe #8)
+  const openFulfillmentDetailView = (order) => {
+    setActiveFulfillmentDetail(JSON.parse(JSON.stringify(order)));
+    setIsManualOverrideOpen(false);
+    setActiveModule('Fulfillment');
+  };
+
+  // Accept suggested split (Wireframe #8)
+  const handleAcceptSuggestedSplit = () => {
+    if (!activeFulfillmentDetail) return;
+    const orderId = activeFulfillmentDetail.id;
+    const ewayNumber = 'EWB-' + Math.floor(100000000 + Math.random() * 900000000);
+
+    const updated = {
+      ...activeFulfillmentDetail,
+      status: 'Ready to Ship',
+      ewayBill: ewayNumber,
+    };
+
+    setActiveFulfillmentDetail(updated);
+    setFulfillmentOrders(
+      fulfillmentOrders.map((o) => (o.id === orderId ? updated : o))
+    );
+
+    // Update activity
+    setActivities([
+      {
+        id: Date.now(),
+        title: `Suggested split accepted for ${activeFulfillmentDetail.customer} (${orderId}) • ${ewayNumber}`,
+        category: 'Fulfillment Dispatch',
+        time: 'Just now',
+        type: 'success',
+        badge: 'Ready to Ship',
+      },
+      ...activities,
+    ]);
+
+    showNotification(`Suggested warehouse split accepted for ${orderId}! e-Way Bill generated.`);
+  };
+
+  // Manual override quantity adjust (Wireframe #8)
+  const handleOverrideSplitQty = (warehouseName, delta) => {
+    if (!activeFulfillmentDetail || !activeFulfillmentDetail.warehouseSplit) return;
+    const updatedSplit = activeFulfillmentDetail.warehouseSplit.map((split) => {
+      if (split.warehouse === warehouseName) {
+        const newQty = Math.max(0, split.qtyFulfilled + delta);
+        return {
+          ...split,
+          qtyFulfilled: newQty,
+          costINR: newQty * 190,
+          costUSD: `$${Math.round((newQty * 190) / 83)}`,
+        };
+      }
+      return split;
+    });
+
+    setActiveFulfillmentDetail({
+      ...activeFulfillmentDetail,
+      warehouseSplit: updatedSplit,
+    });
+  };

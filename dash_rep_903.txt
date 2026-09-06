@@ -1,0 +1,319 @@
+        {/* =========================================================================
+            MODULE 8: ADMIN / REPORTING DASHBOARD (WIREFRAME #15)
+           ========================================================================= */}
+        {activeModule === 'Reports' && (
+          <div className="space-y-6 animate-fadeIn">
+            {/* Header & Subtitle matching Wireframe #15 */}
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <span className="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 text-white font-mono font-bold flex items-center justify-center text-sm">
+                  15
+                </span>
+                <div>
+                  <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white font-display">
+                    Admin / Reporting Dashboard <span className="text-sm font-normal text-slate-400 font-sans">(Optional)</span>
+                  </h1>
+                  <p className="mt-1 text-sm text-slate-400">
+                    Sales trends, approval bottlenecks and platform usage
+                  </p>
+                </div>
+              </div>
+
+              {/* Status summary pill */}
+              <div className="flex items-center gap-3">
+                <div className="px-4 py-2 rounded-2xl bg-slate-900/90 border border-slate-700/80 flex items-center gap-2.5 text-xs shadow-md">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                  <span className="text-slate-300 font-medium">Platform Health:</span>
+                  <span className="font-mono font-bold text-emerald-400">99.8% SLA</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Four Filter Inputs matching Wireframe #15 */}
+            <div className="glass-card rounded-3xl p-5 border border-slate-700/80 shadow-xl">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {/* Filter 1: Period */}
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider">
+                    Period
+                  </label>
+                  <select
+                    value={reportsPeriod}
+                    onChange={(e) => setReportsPeriod(e.target.value)}
+                    className="w-full bg-slate-900 border border-slate-700 focus:border-amber-400 rounded-2xl px-3.5 py-2.5 text-xs text-white font-medium focus:outline-none transition-colors cursor-pointer"
+                  >
+                    <option value="This Month">This Month (Sep 2026)</option>
+                    <option value="Last 30 Days">Last 30 Days</option>
+                    <option value="Q3 FY26">Q3 FY26 (Oct - Dec)</option>
+                    <option value="Year to Date">Year to Date (FY26)</option>
+                  </select>
+                </div>
+
+                {/* Filter 2: Sales Team */}
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider">
+                    Sales Team
+                  </label>
+                  <select
+                    value={reportsSalesTeam}
+                    onChange={(e) => setReportsSalesTeam(e.target.value)}
+                    className="w-full bg-slate-900 border border-slate-700 focus:border-amber-400 rounded-2xl px-3.5 py-2.5 text-xs text-white font-medium focus:outline-none transition-colors cursor-pointer"
+                  >
+                    <option value="All Sales Teams">All Sales Teams (National)</option>
+                    <option value="Enterprise South">Enterprise South (Bengaluru)</option>
+                    <option value="Commercial West">Commercial West (Mumbai/Pune)</option>
+                    <option value="North Tier-1">North Tier-1 (Delhi-NCR)</option>
+                    <option value="South Emerging">South Emerging (Hyderabad/Chennai)</option>
+                  </select>
+                </div>
+
+                {/* Filter 3: Approval Status */}
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider">
+                    Approval Status
+                  </label>
+                  <select
+                    value={reportsApprovalStatus}
+                    onChange={(e) => setReportsApprovalStatus(e.target.value)}
+                    className="w-full bg-slate-900 border border-slate-700 focus:border-amber-400 rounded-2xl px-3.5 py-2.5 text-xs text-white font-medium focus:outline-none transition-colors cursor-pointer"
+                  >
+                    <option value="All Approval Statuses">All Approval Statuses</option>
+                    <option value="Pending Approvals">Pending Approvals</option>
+                    <option value="Auto-Approved">Auto-Approved (Rule Engine)</option>
+                    <option value="Finance Escalations">Finance Escalations</option>
+                    <option value="Manager Authorized">Manager Authorized</option>
+                  </select>
+                </div>
+
+                {/* Filter 4: Product */}
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider">
+                    Product
+                  </label>
+                  <select
+                    value={reportsProduct}
+                    onChange={(e) => setReportsProduct(e.target.value)}
+                    className="w-full bg-slate-900 border border-slate-700 focus:border-amber-400 rounded-2xl px-3.5 py-2.5 text-xs text-white font-medium focus:outline-none transition-colors cursor-pointer"
+                  >
+                    <option value="All Products & Services">All Products & Services</option>
+                    <option value="Care Plan 2yr">Care Plan 2yr (Retainer)</option>
+                    <option value="Laptop Pro 14">Laptop Pro 14 (Hardware)</option>
+                    <option value="Onsite Setup Service">Onsite Setup Service</option>
+                    <option value="Extended Warranty">Extended Warranty</option>
+                    <option value="Smart Retail Engine">Smart Retail Engine</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            {/* Three Primary Summary Metric Cards matching Wireframe #15 */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+              {/* Card 1: Quotes Created */}
+              <div className="glass-card rounded-3xl p-6 sm:p-7 border border-slate-700/70 shadow-xl space-y-3 relative overflow-hidden group hover:border-slate-600 transition-all">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-base font-bold text-slate-300 font-display">Quotes Created</h3>
+                  <span className="w-8 h-8 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20 flex items-center justify-center text-sm">
+                    📄
+                  </span>
+                </div>
+                <div>
+                  <div className="text-3xl font-extrabold text-white font-display">
+                    {reportsPeriod === 'This Month'
+                      ? '146 this month'
+                      : reportsPeriod === 'Last 30 Days'
+                      ? '138 past 30d'
+                      : reportsPeriod === 'Q3 FY26'
+                      ? '412 in Q3'
+                      : '890 YTD'}
+                  </div>
+                  <p className="text-xs text-emerald-400 mt-1 font-medium">
+                    ↑ 22% growth vs previous period
+                  </p>
+                </div>
+                <div className="pt-2 border-t border-slate-800 text-[11px] text-slate-400 flex items-center justify-between">
+                  <span>112 Standard Book</span>
+                  <span>34 Custom Concession</span>
+                </div>
+              </div>
+
+              {/* Card 2: Avg Approval Time */}
+              <div className="glass-card rounded-3xl p-6 sm:p-7 border border-slate-700/70 shadow-xl space-y-3 relative overflow-hidden group hover:border-slate-600 transition-all">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-base font-bold text-slate-300 font-display">Avg Approval Time</h3>
+                  <span className="w-8 h-8 rounded-xl bg-sky-500/10 text-sky-400 border border-sky-500/20 flex items-center justify-center text-sm">
+                    ⏱
+                  </span>
+                </div>
+                <div>
+                  <div className="text-3xl font-extrabold text-sky-400 font-display">
+                    6.4 hours
+                  </div>
+                  <p className="text-xs text-emerald-400 mt-1 font-medium">
+                    ↓ Down from 18.2 hours (64.8% turnaround acceleration)
+                  </p>
+                </div>
+                <div className="pt-2 border-t border-slate-800 text-[11px] text-slate-400 flex items-center justify-between">
+                  <span>Target SLA: &lt; 8.0h</span>
+                  <span className="text-emerald-400 font-semibold">In Compliance ✓</span>
+                </div>
+              </div>
+
+              {/* Card 3: Top Upsold Product */}
+              <div className="glass-card rounded-3xl p-6 sm:p-7 border border-slate-700/70 shadow-xl space-y-3 relative overflow-hidden group hover:border-slate-600 transition-all">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-base font-bold text-slate-300 font-display">Top Upsold Product</h3>
+                  <span className="w-8 h-8 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center justify-center text-sm">
+                    ⭐
+                  </span>
+                </div>
+                <div>
+                  <div className="text-3xl font-extrabold text-emerald-400 font-display">
+                    Care Plan 2yr
+                  </div>
+                  <p className="text-xs text-slate-300 mt-1 font-medium">
+                    Attached to 68% of enterprise hardware packages
+                  </p>
+                </div>
+                <div className="pt-2 border-t border-slate-800 text-[11px] text-slate-400 flex items-center justify-between">
+                  <span>₹24.8 L Recurring ARR added</span>
+                  <span className="text-amber-300">Retainer Tier</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Action Buttons matching Wireframe #15 (Export PDF & Export XLS) */}
+            <div className="flex flex-wrap items-center gap-4 pt-1">
+              <button
+                onClick={handleExportPDF}
+                className="py-3 px-6 rounded-2xl font-bold text-xs text-slate-200 bg-slate-900 hover:bg-slate-800 border border-slate-700 hover:border-slate-600 shadow-xl transition-all cursor-pointer flex items-center gap-2"
+              >
+                <span>📄 Export PDF</span>
+              </button>
+
+              <button
+                onClick={handleExportXLS}
+                className="py-3 px-6 rounded-2xl font-bold text-xs text-slate-200 bg-slate-900 hover:bg-slate-800 border border-slate-700 hover:border-slate-600 shadow-xl transition-all cursor-pointer flex items-center gap-2"
+              >
+                <span>📊 Export XLS</span>
+              </button>
+
+              <span className="text-xs text-slate-400">
+                Filtered dataset ready for compliance audit & board reporting
+              </span>
+            </div>
+
+            {/* Deep Analytics: Sales Trends, Approval Bottlenecks & Platform Usage */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 pt-2">
+              {/* Bottleneck Analysis */}
+              <div className="glass-card rounded-3xl p-6 border border-slate-700/60 space-y-4">
+                <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                  <h4 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                    <span>🚦 Approval Bottleneck Audit</span>
+                  </h4>
+                  <span className="text-[11px] text-slate-400 font-mono">Stage Pacing</span>
+                </div>
+
+                <div className="space-y-3 text-xs">
+                  <div>
+                    <div className="flex justify-between text-slate-300 mb-1">
+                      <span>Sales Manager (M. Shah)</span>
+                      <span className="font-mono text-emerald-400 font-bold">2.1 hours</span>
+                    </div>
+                    <div className="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
+                      <div className="bg-emerald-500 h-full rounded-full" style={{ width: '32%' }} />
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="flex justify-between text-slate-300 mb-1">
+                      <span>Finance Controller (R. Iyer)</span>
+                      <span className="font-mono text-amber-400 font-bold">3.8 hours</span>
+                    </div>
+                    <div className="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
+                      <div className="bg-amber-500 h-full rounded-full" style={{ width: '58%' }} />
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="flex justify-between text-slate-300 mb-1">
+                      <span>VP Commercial Escalation</span>
+                      <span className="font-mono text-sky-400 font-bold">0.5 hours</span>
+                    </div>
+                    <div className="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
+                      <div className="bg-sky-500 h-full rounded-full" style={{ width: '10%' }} />
+                    </div>
+                  </div>
+                </div>
+
+                <p className="text-[11px] text-slate-400 leading-relaxed pt-1">
+                  Zero stage bottlenecks detected beyond 4-hour tolerance threshold.
+                </p>
+              </div>
+
+              {/* Conversion Funnel */}
+              <div className="glass-card rounded-3xl p-6 border border-slate-700/60 space-y-4">
+                <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                  <h4 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                    <span>📈 Sales Conversion Funnel</span>
+                  </h4>
+                  <span className="text-[11px] text-slate-400 font-mono">National</span>
+                </div>
+
+                <div className="space-y-2.5 text-xs font-mono">
+                  <div className="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800 flex justify-between items-center">
+                    <span className="text-slate-300 font-sans">1. Quotes Created</span>
+                    <span className="font-bold text-white">146 Deals (₹18.4 Cr)</span>
+                  </div>
+                  <div className="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800 flex justify-between items-center">
+                    <span className="text-slate-300 font-sans">2. In Discount Review</span>
+                    <span className="font-bold text-amber-400">28 Deals (19.1%)</span>
+                  </div>
+                  <div className="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800 flex justify-between items-center">
+                    <span className="text-slate-300 font-sans">3. Approved & Sent</span>
+                    <span className="font-bold text-sky-400">82 Deals (56.1%)</span>
+                  </div>
+                  <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex justify-between items-center">
+                    <span className="text-emerald-300 font-sans font-bold">4. Confirmed POs</span>
+                    <span className="font-bold text-emerald-400">36 Deals (₹4.80 Cr)</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Platform Usage & Automation Adoption */}
+              <div className="glass-card rounded-3xl p-6 border border-slate-700/60 space-y-4">
+                <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                  <h4 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                    <span>⚡ Platform Usage & Adoption</span>
+                  </h4>
+                  <span className="text-[11px] text-slate-400 font-mono">Live KPIs</span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3 text-xs">
+                  <div className="p-3 rounded-2xl bg-slate-900/80 border border-slate-800">
+                    <span className="text-[10px] text-slate-400 block uppercase">Portal Negotiation</span>
+                    <span className="text-lg font-bold text-sky-400 font-mono mt-1 block">78.4%</span>
+                    <span className="text-[10px] text-slate-500">Zero email back-and-forth</span>
+                  </div>
+
+                  <div className="p-3 rounded-2xl bg-slate-900/80 border border-slate-800">
+                    <span className="text-[10px] text-slate-400 block uppercase">e-Way Bill Issuance</span>
+                    <span className="text-lg font-bold text-emerald-400 font-mono mt-1 block">100%</span>
+                    <span className="text-[10px] text-slate-500">GST Portal verified</span>
+                  </div>
+
+                  <div className="p-3 rounded-2xl bg-slate-900/80 border border-slate-800">
+                    <span className="text-[10px] text-slate-400 block uppercase">Proration Engine</span>
+                    <span className="text-lg font-bold text-amber-400 font-mono mt-1 block">99.4%</span>
+                    <span className="text-[10px] text-slate-500">Auto-credit sync rate</span>
+                  </div>
+
+                  <div className="p-3 rounded-2xl bg-slate-900/80 border border-slate-800">
+                    <span className="text-[10px] text-slate-400 block uppercase">Active Enterprise Reps</span>
+                    <span className="text-lg font-bold text-indigo-400 font-mono mt-1 block">18 Reps</span>
+                    <span className="text-[10px] text-slate-500">Across 6 regional hubs</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}

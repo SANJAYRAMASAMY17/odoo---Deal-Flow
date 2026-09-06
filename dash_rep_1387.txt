@@ -1,0 +1,9 @@
+                    placeholder="Type a negotiation comment or message to Arjun Mehta..."
+                    className="flex-1 bg-slate-900 border border-slate-700 focus:border-blue-500 rounded-xl px-4 py-3 text-white text-xs outline-none"
+                  />
+                  <button
+                    type="submit"
+                    className="py-3 px-6 rounded-xl font-bold text-xs text-white bg-blue-600 hover:bg-blue-700 shadow-md shadow-blue-500/25 transition-all cursor-pointer"
+                  >
+                    Send Message
+                  </button>

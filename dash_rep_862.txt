@@ -1,0 +1,120 @@
+    showNotification(`Automated payment reminder sent to ${matched.customer} finance team!`);
+  };
+
+  // Wireframe #14: Deal Health & Anomaly Dashboard States & Handlers
+  const [dealHealthAnomalies, setDealHealthAnomalies] = useState(initialDealHealthAnomalies);
+  const [dealHealthFilter, setDealHealthFilter] = useState('ALL'); // 'ALL' | 'Stalled' | 'Discount' | 'Delivery'
+  const [selectedAnomalyIds, setSelectedAnomalyIds] = useState(['ANOM-101']); // default selected row matching wireframe
+  const [inspectingAnomalyDeal, setInspectingAnomalyDeal] = useState(null);
+
+  // Toggle row selection for bulk operations
+  const toggleAnomalySelect = (id) => {
+    setSelectedAnomalyIds((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    );
+  };
+
+  // Select all / Deselect all
+  const toggleSelectAllAnomalies = () => {
+    const visibleIds = dealHealthAnomalies
+      .filter((a) => (dealHealthFilter === 'ALL' ? true : a.type === dealHealthFilter))
+      .map((a) => a.id);
+    const allSelected = visibleIds.length > 0 && visibleIds.every((id) => selectedAnomalyIds.includes(id));
+    if (allSelected) {
+      setSelectedAnomalyIds((prev) => prev.filter((id) => !visibleIds.includes(id)));
+    } else {
+      setSelectedAnomalyIds((prev) => Array.from(new Set([...prev, ...visibleIds])));
+    }
+  };
+
+  // Escalate Deal (Single or Selected)
+  const handleEscalateDeal = (targetId) => {
+    const idsToEscalate = targetId
+      ? [targetId]
+      : (selectedAnomalyIds.length > 0 ? selectedAnomalyIds : ['ANOM-102']);
+
+    setDealHealthAnomalies((prev) =>
+      prev.map((item) => {
+        if (idsToEscalate.includes(item.id)) {
+          return {
+            ...item,
+            action: 'Escalated to Manager',
+            status: 'Escalated',
+            escalated: true,
+          };
+        }
+        return item;
+      })
+    );
+
+    const escalatedDeals = dealHealthAnomalies.filter((d) => idsToEscalate.includes(d.id));
+    const dealNames = escalatedDeals.map((d) => d.deal).join(', ') || 'Selected deals';
+
+    setActivities((prev) => [
+      {
+        id: getNextActivityId(),
+        title: `Deal anomaly escalated for ${dealNames} to Regional Sales Manager`,
+        category: 'Leadership Escalation',
+        time: 'Just now',
+        type: 'warning',
+        badge: 'Escalated',
+      },
+      ...prev,
+    ]);
+
+    if (inspectingAnomalyDeal && idsToEscalate.includes(inspectingAnomalyDeal.id)) {
+      setInspectingAnomalyDeal((prev) => ({
+        ...prev,
+        action: 'Escalated to Manager',
+        status: 'Escalated',
+        escalated: true,
+      }));
+    }
+
+    showNotification(`Escalated ${dealNames} to Sales Leadership & Manager!`);
+  };
+
+  // Nudge Rep (Single or Selected)
+  const handleNudgeRep = (targetId) => {
+    const idsToNudge = targetId
+      ? [targetId]
+      : (selectedAnomalyIds.length > 0 ? selectedAnomalyIds : ['ANOM-101']);
+
+    setDealHealthAnomalies((prev) =>
+      prev.map((item) => {
+        if (idsToNudge.includes(item.id)) {
+          return {
+            ...item,
+            action: 'Nudge sent',
+            nudgeCount: (item.nudgeCount || 0) + 1,
+          };
+        }
+        return item;
+      })
+    );
+
+    const nudgedDeals = dealHealthAnomalies.filter((d) => idsToNudge.includes(d.id));
+    const dealDetails = nudgedDeals.map((d) => `${d.deal} (${d.rep})`).join(', ') || 'Assigned reps';
+
+    setActivities((prev) => [
+      {
+        id: getNextActivityId(),
+        title: `Automated nudge sent to sales rep for ${dealDetails}`,
+        category: 'Deal Velocity Nudge',
+        time: 'Just now',
+        type: 'info',
+        badge: 'Nudge Sent',
+      },
+      ...prev,
+    ]);
+
+    if (inspectingAnomalyDeal && idsToNudge.includes(inspectingAnomalyDeal.id)) {
+      setInspectingAnomalyDeal((prev) => ({
+        ...prev,
+        action: 'Nudge sent',
+        nudgeCount: (prev.nudgeCount || 0) + 1,
+      }));
+    }
+
+    showNotification(`Nudge notification sent to ${dealDetails} via Slack & Email!`);
+  };

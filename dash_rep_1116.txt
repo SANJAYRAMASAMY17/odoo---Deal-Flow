@@ -1,0 +1,26 @@
+                    {/* 12 Approved Badge */}
+                    <button
+                      onClick={() => setApprovalFilter(approvalFilter === 'Approved' ? 'ALL' : 'Approved')}
+                      className={`py-2 px-3.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
+                        approvalFilter === 'Approved'
+                          ? 'bg-emerald-500 text-slate-950 shadow-lg shadow-emerald-500/25 ring-2 ring-white/30'
+                          : 'bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40'
+                      }`}
+                    >
+                      <span className="w-2 h-2 rounded-full bg-emerald-400" />
+                      <span>{approvedCount} Approved</span>
+                    </button>
+
+                    {/* Wireframe #18 Shortcut */}
+                    <button
+                      onClick={() => {
+                        setActiveModule('Discount Chains');
+                        showNotification('Opened Discount Tiers & Approval Chains setup (Wireframe #18).');
+                      }}
+                      className="py-2 px-3.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer bg-sky-500/15 hover:bg-sky-500/25 text-sky-300 border border-sky-500/40 shadow-sm"
+                    >
+                      <span>⚙ 18 • Discount Tiers &amp; Chains</span>
+                    </button>
+                  </div>
+                </div>
+              </div>

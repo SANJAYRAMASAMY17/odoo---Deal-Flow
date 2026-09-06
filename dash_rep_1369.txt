@@ -1,0 +1,23 @@
+  // Theme state: strictly two-color modes: 'dark' or 'light'
+  const [theme, setTheme] = useState(() => {
+    const saved = localStorage.getItem('dealflow_theme');
+    return saved === 'light' ? 'light' : 'dark';
+  });
+  const [isThemeMenuOpen, setIsThemeMenuOpen] = useState(false);
+  const themeMenuRef = useRef(null);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    if (theme === 'light') {
+      root.classList.add('theme-light');
+      root.classList.remove('dark');
+    } else {
+      root.classList.remove('theme-light');
+      root.classList.add('dark');
+    }
+    try {
+      localStorage.setItem('dealflow_theme', theme);
+    } catch {
+      // ignore storage quota / access issues
+    }
+  }, [theme]);

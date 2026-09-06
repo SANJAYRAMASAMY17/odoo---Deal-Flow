@@ -1,0 +1,13 @@
+                onClick={() => {
+                  if (activeModule === module && module === 'Approvals') {
+                    setActiveApprovalDetail(null);
+                  } else {
+                    setActiveModule(module);
+                  }
+                  if (module !== 'Quotations') {
+                    setActiveQuotationDetail(null);
+                  }
+                  if (module !== 'Approvals') {
+                    setActiveApprovalDetail(null);
+                  }
+                }}

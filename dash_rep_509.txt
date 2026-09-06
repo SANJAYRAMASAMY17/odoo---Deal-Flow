@@ -1,0 +1,129 @@
+  // Subscriptions state matching Wireframe #9 & #10
+  const [subscriptions, setSubscriptions] = useState(initialSubscriptions);
+  const [subscriptionFilter, setSubscriptionFilter] = useState('ALL'); // 'ALL', 'Active', 'Paused', 'Cancelled'
+  const [selectedSubscriptionDetail, setSelectedSubscriptionDetail] = useState(null);
+  const [isNewPlanModalOpen, setIsNewPlanModalOpen] = useState(false);
+  const [newPlanForm, setNewPlanForm] = useState({
+    customer: 'Acme Corp',
+    city: 'Bengaluru, Karnataka',
+    gstin: '29AABCA1234F1Z5',
+    plan: 'Enterprise Care Plan 2yr',
+    cycle: 'Monthly',
+    amount: 85000,
+    nextBill: 'Oct 15',
+    orderId: 'Q-1042',
+    notes: 'Standard 24x7 enterprise support and hardware maintenance.',
+    autoRenew: true,
+  });
+
+  // Dedicated Wireframe #10 Billing Detail View
+  const [activeSubscriptionDetail, setActiveSubscriptionDetail] = useState(null);
+  const [isModifySubscriptionOpen, setIsModifySubscriptionOpen] = useState(false);
+  const [modifyForm, setModifyForm] = useState({ plan: '', cycle: 'Monthly', amount: '', nextBill: '' });
+
+  // Open Billing Detail Dedicated View (Wireframe #10)
+  const openSubscriptionDetailView = (sub) => {
+    setActiveSubscriptionDetail(JSON.parse(JSON.stringify(sub)));
+    setIsModifySubscriptionOpen(false);
+    setActiveModule('Subscriptions');
+  };
+
+  // Dedicated Wireframe #8 Fulfillment Detail View
+  const [activeFulfillmentDetail, setActiveFulfillmentDetail] = useState(null);
+  const [isManualOverrideOpen, setIsManualOverrideOpen] = useState(false);
+
+  // Open Fulfillment Detail Dedicated View (Wireframe #8)
+  const openFulfillmentDetailView = (order) => {
+    setActiveFulfillmentDetail(JSON.parse(JSON.stringify(order)));
+    setIsManualOverrideOpen(false);
+    setActiveModule('Fulfillment');
+  };
+
+  // Accept suggested split (Wireframe #8)
+  const handleAcceptSuggestedSplit = () => {
+    if (!activeFulfillmentDetail) return;
+    const orderId = activeFulfillmentDetail.id;
+    const ewayNumber = getNextEwayBill();
+
+    const updated = {
+      ...activeFulfillmentDetail,
+      status: 'Ready to Ship',
+      ewayBill: ewayNumber,
+    };
+
+    setActiveFulfillmentDetail(updated);
+    setFulfillmentOrders(
+      fulfillmentOrders.map((o) => (o.id === orderId ? updated : o))
+    );
+
+    // Update activity
+    setActivities((prev) => [
+      {
+        id: getNextActivityId(),
+        title: `Suggested split accepted for ${activeFulfillmentDetail.customer} (${orderId}) • ${ewayNumber}`,
+        category: 'Fulfillment Dispatch',
+        time: 'Just now',
+        type: 'success',
+        badge: 'Ready to Ship',
+      },
+      ...prev,
+    ]);
+
+    showNotification(`Suggested warehouse split accepted for ${orderId}! e-Way Bill generated.`);
+  };
+
+  // Manual override quantity adjust (Wireframe #8)
+  const handleOverrideSplitQty = (warehouseName, delta) => {
+    if (!activeFulfillmentDetail || !activeFulfillmentDetail.warehouseSplit) return;
+    const updatedSplit = activeFulfillmentDetail.warehouseSplit.map((split) => {
+      if (split.warehouse === warehouseName) {
+        const newQty = Math.max(0, split.qtyFulfilled + delta);
+        return {
+          ...split,
+          qtyFulfilled: newQty,
+          costINR: newQty * 190,
+          costUSD: `$${Math.round((newQty * 190) / 83)}`,
+        };
+      }
+      return split;
+    });
+
+    setActiveFulfillmentDetail({
+      ...activeFulfillmentDetail,
+      warehouseSplit: updatedSplit,
+    });
+  };
+
+  // Confirm warehouse split and issue e-Way Bill (Wireframe #7)
+  const handleConfirmFulfillmentSplit = (orderId) => {
+    const order = fulfillmentOrders.find((o) => o.id === orderId);
+    if (!order) return;
+
+    const ewayNumber = getNextEwayBill();
+    const updatedOrders = fulfillmentOrders.map((o) =>
+      o.id === orderId ? { ...o, status: 'Ready to Ship', ewayBill: ewayNumber } : o
+    );
+    setFulfillmentOrders(updatedOrders);
+
+    if (selectedFulfillmentOrder && selectedFulfillmentOrder.id === orderId) {
+      setSelectedFulfillmentOrder({
+        ...selectedFulfillmentOrder,
+        status: 'Ready to Ship',
+        ewayBill: ewayNumber,
+      });
+    }
+
+    setActivities((prev) => [
+      {
+        id: getNextActivityId(),
+        title: `Order ${orderId} (${order.customer}) warehouse split confirmed • ${ewayNumber}`,
+        category: 'Fulfillment & Dispatch',
+        time: 'Just now',
+        type: 'success',
+        badge: 'Ready to Ship',
+      },
+      ...prev,
+    ]);
+
+    showNotification(`Warehouse split confirmed for Order ${orderId}! e-Way Bill ${ewayNumber} generated.`);
+  };

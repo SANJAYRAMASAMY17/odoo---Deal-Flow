@@ -1,0 +1,69 @@
+  // Currently opened approval for WIREFRAME #6 Dedicated Approval Detail View
+  const [activeApprovalDetail, setActiveApprovalDetail] = useState(null);
+
+  // Fulfillment & Warehouse state matching Wireframe #7
+  const [warehouseStock, setWarehouseStock] = useState(initialWarehouseStock);
+  const [fulfillmentOrders, setFulfillmentOrders] = useState(initialFulfillmentOrders);
+  const [selectedFulfillmentOrder, setSelectedFulfillmentOrder] = useState(null);
+
+  // Confirm warehouse split and issue e-Way Bill (Wireframe #7)
+  const handleConfirmFulfillmentSplit = (orderId) => {
+    const order = fulfillmentOrders.find((o) => o.id === orderId);
+    if (!order) return;
+
+    const ewayNumber = 'EWB-' + Math.floor(100000000 + Math.random() * 900000000);
+    const updatedOrders = fulfillmentOrders.map((o) =>
+      o.id === orderId ? { ...o, status: 'Ready to Ship', ewayBill: ewayNumber } : o
+    );
+    setFulfillmentOrders(updatedOrders);
+
+    if (selectedFulfillmentOrder && selectedFulfillmentOrder.id === orderId) {
+      setSelectedFulfillmentOrder({
+        ...selectedFulfillmentOrder,
+        status: 'Ready to Ship',
+        ewayBill: ewayNumber,
+      });
+    }
+
+    setActivities([
+      {
+        id: Date.now(),
+        title: `Order ${orderId} (${order.customer}) warehouse split confirmed • ${ewayNumber}`,
+        category: 'Fulfillment & Dispatch',
+        time: 'Just now',
+        type: 'success',
+        badge: 'Ready to Ship',
+      },
+      ...activities,
+    ]);
+
+    showNotification(`Warehouse split confirmed for Order ${orderId}! e-Way Bill ${ewayNumber} generated.`);
+  };
+
+  // Rebalance stock between depots (Wireframe #7)
+  const handleRebalanceStock = (fromWarehouse, toWarehouse, productName, amount = 2) => {
+    setWarehouseStock((prev) =>
+      prev.map((item) => {
+        if (item.warehouse === fromWarehouse && item.product === productName) {
+          return {
+            ...item,
+            inStock: Math.max(0, item.inStock - amount),
+            available: Math.max(0, item.available - amount),
+          };
+        }
+        if (item.warehouse === toWarehouse && item.product === productName) {
+          return {
+            ...item,
+            inStock: item.inStock + amount,
+            available: item.available + amount,
+          };
+        }
+        return item;
+      })
+    );
+    showNotification(`Rebalanced ${amount} units of ${productName} from ${fromWarehouse} to ${toWarehouse}.`);
+  };
+
+  // Filter for Approvals page (Wireframe #5)
+  // 'ALL', 'Pending', 'Returned', 'Approved'
+  const [approvalFilter, setApprovalFilter] = useState('ALL');

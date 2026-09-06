@@ -1,0 +1,8 @@
+                <span className="text-[10px] uppercase font-bold tracking-widest px-2.5 py-0.5 rounded-md bg-slate-950/15 text-slate-950">
+                  Governance &amp; Pricing Studio
+                </span>
+              </div>
+              <div className="text-xs font-bold text-slate-950/80 font-mono">
+                Enterprise Discount Policy &amp; Escalation Matrix
+              </div>
+            </div>

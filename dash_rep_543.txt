@@ -1,0 +1,2 @@
+    showNotification(`Quotation ${activeApprovalDetail.quotationId} approved and forwarded to ${stages[nextIdx]}!`);
+  };

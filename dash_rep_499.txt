@@ -1,0 +1,27 @@
+  if (val >= 100000) {
+    return `₹${(val / 100000).toFixed(2)} L`;
+  }
+  return '₹' + Number(val).toLocaleString('en-IN');
+};
+
+// Deterministic counter-based generators to ensure React 19 purity compliance
+let activitySequence = 1000;
+const getNextActivityId = () => {
+  activitySequence += 1;
+  return activitySequence;
+};
+
+let ewbSequence = 991204800;
+const getNextEwayBill = () => {
+  ewbSequence += 7;
+  return `EWB-${ewbSequence}`;
+};
+
+let appSequence = 500;
+const getNextAppId = () => {
+  appSequence += 1;
+  return `APP-${appSequence}`;
+};
+
+// Initial quotations matching wireframes #3, #4 and #5
+const initialQuotations = [

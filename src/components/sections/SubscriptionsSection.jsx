@@ -1,0 +1,478 @@
+import { formatINR, formatINRLakhCrore } from '../../utils/formatters.js';
+
+const SubscriptionsSection = (props) => {
+  const {
+    quotations,
+    approvals,
+    activities,
+    openQuotationDetail,
+    setActiveModule,
+    openApprovalDetailView,
+    theme,
+    pendingCount,
+    returnedCount,
+    approvedCount,
+    openQuotationsCount,
+    atRiskDealsCount,
+    totalPipelineValue,
+    activeQuotationDetail,
+    setActiveQuotationDetail,
+    quotationViewMode,
+    setQuotationViewMode,
+    openNewQuotationModal,
+    kanbanStages,
+    handleSaveQuotationChanges,
+    handleApproveQuotation,
+    handleReturnQuotation,
+    handleSubmitForApproval,
+    selectedApprovalDetail,
+    setSelectedApprovalDetail,
+    activeApprovalDetail,
+    setActiveApprovalDetail,
+    approvalFilter,
+    setApprovalFilter,
+    filteredApprovals,
+    openApprovalDetailModal,
+    handleApproveAction,
+    handleReturnAction,
+    warehouseStock,
+    setWarehouseStock,
+    fulfillmentOrders,
+    setFulfillmentOrders,
+    selectedFulfillmentOrder,
+    setSelectedFulfillmentOrder,
+    activeFulfillmentDetail,
+    setActiveFulfillmentDetail,
+    selectedWarehouseHub,
+    setSelectedWarehouseHub,
+    openFulfillmentDetail,
+    handleDispatchOrder,
+    subscriptions,
+    setSubscriptions,
+    subscriptionFilter,
+    setSubscriptionFilter,
+    selectedSubscriptionDetail,
+    setSelectedSubscriptionDetail,
+    activeSubscriptionDetail,
+    setActiveSubscriptionDetail,
+    isNewPlanModalOpen,
+    setIsNewPlanModalOpen,
+    newPlanForm,
+    setNewPlanForm,
+    handleCreateNewPlan,
+    openSubscriptionDetail,
+    handlePauseSubscription,
+    handleResumeSubscription,
+    handleCancelSubscription,
+    activeSubCount,
+    pausedSubCount,
+    cancelledSubCount,
+    filteredSubscriptions,
+    invoices,
+    setInvoices,
+    invoiceFilter,
+    setInvoiceFilter,
+    selectedInvoiceDetail,
+    setSelectedInvoiceDetail,
+    activeInvoiceDetail,
+    setActiveInvoiceDetail,
+    openInvoiceDetail,
+    handleMarkInvoicePaid,
+    filteredInvoices,
+    unpaidCount,
+    paidCount,
+    reconciledCount,
+    totalUnpaidAmount,
+    totalPaidAmount,
+    dealHealthData,
+    exportAuditReport,
+    auditLogs,
+    products,
+    setProducts,
+    selectedProductDetail,
+    setSelectedProductDetail,
+    productSearchQuery,
+    setProductSearchQuery,
+    productCategoryFilter,
+    setProductCategoryFilter,
+    filteredProducts,
+    openProductDetail,
+    handleSaveProductChanges,
+    discountTiers,
+    setDiscountTiers,
+    approvalRules,
+    setApprovalRules,
+    handleUpdateTierLimit,
+    customerPortalTab,
+    setCustomerPortalTab,
+    customerPortalQuote,
+    setCustomerPortalQuote,
+    portalMessages,
+    setPortalMessages,
+    newPortalMessage,
+    setNewPortalMessage,
+    handleSendPortalMessage,
+    handleCustomerApproveQuote,
+    handleCustomerRequestChange,
+    showNotification,
+    setModifyForm,
+    setIsModifySubscriptionOpen,
+    openSubscriptionDetailView,
+  } = props;
+
+  return (
+    activeSubscriptionDetail ? (
+      /* WIREFRAME #10: BILLING DETAIL VIEW */
+      <div className="space-y-6 animate-fadeIn">
+        {/* Back button & Title Bar matching Wireframe #10 */}
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-slate-800 pb-5">
+          <div>
+            <button
+              onClick={() => setActiveSubscriptionDetail(null)}
+              className="text-xs text-amber-400 hover:text-amber-300 font-semibold flex items-center gap-1.5 mb-2 transition-colors cursor-pointer"
+            >
+              <span>←</span>
+              <span>Back to Subscriptions List</span>
+            </button>
+            <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white font-display">
+              Billing Detail: {activeSubscriptionDetail.customer} - {activeSubscriptionDetail.plan}
+            </h1>
+            <p className="mt-1 text-sm text-slate-400">
+              Opened by clicking a row on the Subscriptions list
+            </p>
+          </div>
+
+          {/* Status & Originating Order Ref */}
+          <div className="flex items-center gap-3">
+            {activeSubscriptionDetail.status === 'Active' && (
+              <span className="px-4 py-1.5 rounded-full text-xs font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 flex items-center gap-2 shadow-sm">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                Active Subscription
+              </span>
+            )}
+            {activeSubscriptionDetail.status === 'Paused' && (
+              <span className="px-4 py-1.5 rounded-full text-xs font-bold bg-amber-500/15 text-amber-400 border border-amber-500/30 flex items-center gap-2 shadow-sm">
+                <span className="w-2 h-2 rounded-full bg-amber-400" />
+                Paused
+              </span>
+            )}
+            {activeSubscriptionDetail.status === 'Cancelled' && (
+              <span className="px-4 py-1.5 rounded-full text-xs font-bold bg-rose-500/15 text-rose-400 border border-rose-500/30 flex items-center gap-2 shadow-sm">
+                <span className="w-2 h-2 rounded-full bg-rose-400" />
+                Cancelled
+              </span>
+            )}
+            {activeSubscriptionDetail.orderId && (
+              <span className="px-3 py-1.5 rounded-full text-xs font-mono text-slate-300 bg-slate-900 border border-slate-700/80">
+                Order: {activeSubscriptionDetail.orderId}
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* Section 1: One-Time Lines (from originating order) matching Wireframe #10 */}
+        <div className="space-y-3">
+          <h3 className="text-base font-bold text-sky-400 flex items-center gap-2">
+            <span>One-Time Lines (from originating order)</span>
+          </h3>
+
+          <div className="glass-card rounded-2xl border border-slate-700/60 shadow-xl overflow-hidden">
+            <table className="w-full text-left text-sm text-slate-300">
+              <thead className="bg-slate-900/90 text-[11px] font-semibold text-slate-400 uppercase tracking-wider border-b border-slate-800">
+                <tr>
+                  <th className="py-3 px-5">Product</th>
+                  <th className="py-3 px-5 text-center">Qty</th>
+                  <th className="py-3 px-5 text-right">Amount</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-800/70 font-sans">
+                {(activeSubscriptionDetail.oneTimeLines || [
+                  { product: 'Laptop Pro 14', qty: 2, amountUSD: '$2,280', amountINR: 189240 },
+                  { product: 'Onsite Setup', qty: 1, amountUSD: '$450', amountINR: 37350 },
+                ]).map((line, idx) => (
+                  <tr key={idx} className="hover:bg-slate-800/30 transition-colors">
+                    <td className="py-3.5 px-5 font-semibold text-white">{line.product}</td>
+                    <td className="py-3.5 px-5 text-center font-mono font-bold text-slate-200">{line.qty}</td>
+                    <td className="py-3.5 px-5 text-right font-mono font-bold text-white">
+                      {line.amountUSD} <span className="text-xs text-slate-400 font-normal">({formatINR(line.amountINR)})</span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Section 2: Recurring Lines matching Wireframe #10 */}
+        <div className="space-y-3 pt-2">
+          <h3 className="text-base font-bold text-sky-400 flex items-center gap-2">
+            <span>Recurring Lines</span>
+          </h3>
+
+          <div className="glass-card rounded-2xl border border-slate-700/60 shadow-xl overflow-hidden">
+            <table className="w-full text-left text-sm text-slate-300">
+              <thead className="bg-slate-900/90 text-[11px] font-semibold text-slate-400 uppercase tracking-wider border-b border-slate-800">
+                <tr>
+                  <th className="py-3 px-5">Plan</th>
+                  <th className="py-3 px-5">cycle</th>
+                  <th className="py-3 px-5">Next Bill Date</th>
+                  <th className="py-3 px-5 text-right">Amount</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-800/70 font-sans">
+                {(activeSubscriptionDetail.recurringLines || [
+                  { plan: 'Care Plan 2yr', cycle: 'Monthly', nextBillDate: 'Sep 15', amountUSD: '$45', amountINR: 3735 },
+                  { plan: 'Support SLA', cycle: 'Quarterly', nextBillDate: 'Nov 1', amountUSD: '$300', amountINR: 24900 },
+                ]).map((line, idx) => (
+                  <tr key={idx} className="hover:bg-slate-800/30 transition-colors">
+                    <td className="py-3.5 px-5 font-semibold text-white">{line.plan}</td>
+                    <td className="py-3.5 px-5">
+                      <span className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-800 text-slate-300 border border-slate-700/60">
+                        {line.cycle}
+                      </span>
+                    </td>
+                    <td className="py-3.5 px-5 font-mono text-xs text-slate-200">
+                      {line.nextBillDate}
+                    </td>
+                    <td className="py-3.5 px-5 text-right font-mono font-bold text-amber-400">
+                      {line.amountUSD} <span className="text-xs text-slate-400 font-normal">({formatINR(line.amountINR)} / {line.cycle.toLowerCase().replace('ly', '')})</span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Action Buttons matching Wireframe #10 */}
+        <div className="pt-3 flex flex-wrap items-center gap-4">
+          {/* Modify Subscription */}
+          <button
+            onClick={() => {
+              setModifyForm({
+                plan: activeSubscriptionDetail.plan,
+                cycle: activeSubscriptionDetail.cycle,
+                amount: activeSubscriptionDetail.amount,
+                nextBill: activeSubscriptionDetail.nextBill === '-' ? 'Oct 15' : activeSubscriptionDetail.nextBill,
+              });
+              setIsModifySubscriptionOpen(true);
+            }}
+            className="py-3 px-6 rounded-2xl text-xs sm:text-sm font-bold text-slate-100 bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 hover:border-amber-400/60 shadow-xl transition-all cursor-pointer"
+          >
+            Modify Subscription
+          </button>
+
+          {/* Cancel Subscription */}
+          <button
+            onClick={handleCancelSubscription}
+            disabled={activeSubscriptionDetail.status === 'Cancelled'}
+            className={`py-3 px-6 rounded-2xl text-xs sm:text-sm font-bold border transition-all cursor-pointer ${activeSubscriptionDetail.status === 'Cancelled'
+              ? 'border-slate-800 text-slate-600 cursor-not-allowed'
+              : 'border-rose-500/80 text-rose-400 hover:bg-rose-500/10 hover:border-rose-400 shadow-lg shadow-rose-500/10'
+              }`}
+          >
+            Cancel Subscription
+          </button>
+        </div>
+      </div>
+    ) : (
+      /* WIREFRAME #9: SUBSCRIPTIONS LIST VIEW */
+      <div className="space-y-6">
+        {/* Header & Description matching Wireframe #9 */}
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div>
+            <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white font-display">
+              Subscriptions (List)
+            </h1>
+            <p className="mt-1 text-sm text-slate-400">
+              Every recurring plan across every customer, regardless of which order it came from
+            </p>
+          </div>
+
+          {/* Live Portfolio MRR */}
+          <div className="flex items-center gap-3">
+            <div className="px-4 py-2 rounded-2xl bg-slate-900/80 border border-slate-700/80 flex items-center gap-2.5 text-xs shadow-md">
+              <span className="text-slate-400 font-medium">Portfolio MRR:</span>
+              <span className="font-mono font-bold text-amber-400">
+                {formatINRLakhCrore(
+                  subscriptions
+                    .filter((s) => s.status === 'Active')
+                    .reduce((acc, s) => {
+                      if (s.cycle === 'Annual') return acc + Math.round(s.amount / 12);
+                      if (s.cycle === 'Quarterly') return acc + Math.round(s.amount / 3);
+                      return acc + s.amount;
+                    }, 0)
+                )} / mo
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Status Metric Filter Pills matching Wireframe #9 */}
+        <div className="flex flex-wrap items-center gap-3">
+          {/* 18 Active (Emerald) */}
+          <button
+            onClick={() => setSubscriptionFilter(subscriptionFilter === 'Active' ? 'ALL' : 'Active')}
+            className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-2 cursor-pointer shadow-sm ${subscriptionFilter === 'Active'
+              ? 'bg-emerald-500 text-slate-950 ring-2 ring-emerald-400 ring-offset-2 ring-offset-slate-900 shadow-emerald-500/30'
+              : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 hover:bg-emerald-500/30'
+              }`}
+          >
+            <span className={`w-2 h-2 rounded-full ${subscriptionFilter === 'Active' ? 'bg-slate-950' : 'bg-emerald-400'}`} />
+            <span>{activeSubCount} Active</span>
+          </button>
+
+          {/* 2 Paused (Amber) */}
+          <button
+            onClick={() => setSubscriptionFilter(subscriptionFilter === 'Paused' ? 'ALL' : 'Paused')}
+            className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-2 cursor-pointer shadow-sm ${subscriptionFilter === 'Paused'
+              ? 'bg-amber-500 text-slate-950 ring-2 ring-amber-400 ring-offset-2 ring-offset-slate-900 shadow-amber-500/30'
+              : 'bg-amber-500/20 text-amber-300 border border-amber-500/40 hover:bg-amber-500/30'
+              }`}
+          >
+            <span className={`w-2 h-2 rounded-full ${subscriptionFilter === 'Paused' ? 'bg-slate-950' : 'bg-amber-400'}`} />
+            <span>{pausedSubCount} Paused</span>
+          </button>
+
+          {/* 3 Cancelled (Rose) */}
+          <button
+            onClick={() => setSubscriptionFilter(subscriptionFilter === 'Cancelled' ? 'ALL' : 'Cancelled')}
+            className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-2 cursor-pointer shadow-sm ${subscriptionFilter === 'Cancelled'
+              ? 'bg-rose-500 text-white ring-2 ring-rose-400 ring-offset-2 ring-offset-slate-900 shadow-rose-500/30'
+              : 'bg-rose-500/20 text-rose-300 border border-rose-500/40 hover:bg-rose-500/30'
+              }`}
+          >
+            <span className={`w-2 h-2 rounded-full ${subscriptionFilter === 'Cancelled' ? 'bg-white' : 'bg-rose-400'}`} />
+            <span>{cancelledSubCount} Cancelled</span>
+          </button>
+
+          {subscriptionFilter !== 'ALL' && (
+            <button
+              onClick={() => setSubscriptionFilter('ALL')}
+              className="text-xs font-semibold text-slate-400 hover:text-white underline cursor-pointer ml-1"
+            >
+              Show All ({subscriptions.length})
+            </button>
+          )}
+        </div>
+
+        {/* Subscriptions Table matching Wireframe #9: Customer | Plan | cycle | Next Bill | Status */}
+        <div className="glass-card rounded-3xl border border-slate-700/60 shadow-xl overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm text-slate-300">
+              <thead className="bg-slate-900/90 text-[11px] font-semibold text-slate-400 uppercase tracking-wider border-b border-slate-800">
+                <tr>
+                  <th className="py-3.5 px-5">Customer</th>
+                  <th className="py-3.5 px-5">Plan</th>
+                  <th className="py-3.5 px-5">cycle</th>
+                  <th className="py-3.5 px-5">Next Bill</th>
+                  <th className="py-3.5 px-5">Status</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-800/70 font-sans">
+                {filteredSubscriptions.map((sub) => (
+                  <tr
+                    key={sub.id}
+                    onClick={() => openSubscriptionDetailView(sub)}
+                    className="hover:bg-slate-800/40 transition-colors cursor-pointer group"
+                  >
+                    {/* Customer */}
+                    <td className="py-4 px-5">
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-white group-hover:text-amber-300 transition-colors">
+                          {sub.customer}
+                        </span>
+                        {sub.orderId && (
+                          <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700/60">
+                            {sub.orderId}
+                          </span>
+                        )}
+                      </div>
+                      <div className="text-xs text-slate-400 flex items-center gap-2 mt-0.5">
+                        <span>{sub.city}</span>
+                        <span>•</span>
+                        <span className="font-mono text-[11px] text-slate-400">{sub.gstin}</span>
+                      </div>
+                    </td>
+
+                    {/* Plan */}
+                    <td className="py-4 px-5">
+                      <span className="text-sm font-medium text-slate-200">{sub.plan}</span>
+                      <div className="text-xs font-mono text-amber-400/90 mt-0.5">
+                        {formatINR(sub.amount)} / {sub.cycle.toLowerCase().replace('ly', '')}
+                      </div>
+                    </td>
+
+                    {/* cycle */}
+                    <td className="py-4 px-5">
+                      <span className="text-xs font-semibold px-2.5 py-1 rounded-lg bg-slate-800/80 text-slate-300 border border-slate-700/50">
+                        {sub.cycle}
+                      </span>
+                    </td>
+
+                    {/* Next Bill */}
+                    <td className="py-4 px-5 font-mono text-xs">
+                      {sub.nextBill === '-' ? (
+                        <span className="text-slate-400 font-bold">—</span>
+                      ) : (
+                        <span className="text-slate-200 font-semibold">{sub.nextBill}</span>
+                      )}
+                    </td>
+
+                    {/* Status */}
+                    <td className="py-4 px-5">
+                      {sub.status === 'Active' && (
+                        <span className="px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 inline-flex items-center gap-1.5">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                          Active
+                        </span>
+                      )}
+                      {sub.status === 'Paused' && (
+                        <span className="px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/30 inline-flex items-center gap-1.5">
+                          <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+                          Paused
+                        </span>
+                      )}
+                      {sub.status === 'Cancelled' && (
+                        <span className="px-3 py-1 rounded-full text-xs font-semibold bg-rose-500/10 text-rose-400 border border-rose-500/30 inline-flex items-center gap-1.5">
+                          <span className="w-1.5 h-1.5 rounded-full bg-rose-400" />
+                          Cancelled
+                        </span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Callout Banner matching Wireframe #9 */}
+        <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/40 text-amber-200 text-xs sm:text-sm font-medium flex items-center justify-between gap-3 shadow-lg">
+          <div className="flex items-center gap-3">
+            <span className="text-lg">💡</span>
+            <span>Click a subscription row to open its billing detail and proration history.</span>
+          </div>
+          <span className="text-xs text-amber-400 font-mono hidden sm:inline bg-amber-500/20 px-2.5 py-1 rounded-full border border-amber-500/30">
+            ⚡ Interactive Rows
+          </span>
+        </div>
+
+        {/* "+ New Plan (Admin)" Button matching Wireframe #9 */}
+        <div className="pt-1">
+          <button
+            onClick={() => setIsNewPlanModalOpen(true)}
+            className="py-3 px-6 rounded-2xl text-xs sm:text-sm font-bold text-slate-100 bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 hover:border-amber-400/60 shadow-xl hover:shadow-amber-500/10 transition-all flex items-center gap-2.5 cursor-pointer group"
+          >
+            <span className="w-5 h-5 rounded-lg bg-amber-500/20 text-amber-400 border border-amber-500/40 flex items-center justify-center font-black group-hover:scale-110 transition-transform">
+              +
+            </span>
+            <span>New Plan (Admin)</span>
+          </button>
+        </div>
+      </div>
+    )
+  );
+};
+
+export default SubscriptionsSection;

@@ -1,0 +1,67 @@
+  const [activeModule, setActiveModule] = useState('Dashboard');
+
+  // Theme state: 'dark', 'light', or 'system'
+  const [theme, setTheme] = useState(() => {
+    return localStorage.getItem('dealflow_theme') || 'dark';
+  });
+  const [isThemeMenuOpen, setIsThemeMenuOpen] = useState(false);
+  const themeMenuRef = useRef(null);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    const applyTheme = (t) => {
+      if (t === 'light') {
+        root.classList.add('theme-light');
+        root.classList.remove('dark');
+      } else if (t === 'dark') {
+        root.classList.remove('theme-light');
+        root.classList.add('dark');
+      } else if (t === 'system') {
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (prefersDark) {
+          root.classList.remove('theme-light');
+          root.classList.add('dark');
+        } else {
+          root.classList.add('theme-light');
+          root.classList.remove('dark');
+        }
+      }
+    };
+
+    applyTheme(theme);
+    try {
+      localStorage.setItem('dealflow_theme', theme);
+    } catch {
+      // ignore storage quota / access issues
+    }
+
+    if (theme === 'system') {
+      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+      const handleChange = (e) => {
+        if (e.matches) {
+          root.classList.remove('theme-light');
+          root.classList.add('dark');
+        } else {
+          root.classList.add('theme-light');
+          root.classList.remove('dark');
+        }
+      };
+      mediaQuery.addEventListener('change', handleChange);
+      return () => mediaQuery.removeEventListener('change', handleChange);
+    }
+  }, [theme]);
+
+  // Outside click listener to close theme dropdown menu
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (themeMenuRef.current && !themeMenuRef.current.contains(event.target)) {
+        setIsThemeMenuOpen(false);
+      }
+    };
+    if (isThemeMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isThemeMenuOpen]);

@@ -1,0 +1,91 @@
+  const handleUpdatePricelistRow = (index, field, val) => {
+    setProductDetailForm((prev) => ({
+      ...prev,
+      pricelists: (prev.pricelists || []).map((item, idx) =>
+        idx === index ? { ...item, [field]: val } : item
+      ),
+    }));
+  };
+
+  // Wireframe #18: Discount Tiers & Approval Chains State & Handlers
+  const [tierCeilings, setTierCeilings] = useState(initialTierDiscountCeilings);
+  const [categoryCeilings, setCategoryCeilings] = useState(initialCategoryDiscountCeilings);
+  const [approvalChains, setApprovalChains] = useState(initialApprovalRoutingRules);
+
+  const handleSaveDiscountConfiguration = () => {
+    setActivities((prev) => [
+      {
+        id: getNextActivityId(),
+        title: 'Discount ceilings & approval escalation chain saved',
+        category: 'Compliance & Governance',
+        time: 'Just now',
+        type: 'success',
+        badge: 'Config Saved',
+      },
+      ...prev,
+    ]);
+    showNotification('Discount tiers and approval chain configuration saved successfully!');
+  };
+
+  const handleAddTierCeiling = () => {
+    const newTier = {
+      id: getNextActivityId(),
+      tier: 'Platinum',
+      maxDiscount: '20 percent',
+      discountValue: 20,
+    };
+    setTierCeilings((prev) => [...prev, newTier]);
+  };
+
+  const handleRemoveTierCeiling = (id) => {
+    setTierCeilings((prev) => prev.filter((item) => item.id !== id));
+  };
+
+  const handleUpdateTierCeiling = (id, field, val) => {
+    setTierCeilings((prev) =>
+      prev.map((item) => (item.id === id ? { ...item, [field]: val } : item))
+    );
+  };
+
+  const handleAddCategoryCeiling = () => {
+    const newCat = {
+      id: getNextActivityId(),
+      category: 'Software Retainers',
+      maxDiscount: '20 percent',
+      discountValue: 20,
+    };
+    setCategoryCeilings((prev) => [...prev, newCat]);
+  };
+
+  const handleRemoveCategoryCeiling = (id) => {
+    setCategoryCeilings((prev) => prev.filter((item) => item.id !== id));
+  };
+
+  const handleUpdateCategoryCeiling = (id, field, val) => {
+    setCategoryCeilings((prev) =>
+      prev.map((item) => (item.id === id ? { ...item, [field]: val } : item))
+    );
+  };
+
+  const handleAddRoutingRule = () => {
+    const newRule = {
+      id: getNextActivityId(),
+      discountRange: 'Over 25% Critical Concession',
+      maxDiscount: 'VP of Sales & CFO Approval',
+      role: 'Board Level Escalation',
+      riskLevel: 'CRITICAL',
+    };
+    setApprovalChains((prev) => [...prev, newRule]);
+  };
+
+  const handleRemoveRoutingRule = (id) => {
+    setApprovalChains((prev) => prev.filter((item) => item.id !== id));
+  };
+
+  const handleUpdateRoutingRule = (id, field, val) => {
+    setApprovalChains((prev) =>
+      prev.map((item) => (item.id === id ? { ...item, [field]: val } : item))
+    );
+  };
+
+  // Open Billing Detail Dedicated View (Wireframe #10)

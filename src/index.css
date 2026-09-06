@@ -1,0 +1,274 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    font-family: "Plus Jakarta Sans", sans-serif;
+  }
+  body {
+    @apply bg-[#0b0f19] text-slate-100 antialiased;
+    font-family: "Plus Jakarta Sans", sans-serif;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, h4, h5, h6, p, span, a, button, input, select, textarea, label {
+    font-family: "Plus Jakarta Sans", sans-serif;
+  }
+}
+
+.font-sans, .font-display, [class*="font-display"] {
+  font-family: "Plus Jakarta Sans", sans-serif !important;
+}
+
+/* =========================================================================
+   PROFESSIONAL BUSINESS THEME SURFACES (Dark Mode / Executive Charcoal)
+   ========================================================================= */
+
+/* Clean Enterprise Cards */
+.glass-card {
+  background-color: #0f172a;
+  border: 1px solid #1e293b;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.25), 0 1px 2px -1px rgba(0, 0, 0, 0.2);
+}
+
+.glass-card-hover {
+  transition: border-color 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-card-hover:hover {
+  border-color: #3b82f6;
+  box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.35), 0 2px 4px -2px rgba(0, 0, 0, 0.2);
+}
+
+/* Crisp Enterprise Form Inputs */
+.glass-input {
+  background-color: #0f172a;
+  border: 1px solid #334155;
+  color: #f8fafc;
+  transition: all 0.15s ease;
+}
+
+.glass-input:focus {
+  background-color: #1e293b;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.25);
+  outline: none;
+}
+
+/* Crisp Corporate Accents (Replacing Distracting Neon Glows) */
+.text-glow-cyan {
+  color: #38bdf8;
+  font-weight: 600;
+  text-shadow: none;
+}
+
+.text-glow-blue {
+  color: #60a5fa;
+  font-weight: 600;
+  text-shadow: none;
+}
+
+/* Refined Corporate Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0b0f19;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #475569;
+}
+
+/* =========================================================================
+   SMOOTH TRANSITION & LIGHT MODE STYLING (.theme-light - Enterprise Daylight)
+   ========================================================================= */
+body, header, nav, main, footer, div, section, article, table, thead, tbody, tr, th, td, input, select, textarea {
+  transition-property: background-color, border-color, color, box-shadow;
+  transition-duration: 200ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.theme-light {
+  color-scheme: light;
+}
+
+.theme-light body {
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+}
+
+/* Light Business Cards (Stripe / Salesforce Clean White) */
+.theme-light .glass-card {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.06), 0 1px 2px -1px rgba(0, 0, 0, 0.04) !important;
+  color: #0f172a !important;
+}
+
+.theme-light .glass-card-hover:hover {
+  border-color: #2563eb !important;
+  box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.08), 0 2px 4px -2px rgba(0, 0, 0, 0.04) !important;
+}
+
+.theme-light .glass-input {
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+.theme-light .glass-input:focus {
+  background: #ffffff !important;
+  border-color: #2563eb !important;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.18) !important;
+}
+
+/* Corporate Typography Hierarchy */
+.theme-light h1,
+.theme-light h2,
+.theme-light h3,
+.theme-light h4,
+.theme-light .font-display,
+.theme-light .text-white {
+  color: #0f172a !important;
+}
+
+.theme-light .text-slate-100,
+.theme-light .text-slate-200,
+.theme-light .text-slate-300 {
+  color: #1e293b !important;
+}
+
+.theme-light .text-slate-400 {
+  color: #475569 !important;
+}
+
+.theme-light .text-slate-500 {
+  color: #64748b !important;
+}
+
+/* Preserve contrast for filled action buttons */
+.theme-light button.bg-slate-950,
+.theme-light button.bg-emerald-500,
+.theme-light button.bg-sky-500,
+.theme-light button.bg-amber-500,
+.theme-light button.bg-rose-500,
+.theme-light button.bg-blue-600,
+.theme-light [class*="bg-gradient-to"] {
+  color: inherit !important;
+}
+
+.theme-light [class*="bg-gradient-to"] .text-white,
+.theme-light button.bg-gradient-to-r,
+.theme-light button[class*="from-"],
+.theme-light button.bg-blue-600 {
+  color: #ffffff !important;
+}
+
+/* Surface backgrounds in light mode */
+.theme-light .bg-slate-900,
+.theme-light .bg-slate-950,
+.theme-light .bg-\[\#080c14\],
+.theme-light .bg-\[\#0b0f19\],
+.theme-light .bg-\[\#0b1222\],
+.theme-light .bg-\[\#0f172a\] {
+  background-color: #ffffff !important;
+}
+
+.theme-light .bg-slate-900\/60,
+.theme-light .bg-slate-900\/80,
+.theme-light .bg-slate-900\/90,
+.theme-light .bg-slate-950\/60,
+.theme-light .bg-slate-950\/80,
+.theme-light .bg-slate-950\/90 {
+  background-color: #ffffff !important;
+}
+
+.theme-light .bg-slate-800 {
+  background-color: #f1f5f9 !important;
+}
+
+.theme-light .bg-slate-800\/40,
+.theme-light .bg-slate-800\/50,
+.theme-light .bg-slate-800\/60,
+.theme-light .bg-slate-800\/70,
+.theme-light .bg-slate-800\/80 {
+  background-color: #f8fafc !important;
+}
+
+/* Crisp light borders */
+.theme-light .border-slate-800,
+.theme-light .border-slate-700,
+.theme-light .border-slate-800\/60,
+.theme-light .border-slate-800\/70,
+.theme-light .border-slate-800\/80,
+.theme-light .border-slate-700\/60,
+.theme-light .border-slate-700\/70,
+.theme-light .border-slate-700\/80 {
+  border-color: #e2e8f0 !important;
+}
+
+.theme-light .divide-slate-800 > :not([hidden]) ~ :not([hidden]),
+.theme-light .divide-slate-800\/60 > :not([hidden]) ~ :not([hidden]),
+.theme-light .divide-slate-800\/70 > :not([hidden]) ~ :not([hidden]) {
+  border-color: #e2e8f0 !important;
+}
+
+/* Professional Enterprise Status Badges in Light Mode */
+.theme-light .bg-emerald-500\/10,
+.theme-light .bg-emerald-500\/20 {
+  background-color: #ecfdf5 !important;
+  border-color: #a7f3d0 !important;
+  color: #047857 !important;
+}
+
+.theme-light .bg-amber-500\/10,
+.theme-light .bg-amber-500\/20 {
+  background-color: #fffbeb !important;
+  border-color: #fde68a !important;
+  color: #b45309 !important;
+}
+
+.theme-light .bg-rose-500\/10,
+.theme-light .bg-rose-500\/20 {
+  background-color: #fff1f2 !important;
+  border-color: #fecdd3 !important;
+  color: #be123c !important;
+}
+
+.theme-light .bg-blue-500\/10,
+.theme-light .bg-blue-500\/20,
+.theme-light .bg-sky-500\/10,
+.theme-light .bg-sky-500\/20 {
+  background-color: #eff6ff !important;
+  border-color: #bfdbfe !important;
+  color: #1d4ed8 !important;
+}
+
+/* Table row hovering in light mode */
+.theme-light tr:hover {
+  background-color: #f8fafc !important;
+}
+
+/* Clean Light Scrollbar */
+.theme-light ::-webkit-scrollbar-track {
+  background: #f8fafc;
+}
+
+.theme-light ::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+}
+
+.theme-light ::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}

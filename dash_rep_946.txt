@@ -1,0 +1,372 @@
+      {/* =========================================================================
+          MODAL: PRODUCT DETAIL, VARIANTS & PRICE LISTS INSPECTOR (WIREFRAME #16)
+         ========================================================================= */}
+      {selectedCatalogProduct && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto animate-fadeIn">
+          <div className="glass-card max-w-2xl w-full rounded-3xl p-6 sm:p-8 border border-slate-700/80 shadow-2xl space-y-6 max-h-[90vh] overflow-y-auto">
+            {/* Modal Header */}
+            <div className="flex items-start justify-between border-b border-slate-800 pb-4">
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-xs font-mono font-bold text-amber-400 bg-amber-500/10 px-2.5 py-0.5 rounded border border-amber-500/20">
+                    {selectedCatalogProduct.sku}
+                  </span>
+                  <span className="text-xs text-slate-400 font-mono">
+                    ID: {selectedCatalogProduct.id}
+                  </span>
+                  <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                    {selectedCatalogProduct.status}
+                  </span>
+                </div>
+                <h3 className="text-2xl font-bold font-display text-white">
+                  {selectedCatalogProduct.name}
+                </h3>
+                <p className="text-xs text-slate-400 mt-0.5">
+                  Category: <strong className="text-slate-200">{selectedCatalogProduct.category}</strong> • Tax: <strong className="text-amber-400">{selectedCatalogProduct.tax}</strong> ({selectedCatalogProduct.taxCode})
+                </p>
+              </div>
+
+              <button
+                onClick={() => setSelectedCatalogProduct(null)}
+                className="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-white transition-colors cursor-pointer ml-2"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* General Info Grid */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div className="p-3.5 rounded-2xl bg-slate-900/80 border border-slate-800">
+                <span className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Base Price (USD)</span>
+                <div className="text-xl font-bold font-mono text-white mt-1">
+                  {selectedCatalogProduct.priceUSD}
+                </div>
+                <span className="text-[10px] text-slate-500">Global benchmark</span>
+              </div>
+
+              <div className="p-3.5 rounded-2xl bg-slate-900/80 border border-slate-800">
+                <span className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Indian Price (INR)</span>
+                <div className="text-xl font-bold font-mono text-amber-300 mt-1">
+                  {formatINR(selectedCatalogProduct.priceINR)}
+                </div>
+                <span className="text-[10px] text-slate-500">Excl. GST</span>
+              </div>
+
+              <div className="p-3.5 rounded-2xl bg-slate-900/80 border border-slate-800">
+                <span className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Unit & Billing</span>
+                <div className="text-sm font-bold text-slate-200 mt-1">
+                  {selectedCatalogProduct.unit}
+                </div>
+                <span className="text-[10px] text-slate-500">Inventory UOM</span>
+              </div>
+
+              <div className="p-3.5 rounded-2xl bg-slate-900/80 border border-slate-800">
+                <span className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Discount Limit</span>
+                <div className="text-xl font-bold font-mono text-emerald-400 mt-1">
+                  {selectedCatalogProduct.discountLimit || 15}%
+                </div>
+                <span className="text-[10px] text-slate-500">Rep ceiling</span>
+              </div>
+            </div>
+
+            {/* Description */}
+            <div className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-1">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block">
+                Commercial Specification & Description
+              </span>
+              <p className="text-xs text-slate-300 leading-relaxed">
+                {selectedCatalogProduct.description}
+              </p>
+            </div>
+
+            {/* Variants Matrix */}
+            <div className="space-y-2.5">
+              <div className="flex items-center justify-between">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-2">
+                  <span>🔀 Configurable SKU Variants ({selectedCatalogProduct.variants})</span>
+                </h4>
+                <span className="text-[11px] text-slate-400 font-mono">Stock Level</span>
+              </div>
+
+              {selectedCatalogProduct.variantList && selectedCatalogProduct.variantList.length > 0 ? (
+                <div className="space-y-2">
+                  {selectedCatalogProduct.variantList.map((v, idx) => (
+                    <div
+                      key={idx}
+                      className="p-3 rounded-2xl bg-slate-900/80 border border-slate-800 flex items-center justify-between text-xs"
+                    >
+                      <div>
+                        <div className="font-semibold text-white">{v.name}</div>
+                        <div className="text-[11px] text-slate-500 font-mono">{v.sku}</div>
+                      </div>
+                      <div className="text-right font-mono">
+                        <div className="font-bold text-slate-200">{v.priceUSD} ({formatINR(v.priceINR)})</div>
+                        <div className="text-[10px] text-emerald-400 font-semibold">{v.inStock} in stock</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="p-3.5 rounded-2xl bg-slate-900/40 border border-slate-800 text-xs text-slate-400">
+                  Standard non-variant catalog item. Uniform configuration across all order fulfillment lines.
+                </div>
+              )}
+            </div>
+
+            {/* Multi-Tier & Multi-Currency Price Lists */}
+            <div className="space-y-2.5">
+              <div className="flex items-center justify-between">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-2">
+                  <span>🏷 Multi-Tier Price Books & Currency Rates</span>
+                </h4>
+                <span className="text-[11px] text-slate-400">Rules Engine</span>
+              </div>
+
+              <div className="space-y-2 text-xs">
+                {selectedCatalogProduct.tierPricing && selectedCatalogProduct.tierPricing.map((tp, idx) => (
+                  <div
+                    key={idx}
+                    className="p-3 rounded-2xl bg-slate-900/80 border border-slate-800 flex items-center justify-between"
+                  >
+                    <div>
+                      <div className="font-semibold text-white">{tp.tier}</div>
+                      <div className="text-[11px] text-slate-400">Currency: {tp.currency}</div>
+                    </div>
+                    <div className="text-right font-mono">
+                      <div className="font-bold text-amber-300">{tp.price}</div>
+                      <div className="text-[10px] text-slate-400">Max Discount: {tp.discountLimit}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Modal Actions */}
+            <div className="pt-3 border-t border-slate-800 flex items-center justify-between gap-3">
+              <button
+                onClick={() => {
+                  showNotification(`Product specifications exported for ${selectedCatalogProduct.name}.`);
+                }}
+                className="py-2.5 px-4 rounded-xl text-xs font-semibold text-slate-300 bg-slate-800 hover:bg-slate-700 border border-slate-700 transition-colors cursor-pointer flex items-center gap-1.5"
+              >
+                <span>📄 Export Datasheet (PDF)</span>
+              </button>
+
+              <button
+                onClick={() => setSelectedCatalogProduct(null)}
+                className="py-2.5 px-5 rounded-xl font-bold text-xs text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 transition-colors cursor-pointer"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* =========================================================================
+          MODAL: + NEW PRODUCT (WIREFRAME #16)
+         ========================================================================= */}
+      {isNewProductModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto animate-fadeIn">
+          <div className="glass-card max-w-xl w-full rounded-3xl p-6 sm:p-8 border border-slate-700/80 shadow-2xl space-y-6">
+            <div className="flex items-start justify-between border-b border-slate-800 pb-4">
+              <div>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-sky-400 bg-sky-500/10 px-2.5 py-0.5 rounded-full border border-sky-500/20">
+                  Catalog Manager
+                </span>
+                <h3 className="text-2xl font-bold font-display text-white mt-1">
+                  Add New Catalog Product
+                </h3>
+                <p className="text-xs text-slate-400 mt-0.5">
+                  Configure hardware appliances, professional services, or subscription retainers with GST rates.
+                </p>
+              </div>
+              <button
+                onClick={() => setIsNewProductModalOpen(false)}
+                className="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-white transition-colors cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateNewProduct} className="space-y-4 text-xs">
+              <div>
+                <label className="block text-slate-300 font-semibold mb-1">Product Name</label>
+                <input
+                  type="text"
+                  required
+                  value={newProductForm.name}
+                  onChange={(e) => setNewProductForm({ ...newProductForm, name: e.target.value })}
+                  placeholder="e.g. UltraWide Monitor 34, Cloud Gateway Hub..."
+                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-slate-200 focus:outline-none focus:border-amber-400"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-slate-300 font-semibold mb-1">Category</label>
+                  <select
+                    value={newProductForm.category}
+                    onChange={(e) => setNewProductForm({ ...newProductForm, category: e.target.value })}
+                    className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-slate-200 focus:outline-none focus:border-amber-400"
+                  >
+                    <option value="Hardware">Hardware</option>
+                    <option value="Services">Services</option>
+                    <option value="Subscription">Subscription</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-slate-300 font-semibold mb-1">Base Price (USD)</label>
+                  <input
+                    type="number"
+                    required
+                    min="1"
+                    value={newProductForm.priceUSD}
+                    onChange={(e) => setNewProductForm({ ...newProductForm, priceUSD: e.target.value })}
+                    placeholder="e.g. 1200"
+                    className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-slate-200 font-mono focus:outline-none focus:border-amber-400"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-slate-300 font-semibold mb-1">Unit</label>
+                  <select
+                    value={newProductForm.unit}
+                    onChange={(e) => setNewProductForm({ ...newProductForm, unit: e.target.value })}
+                    className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-slate-200 focus:outline-none focus:border-amber-400"
+                  >
+                    <option value="Each">Each</option>
+                    <option value="Recurring">Recurring</option>
+                    <option value="Hour">Hour</option>
+                    <option value="Asset">Asset</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-slate-300 font-semibold mb-1">Tax Rate</label>
+                  <select
+                    value={newProductForm.tax}
+                    onChange={(e) => setNewProductForm({ ...newProductForm, tax: e.target.value })}
+                    className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-slate-200 focus:outline-none focus:border-amber-400"
+                  >
+                    <option value="15%">15% (Hardware Tier)</option>
+                    <option value="10%">10% (Services Tier)</option>
+                    <option value="18%">18% (Standard GST)</option>
+                    <option value="0%">0% (Exempt)</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-slate-300 font-semibold mb-1">Variants (Optional)</label>
+                  <input
+                    type="text"
+                    value={newProductForm.variants}
+                    onChange={(e) => setNewProductForm({ ...newProductForm, variants: e.target.value })}
+                    placeholder="e.g. 3(size) or -"
+                    className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-slate-200 focus:outline-none focus:border-amber-400"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-slate-300 font-semibold mb-1">Description / Spec</label>
+                <textarea
+                  rows="2"
+                  value={newProductForm.description}
+                  onChange={(e) => setNewProductForm({ ...newProductForm, description: e.target.value })}
+                  placeholder="Enter enterprise product description..."
+                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-slate-200 focus:outline-none focus:border-amber-400"
+                />
+              </div>
+
+              <div className="pt-3 border-t border-slate-800 flex justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => setIsNewProductModalOpen(false)}
+                  className="py-2.5 px-4 rounded-xl font-semibold text-slate-300 bg-slate-800 hover:bg-slate-700 border border-slate-700 transition-colors cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="py-2.5 px-6 rounded-xl font-bold text-slate-950 bg-gradient-to-r from-sky-400 to-sky-500 hover:from-sky-300 hover:to-sky-400 shadow-lg shadow-sky-500/25 transition-all cursor-pointer"
+                >
+                  Save Product to Catalog
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* =========================================================================
+          MODAL: MANAGE PRICE FIELDS & TIERS (WIREFRAME #16)
+         ========================================================================= */}
+      {isManagePriceFieldsModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto animate-fadeIn">
+          <div className="glass-card max-w-xl w-full rounded-3xl p-6 sm:p-8 border border-slate-700/80 shadow-2xl space-y-6">
+            <div className="flex items-start justify-between border-b border-slate-800 pb-4">
+              <div>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-amber-400 bg-amber-500/10 px-2.5 py-0.5 rounded-full border border-amber-500/20">
+                  Pricing Governance
+                </span>
+                <h3 className="text-2xl font-bold font-display text-white mt-1">
+                  Manage Price Fields & Price Lists
+                </h3>
+                <p className="text-xs text-slate-400 mt-0.5">
+                  Configure active enterprise tiers, currency conversion multipliers, and discount limits.
+                </p>
+              </div>
+              <button
+                onClick={() => setIsManagePriceFieldsModalOpen(false)}
+                className="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-white transition-colors cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="space-y-3 text-xs">
+              <div className="p-4 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-1">
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-white text-sm">Tier 1: Standard Indian Enterprise (INR)</span>
+                  <span className="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 text-[10px] font-bold">Default Price Book</span>
+                </div>
+                <p className="text-slate-400 text-[11px]">Primary INR price book for registered GST entities with 15% discount concession ceiling.</p>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-1">
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-white text-sm">Tier 2: Commercial Direct (INR)</span>
+                  <span className="px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/30 text-[10px] font-bold">+8% Base Premium</span>
+                </div>
+                <p className="text-slate-400 text-[11px]">Short-term commercial contracts with strict 10% discount concession threshold.</p>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-1">
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-white text-sm">Tier 3: Global Export (USD)</span>
+                  <span className="px-2 py-0.5 rounded bg-sky-500/10 text-sky-400 border border-sky-500/30 text-[10px] font-bold">1 USD = ₹83 Fixed</span>
+                </div>
+                <p className="text-slate-400 text-[11px]">International cross-border transactions billed in USD with integrated SWIFT/wire rules.</p>
+              </div>
+            </div>
+
+            <div className="pt-3 border-t border-slate-800 flex justify-end">
+              <button
+                onClick={() => {
+                  setIsManagePriceFieldsModalOpen(false);
+                  showNotification('Price fields & tier rules synchronized across all quotes.');
+                }}
+                className="py-2.5 px-6 rounded-xl font-bold text-xs text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 transition-colors cursor-pointer"
+              >
+                Close & Save Settings
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );

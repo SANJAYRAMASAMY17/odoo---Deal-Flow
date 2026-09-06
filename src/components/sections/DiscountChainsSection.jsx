@@ -1,0 +1,415 @@
+import { formatINR, formatINRLakhCrore } from '../../utils/formatters.js';
+
+const DiscountChainsSection = (props) => {
+  const {
+    quotations,
+    approvals,
+    activities,
+    openQuotationDetail,
+    setActiveModule,
+    openApprovalDetailView,
+    theme,
+    pendingCount,
+    returnedCount,
+    approvedCount,
+    openQuotationsCount,
+    atRiskDealsCount,
+    totalPipelineValue,
+    activeQuotationDetail,
+    setActiveQuotationDetail,
+    quotationViewMode,
+    setQuotationViewMode,
+    openNewQuotationModal,
+    kanbanStages,
+    handleSaveQuotationChanges,
+    handleApproveQuotation,
+    handleReturnQuotation,
+    handleSubmitForApproval,
+    selectedApprovalDetail,
+    setSelectedApprovalDetail,
+    activeApprovalDetail,
+    setActiveApprovalDetail,
+    approvalFilter,
+    setApprovalFilter,
+    filteredApprovals,
+    openApprovalDetailModal,
+    handleApproveAction,
+    handleReturnAction,
+    warehouseStock,
+    setWarehouseStock,
+    fulfillmentOrders,
+    setFulfillmentOrders,
+    selectedFulfillmentOrder,
+    setSelectedFulfillmentOrder,
+    activeFulfillmentDetail,
+    setActiveFulfillmentDetail,
+    selectedWarehouseHub,
+    setSelectedWarehouseHub,
+    openFulfillmentDetail,
+    handleDispatchOrder,
+    subscriptions,
+    setSubscriptions,
+    subscriptionFilter,
+    setSubscriptionFilter,
+    selectedSubscriptionDetail,
+    setSelectedSubscriptionDetail,
+    activeSubscriptionDetail,
+    setActiveSubscriptionDetail,
+    isNewPlanModalOpen,
+    setIsNewPlanModalOpen,
+    newPlanForm,
+    setNewPlanForm,
+    handleCreateNewPlan,
+    openSubscriptionDetail,
+    handlePauseSubscription,
+    handleResumeSubscription,
+    handleCancelSubscription,
+    activeSubCount,
+    pausedSubCount,
+    cancelledSubCount,
+    filteredSubscriptions,
+    invoices,
+    setInvoices,
+    invoiceFilter,
+    setInvoiceFilter,
+    selectedInvoiceDetail,
+    setSelectedInvoiceDetail,
+    activeInvoiceDetail,
+    setActiveInvoiceDetail,
+    openInvoiceDetail,
+    handleMarkInvoicePaid,
+    filteredInvoices,
+    unpaidCount,
+    paidCount,
+    reconciledCount,
+    totalUnpaidAmount,
+    totalPaidAmount,
+    dealHealthData,
+    exportAuditReport,
+    auditLogs,
+    products,
+    setProducts,
+    selectedProductDetail,
+    setSelectedProductDetail,
+    productSearchQuery,
+    setProductSearchQuery,
+    productCategoryFilter,
+    setProductCategoryFilter,
+    filteredProducts,
+    openProductDetail,
+    handleSaveProductChanges,
+    discountTiers,
+    setDiscountTiers,
+    approvalRules,
+    setApprovalRules,
+    handleUpdateTierLimit,
+    customerPortalTab,
+    setCustomerPortalTab,
+    customerPortalQuote,
+    setCustomerPortalQuote,
+    portalMessages,
+    setPortalMessages,
+    newPortalMessage,
+    setNewPortalMessage,
+    handleSendPortalMessage,
+    handleCustomerApproveQuote,
+    handleCustomerRequestChange,
+    showNotification,
+    handleAddTierCeiling,
+    tierCeilings,
+    handleUpdateTierCeiling,
+    handleRemoveTierCeiling,
+    handleAddCategoryCeiling,
+    categoryCeilings,
+    handleUpdateCategoryCeiling,
+    handleRemoveCategoryCeiling,
+    handleAddRoutingRule,
+    approvalChains,
+    handleUpdateRoutingRule,
+    handleRemoveRoutingRule,
+    handleSaveDiscountConfiguration,
+  } = props;
+
+  return (
+          <div className="space-y-6 animate-fadeIn">
+            {/* 1. DealFlow360 Sky-Blue Brand Bar */}
+            <div className="rounded-2xl bg-sky-500 px-5 py-3.5 flex flex-wrap items-center justify-between gap-4 shadow-xl shadow-sky-500/10">
+              <div className="flex items-center gap-3 text-slate-950 font-black text-xl tracking-tight font-display">
+                <span>DealFlow360</span>
+                <span className="text-[10px] uppercase font-bold tracking-widest px-2.5 py-0.5 rounded-md bg-slate-950/15 text-slate-950">
+                  Governance &amp; Pricing Studio
+                </span>
+              </div>
+              <div className="text-xs font-bold text-slate-950/80 font-mono">
+                Enterprise Discount Policy &amp; Escalation Matrix
+              </div>
+            </div>
+
+            {/* 2. Header & Title matching Wireframe #18 */}
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-xs font-mono font-bold text-sky-400 bg-sky-500/10 px-2.5 py-0.5 rounded-full border border-sky-500/20">
+                    18. Discount tiers and approval chain setup
+                  </span>
+                  <span className="text-xs text-slate-500 font-mono">
+                    Policy Engine v2.4 Active
+                  </span>
+                </div>
+                <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white font-display">
+                  Discount tiers and approval chains
+                </h1>
+                <p className="mt-1 text-sm text-slate-400">
+                  Configure maximum allowable discount concessions, tier limits, and blended risk escalation workflows.
+                </p>
+              </div>
+
+              {/* Navigation and Quick Links */}
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setActiveModule('Approvals')}
+                  className="py-2.5 px-4 rounded-xl text-xs font-bold text-slate-300 bg-slate-900 hover:bg-slate-800 border border-slate-700 transition-all cursor-pointer flex items-center gap-1.5"
+                >
+                  <span>←</span>
+                  <span>Approvals Queue</span>
+                </button>
+                <button
+                  onClick={() => setActiveModule('Products')}
+                  className="py-2.5 px-4 rounded-xl text-xs font-bold text-slate-300 bg-slate-900 hover:bg-slate-800 border border-slate-700 transition-all cursor-pointer flex items-center gap-1.5"
+                >
+                  <span>📦</span>
+                  <span>Product Catalog</span>
+                </button>
+              </div>
+            </div>
+
+            {/* 3. Top Grid: Tier Discount Ceilings (Left) & Category Discount Ceilings (Right) */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Card 1: Tier Discount Ceilings */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-400 pl-1">
+                    Tier Discount Ceilings
+                  </span>
+                  <button
+                    type="button"
+                    onClick={handleAddTierCeiling}
+                    className="text-xs font-bold text-sky-400 hover:text-sky-300 bg-sky-500/10 hover:bg-sky-500/20 px-3 py-1 rounded-xl border border-sky-500/30 transition-all cursor-pointer"
+                  >
+                    + Add Tier
+                  </button>
+                </div>
+
+                <div className="glass-card rounded-3xl border border-slate-700/70 p-5 shadow-xl space-y-4">
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left text-sm text-slate-300">
+                      <thead className="bg-slate-900/80 text-[11px] font-semibold text-slate-400 uppercase tracking-wider border-b border-slate-800">
+                        <tr>
+                          <th className="py-3 px-4">Tier</th>
+                          <th className="py-3 px-4 font-mono">Max Discount</th>
+                          <th className="py-3 px-3 text-right">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-800/60 font-sans">
+                        {tierCeilings.map((item) => (
+                          <tr key={item.id} className="hover:bg-slate-800/40 transition-colors">
+                            <td className="py-3 px-4">
+                              <input
+                                type="text"
+                                value={item.tier}
+                                onChange={(e) => handleUpdateTierCeiling(item.id, 'tier', e.target.value)}
+                                className="w-full bg-slate-950/60 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white font-bold focus:outline-none focus:border-sky-400"
+                              />
+                            </td>
+                            <td className="py-3 px-4 font-mono">
+                              <input
+                                type="text"
+                                value={item.maxDiscount}
+                                onChange={(e) => handleUpdateTierCeiling(item.id, 'maxDiscount', e.target.value)}
+                                className="w-full bg-slate-950/60 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-amber-300 font-bold focus:outline-none focus:border-sky-400"
+                              />
+                            </td>
+                            <td className="py-3 px-3 text-right">
+                              <button
+                                type="button"
+                                onClick={() => handleRemoveTierCeiling(item.id)}
+                                className="text-slate-500 hover:text-rose-400 text-xs px-2 py-1 transition-colors cursor-pointer"
+                                title="Delete Tier"
+                              >
+                                ✕
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+
+              {/* Card 2: Category Discount Ceilings */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-400 pl-1">
+                    Category Discount ceilings
+                  </span>
+                  <button
+                    type="button"
+                    onClick={handleAddCategoryCeiling}
+                    className="text-xs font-bold text-amber-400 hover:text-amber-300 bg-amber-500/10 hover:bg-amber-500/20 px-3 py-1 rounded-xl border border-amber-500/30 transition-all cursor-pointer"
+                  >
+                    + Add Category
+                  </button>
+                </div>
+
+                <div className="glass-card rounded-3xl border border-slate-700/70 p-5 shadow-xl space-y-4">
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left text-sm text-slate-300">
+                      <thead className="bg-slate-900/80 text-[11px] font-semibold text-slate-400 uppercase tracking-wider border-b border-slate-800">
+                        <tr>
+                          <th className="py-3 px-4">Category</th>
+                          <th className="py-3 px-4 font-mono">Max Discount</th>
+                          <th className="py-3 px-3 text-right">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-800/60 font-sans">
+                        {categoryCeilings.map((item) => (
+                          <tr key={item.id} className="hover:bg-slate-800/40 transition-colors">
+                            <td className="py-3 px-4">
+                              <input
+                                type="text"
+                                value={item.category}
+                                onChange={(e) => handleUpdateCategoryCeiling(item.id, 'category', e.target.value)}
+                                className="w-full bg-slate-950/60 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white font-bold focus:outline-none focus:border-amber-400"
+                              />
+                            </td>
+                            <td className="py-3 px-4 font-mono">
+                              <input
+                                type="text"
+                                value={item.maxDiscount}
+                                onChange={(e) => handleUpdateCategoryCeiling(item.id, 'maxDiscount', e.target.value)}
+                                className="w-full bg-slate-950/60 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-emerald-400 font-bold focus:outline-none focus:border-amber-400"
+                              />
+                            </td>
+                            <td className="py-3 px-3 text-right">
+                              <button
+                                type="button"
+                                onClick={() => handleRemoveCategoryCeiling(item.id)}
+                                className="text-slate-500 hover:text-rose-400 text-xs px-2 py-1 transition-colors cursor-pointer"
+                                title="Delete Category"
+                              >
+                                ✕
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* 4. Bottom Wide Card: Approval Chain Routing Rules */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-400 pl-1">
+                  Tier Discount Ceilings (Approval Chain Routing Rules)
+                </span>
+                <button
+                  type="button"
+                  onClick={handleAddRoutingRule}
+                  className="text-xs font-bold text-sky-400 hover:text-sky-300 bg-sky-500/10 hover:bg-sky-500/20 px-3 py-1 rounded-xl border border-sky-500/30 transition-all cursor-pointer"
+                >
+                  + Add Routing Rule
+                </button>
+              </div>
+
+              <div className="glass-card rounded-3xl border border-slate-700/70 p-5 shadow-xl space-y-4">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-sm text-slate-300">
+                    <thead className="bg-slate-900/80 text-[11px] font-semibold text-slate-400 uppercase tracking-wider border-b border-slate-800">
+                      <tr>
+                        <th className="py-3.5 px-5">Discount range</th>
+                        <th className="py-3.5 px-5">Max Discount / Required Approver</th>
+                        <th className="py-3.5 px-4 font-mono">Risk Level</th>
+                        <th className="py-3.5 px-3 text-right">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-800/60 font-sans">
+                      {approvalChains.map((rule) => (
+                        <tr key={rule.id} className="hover:bg-slate-800/40 transition-colors">
+                          <td className="py-3.5 px-5">
+                            <input
+                              type="text"
+                              value={rule.discountRange}
+                              onChange={(e) => handleUpdateRoutingRule(rule.id, 'discountRange', e.target.value)}
+                              className="w-full bg-slate-950/60 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white font-bold focus:outline-none focus:border-sky-400"
+                            />
+                          </td>
+                          <td className="py-3.5 px-5">
+                            <input
+                              type="text"
+                              value={rule.maxDiscount}
+                              onChange={(e) => handleUpdateRoutingRule(rule.id, 'maxDiscount', e.target.value)}
+                              className="w-full bg-slate-950/60 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-sky-300 font-bold focus:outline-none focus:border-sky-400"
+                            />
+                          </td>
+                          <td className="py-3.5 px-4 font-mono">
+                            <span
+                              className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold border ${
+                                rule.riskLevel === 'HIGH' || rule.riskLevel === 'CRITICAL'
+                                  ? 'bg-rose-500/10 text-rose-400 border-rose-500/30'
+                                  : rule.riskLevel === 'MEDIUM'
+                                  ? 'bg-amber-500/10 text-amber-400 border-amber-500/30'
+                                  : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
+                              }`}
+                            >
+                              {rule.riskLevel || 'LOW'}
+                            </span>
+                          </td>
+                          <td className="py-3.5 px-3 text-right">
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveRoutingRule(rule.id)}
+                              className="text-slate-500 hover:text-rose-400 text-xs px-2 py-1 transition-colors cursor-pointer"
+                              title="Delete Rule"
+                            >
+                              ✕
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            {/* 5. Save Configuration Button matching Wireframe #18 */}
+            <div>
+              <button
+                type="button"
+                onClick={handleSaveDiscountConfiguration}
+                className="py-3.5 px-8 rounded-2xl font-extrabold text-sm text-slate-950 bg-[#38bdf8] hover:bg-[#0ea5e9] shadow-xl shadow-sky-500/25 transition-all cursor-pointer flex items-center gap-2 border border-sky-300/60 active:scale-95"
+              >
+                <span>💾</span>
+                <span>Save configuration</span>
+              </button>
+            </div>
+
+            {/* 6. Callout Notice Box (Yellow/Gold Border) matching Wireframe #18 */}
+            <div className="rounded-2xl p-5 bg-amber-500/10 border-2 border-amber-500/70 shadow-xl space-y-1.5">
+              <div className="flex items-start gap-3">
+                <span className="text-amber-400 text-lg leading-none mt-0.5">⚠️</span>
+                <div className="space-y-1.5 text-xs sm:text-sm font-semibold text-amber-200 leading-relaxed">
+                  <p>When a quote mixes categories with different ceilings, the system must compute a blended risk score and route to the highest required level</p>
+                  <p>All approvals, rejections, and edits must be logged with user, timestamp, and reason</p>
+                </div>
+              </div>
+            </div>
+          </div>
+  );
+};
+
+export default DiscountChainsSection;

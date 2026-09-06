@@ -1,0 +1,163 @@
+            {/* Action Buttons */}
+            <div className="pt-2 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3">
+              <button
+                onClick={() => {
+                  const targetQuote = quotations.find((q) => q.id === selectedApprovalDetail.quotationId) || quotations[0];
+                  setSelectedApprovalDetail(null);
+                  openQuotationDetail(targetQuote);
+                }}
+                className="text-xs text-amber-400 hover:underline font-semibold cursor-pointer"
+              >
+                Inspect Line Items on Q-1042 →
+              </button>
+
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => handleReturnQuotation(selectedApprovalDetail.id)}
+                  className="py-2.5 px-4 rounded-xl text-xs font-semibold text-slate-300 bg-slate-800 hover:bg-slate-700 border border-slate-700 transition-colors cursor-pointer"
+                >
+                  ↩ Return with Comments
+                </button>
+
+                <button
+                  onClick={() => handleApproveQuotation(selectedApprovalDetail.id)}
+                  className="py-2.5 px-5 rounded-xl text-xs font-semibold text-white bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 shadow-lg shadow-emerald-600/25 transition-all cursor-pointer"
+                >
+                  ✓ Approve Quotation
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* =========================================================================
+          MODAL: WAREHOUSE SPLIT DETAIL (Wireframe #7 Order Inspector)
+         ========================================================================= */}
+      {selectedFulfillmentOrder && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+          <div className="relative w-full max-w-2xl glass-card rounded-3xl p-6 sm:p-8 border border-slate-700 shadow-2xl space-y-6 animate-float">
+            {/* Header */}
+            <div className="flex items-start justify-between border-b border-slate-800 pb-4">
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="font-mono text-sm font-bold text-white">{selectedFulfillmentOrder.id}</span>
+                  <span className="text-slate-500">•</span>
+                  <span
+                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-extrabold border ${
+                      selectedFulfillmentOrder.status === 'Split Pending'
+                        ? 'bg-amber-500/20 text-amber-300 border-amber-500/40'
+                        : selectedFulfillmentOrder.status === 'Backorder'
+                        ? 'bg-rose-500/20 text-rose-300 border-rose-500/40'
+                        : selectedFulfillmentOrder.status === 'Ready to Ship'
+                        ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
+                        : 'bg-sky-500/20 text-sky-300 border-sky-500/40'
+                    }`}
+                  >
+                    {selectedFulfillmentOrder.status}
+                  </span>
+                  <span className="text-xs text-slate-400 font-mono">
+                    ({selectedFulfillmentOrder.warehouses})
+                  </span>
+                </div>
+
+                <h3 className="text-2xl font-extrabold font-display text-white">
+                  {selectedFulfillmentOrder.customer} Warehouse Split Detail
+                </h3>
+                <p className="text-xs text-slate-400 mt-0.5">
+                  Delivery Destination: <strong className="text-slate-200">{selectedFulfillmentOrder.city}</strong> • GSTIN: <strong className="text-amber-400 font-mono">{selectedFulfillmentOrder.gstin}</strong>
+                </p>
+              </div>
+
+              <button
+                onClick={() => setSelectedFulfillmentOrder(null)}
+                className="p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Warehouse Allocation Breakdown */}
+            <div className="space-y-3">
+              <span className="text-xs font-semibold text-slate-300 uppercase tracking-wider block">
+                Line-Item Depot Allocation Breakdown
+              </span>
+
+              <div className="rounded-2xl border border-slate-800 overflow-hidden bg-slate-900/60">
+                <table className="w-full text-left text-xs text-slate-300">
+                  <thead className="bg-slate-900 text-[11px] font-semibold text-slate-400 border-b border-slate-800">
+                    <tr>
+                      <th className="py-2.5 px-4">Item</th>
+                      <th className="py-2.5 px-3 text-center">Order Qty</th>
+                      <th className="py-2.5 px-3 text-center text-amber-300">Main Warehouse</th>
+                      <th className="py-2.5 px-3 text-center text-sky-300">East Depot</th>
+                      <th className="py-2.5 px-4 text-right">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-800/60 font-sans">
+                    {selectedFulfillmentOrder.allocations && selectedFulfillmentOrder.allocations.map((alloc, idx) => (
+                      <tr key={idx} className="hover:bg-slate-800/20">
+                        <td className="py-3 px-4 font-semibold text-white">{alloc.product}</td>
+                        <td className="py-3 px-3 text-center font-mono font-bold text-slate-200">{alloc.qty}</td>
+                        <td className="py-3 px-3 text-center font-mono text-amber-300">{alloc.mainDepot} units</td>
+                        <td className="py-3 px-3 text-center font-mono text-sky-300">{alloc.eastDepot} units</td>
+                        <td className="py-3 px-4 text-right">
+                          <span className="text-[11px] font-semibold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                            {alloc.status}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Dispatch & Logistics Card */}
+            <div className="p-4 rounded-2xl bg-slate-900/70 border border-slate-800 space-y-2 text-xs">
+              <div className="flex items-center justify-between text-slate-400">
+                <span>e-Way Bill Reference:</span>
+                <span className="font-mono font-bold text-amber-400">{selectedFulfillmentOrder.ewayBill}</span>
+              </div>
+              <div className="flex items-center justify-between text-slate-400">
+                <span>National Freight Partner:</span>
+                <span className="font-semibold text-slate-200">{selectedFulfillmentOrder.carrier}</span>
+              </div>
+              <div className="pt-2 border-t border-slate-800/80 text-[11px] text-slate-400">
+                {selectedFulfillmentOrder.notes}
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="pt-2 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3">
+              <button
+                onClick={() => {
+                  setSelectedFulfillmentOrder(null);
+                  setActiveModule('Quotations');
+                }}
+                className="text-xs text-amber-400 hover:underline font-semibold cursor-pointer"
+              >
+                View Commercial Quotation →
+              </button>
+
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => setSelectedFulfillmentOrder(null)}
+                  className="py-2.5 px-4 rounded-xl text-xs font-semibold text-slate-300 bg-slate-800 hover:bg-slate-700 border border-slate-700 transition-colors cursor-pointer"
+                >
+                  Close
+                </button>
+
+                <button
+                  onClick={() => handleConfirmFulfillmentSplit(selectedFulfillmentOrder.id)}
+                  className="py-2.5 px-5 rounded-xl text-xs font-semibold text-white bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 shadow-lg shadow-emerald-600/25 transition-all cursor-pointer"
+                >
+                  ✓ Confirm Split & Issue e-Way Bill
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}

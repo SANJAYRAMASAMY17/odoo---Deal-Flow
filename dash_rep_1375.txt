@@ -1,0 +1,4 @@
+              <button
+                onClick={() => openQuotationDetail(quotations[0])}
+                className="py-3 px-6 rounded-xl font-semibold text-sm text-white bg-blue-600 hover:bg-blue-700 shadow-md shadow-blue-500/25 transition-all transform active:scale-95 flex items-center gap-2 cursor-pointer"
+              >

@@ -1,0 +1,80 @@
+// Initial Recurring Subscriptions matching Wireframe #9 (18 Active, 2 Paused, 3 Cancelled)
+const initialSubscriptions = [
+  {
+    id: 'SUB-101',
+    customer: 'Acme Corp',
+    city: 'Bengaluru, Karnataka',
+    gstin: '29AABCA1234F1Z5',
+    plan: 'Care Plan 2yr',
+    cycle: 'Monthly',
+    amount: 85000,
+    nextBill: 'Sep 15',
+    status: 'Active',
+    orderId: 'Q-1042',
+    startDate: '2025-09-15',
+    autoRenew: true,
+    oneTimeLines: [
+      { product: 'Laptop Pro 14', qty: 2, amountUSD: '$2,280', amountINR: 189240 },
+      { product: 'Onsite Setup', qty: 1, amountUSD: '$450', amountINR: 37350 },
+    ],
+    recurringLines: [
+      { plan: 'Care Plan 2yr', cycle: 'Monthly', nextBillDate: 'Sep 15', amountUSD: '$45', amountINR: 3735 },
+      { plan: 'Support SLA', cycle: 'Quarterly', nextBillDate: 'Nov 1', amountUSD: '$300', amountINR: 24900 },
+    ],
+    prorationLog: [
+      { date: '2026-08-15', title: 'Monthly Renewal Processed', amount: '₹85,000 + 18% GST', note: 'Standard cycle billing paid via HDFC NetBanking.' },
+      { date: '2026-06-15', title: 'Proration Credit Applied', amount: '-₹14,200 Credit', note: 'Plan upgrade from 1yr to 2yr Care Tier. Proration credit adjusted on billing cycle.' },
+      { date: '2025-09-15', title: 'Subscription Activated', amount: '₹85,000 / mo', note: 'Derivation from Quote Q-1042 approved and initiated.' },
+    ]
+  },
+  {
+    id: 'SUB-102',
+    customer: 'Beta Industries',
+    city: 'Pune, Maharashtra',
+    gstin: '27AABCB9876E1Z9',
+    plan: 'Support SLA',
+    cycle: 'Quarterly',
+    amount: 240000,
+    nextBill: 'Nov 1',
+    status: 'Active',
+    orderId: 'QT-1003',
+    startDate: '2025-11-01',
+    autoRenew: true,
+    oneTimeLines: [
+      { product: 'Industrial IoT Hub Appliance', qty: 3, amountUSD: '$3,150', amountINR: 261450 },
+      { product: 'Field Calibration Service', qty: 1, amountUSD: '$600', amountINR: 49800 },
+    ],
+    recurringLines: [
+      { plan: 'Support SLA', cycle: 'Quarterly', nextBillDate: 'Nov 1', amountUSD: '$300', amountINR: 24900 },
+      { plan: 'Sensor Fleet Telemetry', cycle: 'Monthly', nextBillDate: 'Sep 15', amountUSD: '$95', amountINR: 7885 },
+    ],
+    prorationLog: [
+      { date: '2026-08-01', title: 'Quarterly SLA Renewal', amount: '₹2,40,000 + 18% GST', note: '24/7 Mission Critical SLA active for Pune plant.' },
+      { date: '2025-11-01', title: 'Subscription Initiated', amount: '₹2,40,000 / qtr', note: 'Contract agreement executed.' },
+    ]
+  },
+  {
+    id: 'SUB-103',
+    customer: 'Delta LLC',
+    city: 'Gurugram, Haryana',
+    gstin: '06AABCD5678G1Z2',
+    plan: 'Care Plan 1yr',
+    cycle: 'Monthly',
+    amount: 42000,
+    nextBill: '-',
+    status: 'Paused',
+    orderId: 'QT-1002',
+    startDate: '2026-01-10',
+    autoRenew: false,
+    oneTimeLines: [
+      { product: 'Fleet Tracking Module License', qty: 2, amountUSD: '$1,900', amountINR: 157700 },
+    ],
+    recurringLines: [
+      { plan: 'Care Plan 1yr', cycle: 'Monthly', nextBillDate: '—', amountUSD: '$50', amountINR: 4150 },
+    ],
+    prorationLog: [
+      { date: '2026-08-20', title: 'Subscription Paused by Admin', amount: '₹0 (Paused)', note: 'Paused pending client corporate office relocation in Gurugram CyberCity. Next bill halted.' },
+      { date: '2026-07-10', title: 'Monthly Bill Cleared', amount: '₹42,000 + 18% GST', note: 'Billed and collected.' },
+      { date: '2026-01-10', title: 'Care Plan Activated', amount: '₹42,000 / mo', note: 'Derived from commercial Quote QT-1002.' },
+    ]
+  },

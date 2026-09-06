@@ -1,0 +1,24 @@
+  // Fulfillment & Warehouse state matching Wireframe #7 & #8
+  const [warehouseStock, setWarehouseStock] = useState(initialWarehouseStock);
+  const [fulfillmentOrders, setFulfillmentOrders] = useState(initialFulfillmentOrders);
+  const [selectedFulfillmentOrder, setSelectedFulfillmentOrder] = useState(null);
+
+  // Subscriptions state matching Wireframe #9
+  const [subscriptions, setSubscriptions] = useState(initialSubscriptions);
+  const [subscriptionFilter, setSubscriptionFilter] = useState('ALL'); // 'ALL', 'Active', 'Paused', 'Cancelled'
+  const [selectedSubscriptionDetail, setSelectedSubscriptionDetail] = useState(null);
+  const [isNewPlanModalOpen, setIsNewPlanModalOpen] = useState(false);
+  const [newPlanForm, setNewPlanForm] = useState({
+    customer: 'Acme Corp',
+    city: 'Bengaluru, Karnataka',
+    gstin: '29AABCA1234F1Z5',
+    plan: 'Enterprise Care Plan 2yr',
+    cycle: 'Monthly',
+    amount: 85000,
+    nextBill: 'Oct 15',
+    orderId: 'Q-1042',
+    notes: 'Standard 24x7 enterprise support and hardware maintenance.',
+    autoRenew: true,
+  });
+
+  // Dedicated Wireframe #8 Fulfillment Detail View

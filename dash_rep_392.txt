@@ -1,0 +1,404 @@
+  },
+];
+
+// Initial Recurring Subscriptions matching Wireframe #9 (18 Active, 2 Paused, 3 Cancelled)
+const initialSubscriptions = [
+  {
+    id: 'SUB-101',
+    customer: 'Acme Corp',
+    city: 'Bengaluru, Karnataka',
+    gstin: '29AABCA1234F1Z5',
+    plan: 'Care Plan 2yr',
+    cycle: 'Monthly',
+    amount: 85000,
+    nextBill: 'Sep 15',
+    status: 'Active',
+    orderId: 'Q-1042',
+    startDate: '2025-09-15',
+    autoRenew: true,
+    prorationLog: [
+      { date: '2026-08-15', title: 'Monthly Renewal Processed', amount: '₹85,000 + 18% GST', note: 'Standard cycle billing paid via HDFC NetBanking.' },
+      { date: '2026-06-15', title: 'Proration Credit Applied', amount: '-₹14,200 Credit', note: 'Plan upgrade from 1yr to 2yr Care Tier. Proration credit adjusted on billing cycle.' },
+      { date: '2025-09-15', title: 'Subscription Activated', amount: '₹85,000 / mo', note: 'Derivation from Quote Q-1042 approved and initiated.' },
+    ]
+  },
+  {
+    id: 'SUB-102',
+    customer: 'Beta Industries',
+    city: 'Pune, Maharashtra',
+    gstin: '27AABCB9876E1Z9',
+    plan: 'Support SLA',
+    cycle: 'Quarterly',
+    amount: 240000,
+    nextBill: 'Nov 1',
+    status: 'Active',
+    orderId: 'QT-1003',
+    startDate: '2025-11-01',
+    autoRenew: true,
+    prorationLog: [
+      { date: '2026-08-01', title: 'Quarterly SLA Renewal', amount: '₹2,40,000 + 18% GST', note: '24/7 Mission Critical SLA active for Pune plant.' },
+      { date: '2025-11-01', title: 'Subscription Initiated', amount: '₹2,40,000 / qtr', note: 'Contract agreement executed.' },
+    ]
+  },
+  {
+    id: 'SUB-103',
+    customer: 'Delta LLC',
+    city: 'Gurugram, Haryana',
+    gstin: '06AABCD5678G1Z2',
+    plan: 'Care Plan 1yr',
+    cycle: 'Monthly',
+    amount: 42000,
+    nextBill: '-',
+    status: 'Paused',
+    orderId: 'QT-1002',
+    startDate: '2026-01-10',
+    autoRenew: false,
+    prorationLog: [
+      { date: '2026-08-20', title: 'Subscription Paused by Admin', amount: '₹0 (Paused)', note: 'Paused pending client corporate office relocation in Gurugram CyberCity. Next bill halted.' },
+      { date: '2026-07-10', title: 'Monthly Bill Cleared', amount: '₹42,000 + 18% GST', note: 'Billed and collected.' },
+      { date: '2026-01-10', title: 'Care Plan Activated', amount: '₹42,000 / mo', note: 'Derived from commercial Quote QT-1002.' },
+    ]
+  },
+  {
+    id: 'SUB-104',
+    customer: 'Nova Retail',
+    city: 'Mumbai, Maharashtra',
+    gstin: '27AABCN3344J1Z1',
+    plan: 'Smart Retail POS Engine',
+    cycle: 'Annual',
+    amount: 390000,
+    nextBill: 'Dec 15',
+    status: 'Active',
+    orderId: 'QT-1004',
+    startDate: '2025-12-15',
+    autoRenew: true,
+    prorationLog: [
+      { date: '2025-12-15', title: 'Annual Enterprise Plan Provisioned', amount: '₹3,90,000 + 18% GST', note: 'Omnichannel POS synchronization active across 24 stores.' }
+    ]
+  },
+  {
+    id: 'SUB-105',
+    customer: 'Zenith Co',
+    city: 'Hyderabad, Telangana',
+    gstin: '36AABCZ7788K1Z3',
+    plan: 'BFSI Compliance Tier 1',
+    cycle: 'Monthly',
+    amount: 320000,
+    nextBill: '-',
+    status: 'Cancelled',
+    orderId: 'Q-1031',
+    startDate: '2025-10-01',
+    autoRenew: false,
+    prorationLog: [
+      { date: '2026-08-01', title: 'Subscription Terminated', amount: '₹0 (Cancelled)', note: 'Customer migrated to on-premise hardware appliance per RBI directives.' }
+    ]
+  },
+  {
+    id: 'SUB-106',
+    customer: 'Orion Ltd',
+    city: 'Chennai, Tamil Nadu',
+    gstin: '33AABCO9900L1Z7',
+    plan: 'Cloud GPU Cluster Pro',
+    cycle: 'Monthly',
+    amount: 1360000,
+    nextBill: 'Sep 28',
+    status: 'Active',
+    orderId: 'QT-1006',
+    startDate: '2026-03-28',
+    autoRenew: true,
+    prorationLog: [
+      { date: '2026-08-28', title: 'Monthly Node Allocation Billed', amount: '₹13,60,000 + 18% GST', note: 'High performance cluster active.' }
+    ]
+  },
+  {
+    id: 'SUB-107',
+    customer: 'Tata Digital',
+    city: 'Bengaluru, Karnataka',
+    gstin: '29AABCT1122D1Z4',
+    plan: 'Enterprise API Gateway SLA',
+    cycle: 'Quarterly',
+    amount: 450000,
+    nextBill: 'Oct 10',
+    status: 'Active',
+    orderId: 'QT-1011',
+    startDate: '2026-01-10',
+    autoRenew: true,
+    prorationLog: [
+      { date: '2026-07-10', title: 'Quarterly API Ingestion Billed', amount: '₹4,50,000 + 18% GST', note: 'Gateway latency SLA met at 99.99% uptime.' }
+    ]
+  },
+  {
+    id: 'SUB-108',
+    customer: 'Mahindra Logistics',
+    city: 'Mumbai, Maharashtra',
+    gstin: '27AABCM5566K1Z8',
+    plan: 'Fleet Telematics SaaS',
+    cycle: 'Monthly',
+    amount: 175000,
+    nextBill: 'Sep 22',
+    status: 'Active',
+    orderId: 'QT-1012',
+    startDate: '2026-02-22',
+    autoRenew: true,
+    prorationLog: [
+      { date: '2026-08-22', title: 'Monthly Telematics Billed', amount: '₹1,75,000 + 18% GST', note: 'Active across 450 connected transport vehicles.' }
+    ]
+  },
+  {
+    id: 'SUB-109',
+    customer: 'Infosys FinTech Labs',
+    city: 'Bengaluru, Karnataka',
+    gstin: '29AABCI7788P1Z6',
+    plan: 'Core Banking Microservice SLA',
+    cycle: 'Monthly',
+    amount: 620000,
+    nextBill: 'Sep 19',
+    status: 'Active',
+    orderId: 'QT-1013',
+    startDate: '2025-08-19',
+    autoRenew: true,
+    prorationLog: [
+      { date: '2026-08-19', title: 'Monthly Microservice SLA Billed', amount: '₹6,20,000 + 18% GST', note: 'Production cluster zero-downtime recorded.' }
+    ]
+  },
+  {
+    id: 'SUB-110',
+    customer: 'Wipro Digital',
+    city: 'Bengaluru, Karnataka',
+    gstin: '29AABCW9900M1Z2',
+    plan: 'DevSecOps Pipeline Engine',
+    cycle: 'Annual',
+    amount: 1800000,
+    nextBill: 'Jan 05',
+    status: 'Active',
+    orderId: 'QT-1014',
+    startDate: '2026-01-05',
+    autoRenew: true,
+    prorationLog: [
+      { date: '2026-01-05', title: 'Annual Security SaaS Activated', amount: '₹18,00,000 + 18% GST', note: 'Annual automated vulnerability scanning subscription.' }
+    ]
+  },
+  {
+    id: 'SUB-111',
+    customer: 'HCL Technologies',
+    city: 'Noida, Uttar Pradesh',
+    gstin: '09AABCH3322L1Z9',
+    plan: 'Managed Threat Hunting 24/7',
+    cycle: 'Monthly',
+    amount: 480000,
+    nextBill: 'Sep 30',
+    status: 'Active',
+    orderId: 'QT-1015',
+    startDate: '2026-03-30',
+    autoRenew: true,
+    prorationLog: [
+      { date: '2026-08-30', title: 'SOC 24/7 Coverage Billed', amount: '₹4,80,000 + 18% GST', note: 'Continuous network telemetry active.' }
+    ]
+  },
+  {
+    id: 'SUB-112',
+    customer: 'L&T Infotech',
+    city: 'Mumbai, Maharashtra',
+    gstin: '27AABCL4411Q1Z5',
+    plan: 'CAD/CAM Cloud Rendering Node',
+    cycle: 'Quarterly',
+    amount: 510000,
+    nextBill: 'Nov 15',
+    status: 'Active',
+    orderId: 'QT-1016',
+    startDate: '2026-02-15',
+    autoRenew: true,
+    prorationLog: [
+      { date: '2026-08-15', title: 'Cloud Rendering SLA Renewed', amount: '₹5,10,000 + 18% GST', note: 'Dedicated engineering render farm cluster.' }
+    ]
+  },
+  {
+    id: 'SUB-113',
+    customer: 'Reliance Jio Platforms',
+    city: 'Navi Mumbai, Maharashtra',
+    gstin: '27AABCJ2233R1Z7',
+    plan: '5G Core Network Analytics',
+    cycle: 'Monthly',
+    amount: 1500000,
+    nextBill: 'Sep 18',
+    status: 'Active',
+    orderId: 'QT-1017',
+    startDate: '2026-04-18',
+    autoRenew: true,
+    prorationLog: [
+      { date: '2026-08-18', title: '5G Core Telemetry Billed', amount: '₹15,00,000 + 18% GST', note: 'Real-time packet analytics engine.' }
+    ]
+  },
+  {
+    id: 'SUB-114',
+    customer: 'Bharti Airtel B2B',
+    city: 'Gurugram, Haryana',
+    gstin: '06AABCA6677T1Z1',
+    plan: 'Enterprise SD-WAN Controller',
+    cycle: 'Monthly',
+    amount: 840000,
+    nextBill: 'Sep 25',
+    status: 'Active',
+    orderId: 'QT-1018',
+    startDate: '2026-05-25',
+    autoRenew: true,
+    prorationLog: [
+      { date: '2026-08-25', title: 'SD-WAN Edge Controller Billed', amount: '₹8,40,000 + 18% GST', note: 'Mesh VPN tunnels active across 120 client branches.' }
+    ]
+  },
+  {
+    id: 'SUB-115',
+    customer: 'Adani Ports Logistics',
+    city: 'Ahmedabad, Gujarat',
+    gstin: '24AABCA8899U1Z3',
+    plan: 'Yard Automation Sensor Grid',
+    cycle: 'Quarterly',
+    amount: 720000,
+    nextBill: 'Dec 01',
+    status: 'Active',
+    orderId: 'QT-1019',
+    startDate: '2026-03-01',
+    autoRenew: true,
+    prorationLog: [
+      { date: '2026-09-01', title: 'Quarterly Sensor Grid SLA', amount: '₹7,20,000 + 18% GST', note: 'Mundra container terminal tracking.' }
+    ]
+  },
+  {
+    id: 'SUB-116',
+    customer: 'Bajaj Finserv Tech',
+    city: 'Pune, Maharashtra',
+    gstin: '27AABCB1144V1Z6',
+    plan: 'Lending Fraud Detection API',
+    cycle: 'Monthly',
+    amount: 950000,
+    nextBill: 'Sep 16',
+    status: 'Active',
+    orderId: 'QT-1020',
+    startDate: '2026-06-16',
+    autoRenew: true,
+    prorationLog: [
+      { date: '2026-08-16', title: 'Fraud Detection API Billing', amount: '₹9,50,000 + 18% GST', note: 'Real-time loan scoring ML inferences.' }
+    ]
+  },
+  {
+    id: 'SUB-117',
+    customer: 'ICICI Bank Digital',
+    city: 'Mumbai, Maharashtra',
+    gstin: '27AABCI9988W1Z4',
+    plan: 'UPI Switch High-Throughput SLA',
+    cycle: 'Monthly',
+    amount: 2200000,
+    nextBill: 'Sep 20',
+    status: 'Active',
+    orderId: 'QT-1021',
+    startDate: '2025-07-20',
+    autoRenew: true,
+    prorationLog: [
+      { date: '2026-08-20', title: 'UPI High TPS SLA Renewed', amount: '₹22,00,000 + 18% GST', note: 'Handling 15,000 transactions/second with sub-50ms latency.' }
+    ]
+  },
+  {
+    id: 'SUB-118',
+    customer: 'Kotak Securities',
+    city: 'Mumbai, Maharashtra',
+    gstin: '27AABCK3355X1Z2',
+    plan: 'Ultra-Low Latency Market Feed',
+    cycle: 'Monthly',
+    amount: 1100000,
+    nextBill: 'Oct 01',
+    status: 'Active',
+    orderId: 'QT-1022',
+    startDate: '2026-04-01',
+    autoRenew: true,
+    prorationLog: [
+      { date: '2026-09-01', title: 'NSE Tick Data Feed Billed', amount: '₹11,00,000 + 18% GST', note: 'Direct optical line feed active.' }
+    ]
+  },
+  {
+    id: 'SUB-119',
+    customer: 'Zomato Enterprise',
+    city: 'Gurugram, Haryana',
+    gstin: '06AABCZ4466Y1Z8',
+    plan: 'Hyperlocal Route Optimization',
+    cycle: 'Annual',
+    amount: 1450000,
+    nextBill: 'Nov 20',
+    status: 'Active',
+    orderId: 'QT-1023',
+    startDate: '2025-11-20',
+    autoRenew: true,
+    prorationLog: [
+      { date: '2025-11-20', title: 'Annual Route Optimization Platform', amount: '₹14,50,000 + 18% GST', note: 'Dynamic dispatch routing engine.' }
+    ]
+  },
+  {
+    id: 'SUB-120',
+    customer: 'Swiggy Instamart B2B',
+    city: 'Bengaluru, Karnataka',
+    gstin: '29AABCS8822Z1Z5',
+    plan: 'Cold-Chain Temperature Telematics',
+    cycle: 'Monthly',
+    amount: 310000,
+    nextBill: 'Sep 27',
+    status: 'Active',
+    orderId: 'QT-1024',
+    startDate: '2026-05-27',
+    autoRenew: true,
+    prorationLog: [
+      { date: '2026-08-27', title: 'IoT Sensor Telematics Billed', amount: '₹3,10,000 + 18% GST', note: 'Cold-chain monitoring across 85 dark stores.' }
+    ]
+  },
+  {
+    id: 'SUB-121',
+    customer: 'Zepto Micro-Hubs',
+    city: 'Mumbai, Maharashtra',
+    gstin: '27AABCZ1199A1Z9',
+    plan: 'Warehouse Ambient Sensor SLA',
+    cycle: 'Quarterly',
+    amount: 180000,
+    nextBill: '-',
+    status: 'Paused',
+    orderId: 'QT-994',
+    startDate: '2026-01-15',
+    autoRenew: false,
+    prorationLog: [
+      { date: '2026-08-10', title: 'Subscription Paused', amount: '₹0 (Paused)', note: 'Depot consolidation review in progress; billing paused by customer request.' }
+    ]
+  },
+  {
+    id: 'SUB-122',
+    customer: 'Ola Electric Fleet',
+    city: 'Bengaluru, Karnataka',
+    gstin: '29AABCO5544B1Z7',
+    plan: 'Battery Telemetry Ingestion',
+    cycle: 'Monthly',
+    amount: 560000,
+    nextBill: '-',
+    status: 'Cancelled',
+    orderId: 'QT-980',
+    startDate: '2025-06-01',
+    autoRenew: false,
+    prorationLog: [
+      { date: '2026-07-01', title: 'Contract Expired & Cancelled', amount: '₹0 (Cancelled)', note: 'Completed 1-year pilot; customer shifted to in-house stack.' }
+    ]
+  },
+  {
+    id: 'SUB-123',
+    customer: 'Paytm Payments Hub',
+    city: 'Noida, Uttar Pradesh',
+    gstin: '09AABCP3311C1Z3',
+    plan: 'Merchant Settlement Microservice',
+    cycle: 'Quarterly',
+    amount: 410000,
+    nextBill: '-',
+    status: 'Cancelled',
+    orderId: 'QT-965',
+    startDate: '2025-05-15',
+    autoRenew: false,
+    prorationLog: [
+      { date: '2026-06-30', title: 'Legacy Service Decommissioned', amount: '₹0 (Cancelled)', note: 'Service deprecated following infrastructure revamp.' }
+    ]
+  }
+];
+
+const initialActivities = [

@@ -1,0 +1,18 @@
+                onClick={() => {
+                  if (activeModule === module && module === 'Approvals') {
+                    setActiveApprovalDetail(null);
+                  } else if (activeModule === module && module === 'Fulfillment') {
+                    setActiveFulfillmentDetail(null);
+                  } else {
+                    setActiveModule(module);
+                  }
+                  if (module !== 'Quotations') {
+                    setActiveQuotationDetail(null);
+                  }
+                  if (module !== 'Approvals') {
+                    setActiveApprovalDetail(null);
+                  }
+                  if (module !== 'Fulfillment') {
+                    setActiveFulfillmentDetail(null);
+                  }
+                }}

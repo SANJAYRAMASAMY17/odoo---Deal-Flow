@@ -1,0 +1,52 @@
+  { initial: 'A', name: 'Alex M. (Ahmedabad)', bg: 'bg-emerald-500' },
+];
+
+// Initial Discount Tiers & Approval Chains matching Wireframe #18
+const initialTierDiscountCeilings = [
+  { id: 1, tier: 'Bronze', maxDiscount: '5 percent', discountValue: 5 },
+  { id: 2, tier: 'Silver', maxDiscount: '10 percent', discountValue: 10 },
+  { id: 3, tier: 'Gold', maxDiscount: '15 Percent', discountValue: 15 },
+];
+
+const initialCategoryDiscountCeilings = [
+  { id: 1, category: 'Hardware', maxDiscount: '15 percent', discountValue: 15 },
+  { id: 2, category: 'Services', maxDiscount: '10 percent', discountValue: 10 },
+];
+
+const initialApprovalRoutingRules = [
+  {
+    id: 1,
+    discountRange: 'Within tier/Category limit',
+    maxDiscount: 'No approval needed',
+    role: 'Automated Pass-Through',
+    riskLevel: 'LOW',
+  },
+  {
+    id: 2,
+    discountRange: 'Over Limit,blended risk medium',
+    maxDiscount: 'Sales manager',
+    role: 'Tier 1 Escalation',
+    riskLevel: 'MEDIUM',
+  },
+  {
+    id: 3,
+    discountRange: 'Over limit,blended high risk',
+    maxDiscount: 'Sales manager then finance',
+    role: 'Tier 2 Escalation',
+    riskLevel: 'HIGH',
+  },
+];
+
+const navModules = [
+  'Dashboard',
+  'Quotations',
+  'Approvals',
+  'Fulfillment',
+  'Subscriptions',
+  'Customer Portal',
+  'Invoices',
+  'Deal Health',
+  'Reports',
+  'Products',
+  'Discount Chains',
+];

@@ -1,0 +1,6 @@
+                <button
+                  type="submit"
+                  className="py-2.5 px-5 rounded-xl font-bold text-white bg-blue-600 hover:bg-blue-700 shadow-md shadow-blue-500/25 transition-all cursor-pointer"
+                >
+                  ✓ Create & Activate Plan
+                </button>

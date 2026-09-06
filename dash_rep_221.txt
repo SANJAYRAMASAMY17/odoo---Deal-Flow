@@ -1,0 +1,154 @@
+// Initial Approvals data matching Wireframe #5 & #6
+const initialApprovals = [
+  {
+    id: 'APP-101',
+    quotationId: 'Q-1042',
+    customer: 'Acme Corp',
+    blendedRisk: 'HIGH',
+    customerTier: 'Gold',
+    stage: 'Sales Manager',
+    assignedTo: 'M. Shah',
+    status: 'Pending',
+    riskScore: 82,
+    flaggedLines: [
+      { line: 'Laptop (Hardware)', discount: '12%', limit: '15%', overBy: '0 pt  OK', isOver: false },
+      { line: 'Setup Service (Services)', discount: '18%', limit: '10%', overBy: '8 pt  OVER', isOver: true },
+    ],
+    flaggedNote: 'Worst single line (8pt over) plus overall pattern across the order sets the blended score. One bad line is enough to require approval.',
+    workflowStages: ['Submitted', 'Sales Manager', 'Finance', 'Confirmed'],
+    currentStageIndex: 1, // 'Sales Manager' is active
+    auditHistory: [
+      { user: 'J. Rao', action: 'Submitted', date: 'Aug 20', note: 'Initial 12% discount' },
+      { user: 'M. Shah', action: 'Returned', date: 'Aug 21', note: 'Requested justification' },
+      { user: 'J. Rao', action: 'Resubmitted', date: 'Aug 22', note: 'Added margin note' },
+    ],
+    factors: [
+      'Line item discount breach: Onsite Setup Service 18% vs 10% limit (+8pt).',
+      'Blended contract margin compressed to 32.4% (target: 40%).',
+      'Client relationship: High-value tier-1 account renewal.'
+    ],
+    auditTrail: [
+      { time: '09:15 AM (Today)', user: 'Arjun Mehta (Sales Rep)', action: 'Submitted Q-1042 for discount approval' },
+      { time: '09:16 AM (Today)', user: 'Risk Engine AI', action: 'Flagged HIGH risk (+8pt discount threshold breach)' },
+      { time: '09:20 AM (Today)', user: 'Workflow Router', action: 'Assigned to M. Shah (Sales Manager) for authorization' },
+    ]
+  },
+  {
+    id: 'APP-102',
+    quotationId: 'Q-1039',
+    customer: 'Beta Industries',
+    blendedRisk: 'MEDIUM',
+    customerTier: 'Platinum',
+    stage: 'Finance',
+    assignedTo: 'R. Iyer',
+    status: 'Pending',
+    riskScore: 58,
+    flaggedLines: [
+      { line: 'Industrial IoT Hub Appliance', discount: '15%', limit: '10%', overBy: '5 pt  OVER', isOver: true },
+      { line: 'API Ingestion Stream Tier 2', discount: '8%', limit: '10%', overBy: '0 pt  OK', isOver: false },
+    ],
+    flaggedNote: 'Hardware gateway discount (15% vs 10%) sets blended score. Awaiting Finance controller concession review.',
+    workflowStages: ['Submitted', 'Sales Manager', 'Finance', 'Confirmed'],
+    currentStageIndex: 2, // 'Finance' is active
+    auditHistory: [
+      { user: 'N. Wagle', action: 'Submitted', date: 'Aug 25', note: 'Industrial bundle concession' },
+      { user: 'M. Shah', action: 'Endorsed', date: 'Aug 26', note: 'Sales endorsed, forwarded to Finance' },
+    ],
+    factors: [
+      'Hardware gateway discount at 15% vs 10% limit (+5pt).',
+      'Contract payment terms: Net-45 requested instead of Net-30.',
+    ],
+    auditTrail: [
+      { time: 'Yesterday 04:30 PM', user: 'Nikhil Wagle (Rep)', action: 'Submitted commercial concession request' },
+      { time: 'Yesterday 05:15 PM', user: 'M. Shah (Sales Mgr)', action: 'Endorsed and escalated to Finance review' },
+      { time: 'Today 09:00 AM', user: 'Workflow Router', action: 'Assigned to R. Iyer (Finance Controller)' },
+    ]
+  },
+  {
+    id: 'APP-103',
+    quotationId: 'Q-1035',
+    customer: 'Nova Retail',
+    blendedRisk: 'LOW',
+    customerTier: 'Silver',
+    stage: 'Auto-Approved',
+    assignedTo: '-',
+    status: 'Approved',
+    riskScore: 18,
+    flaggedLines: [
+      { line: 'Smart Retail POS Engine', discount: '10%', limit: '15%', overBy: '0 pt  OK', isOver: false },
+      { line: 'Store Staff Onboarding', discount: '5%', limit: '10%', overBy: '0 pt  OK', isOver: false },
+    ],
+    flaggedNote: 'All line items within allowable price book thresholds. Automatically approved by rule engine.',
+    workflowStages: ['Submitted', 'Sales Manager', 'Finance', 'Confirmed'],
+    currentStageIndex: 3, // 'Confirmed'
+    auditHistory: [
+      { user: 'Elena Roy', action: 'Submitted', date: 'Sep 01', note: 'Retail POS standard package' },
+      { user: 'Rule Engine', action: 'Auto-Approved', date: 'Sep 01', note: 'Passed all margin and discount limits' },
+    ],
+    factors: [
+      'All discount percentages within predefined price book limits.',
+      'Gross margin exceeds 48% target.',
+    ],
+    auditTrail: [
+      { time: '2026-09-01 11:20 AM', user: 'Elena Roy (Rep)', action: 'Created quotation Q-1035' },
+      { time: '2026-09-01 11:21 AM', user: 'Rule Engine', action: 'Auto-approved: Zero threshold violations detected' },
+    ]
+  },
+  {
+    id: 'APP-104',
+    quotationId: 'Q-1038',
+    customer: 'Delta LLC',
+    blendedRisk: 'HIGH',
+    customerTier: 'Enterprise Gold',
+    stage: 'Returned to Rep',
+    assignedTo: 'M. Shah',
+    status: 'Returned',
+    riskScore: 78,
+    flaggedLines: [
+      { line: 'Fleet License (Commercial)', discount: '20%', limit: '10%', overBy: '10 pt  OVER', isOver: true },
+    ],
+    flaggedNote: 'Fleet license discount exceeds 10% limit (+10pt breach). Gross margin below 25% floor.',
+    workflowStages: ['Submitted', 'Sales Manager', 'Finance', 'Confirmed'],
+    currentStageIndex: 0,
+    auditHistory: [
+      { user: 'S. Rao', action: 'Submitted', date: 'Sep 03', note: 'Requested 20% concession' },
+      { user: 'M. Shah', action: 'Returned', date: 'Sep 03', note: 'Please bundle 2yr warranty to offset margin' },
+    ],
+    factors: [
+      'Fleet license discount below 25% gross margin floor.',
+      'Returned for tenure extension or support add-on requirement.',
+    ],
+    auditTrail: [
+      { time: '2026-09-03 02:10 PM', user: 'Sales Rep', action: 'Submitted concession' },
+      { time: '2026-09-03 04:45 PM', user: 'M. Shah', action: 'Returned with comment: Please bundle 2yr warranty to offset margin' },
+    ]
+  },
+  {
+    id: 'APP-105',
+    quotationId: 'Q-1031',
+    customer: 'Zenith Co',
+    blendedRisk: 'MEDIUM',
+    customerTier: 'Diamond BFSI',
+    stage: 'VP Commercial',
+    assignedTo: 'K. Menon',
+    status: 'Pending',
+    riskScore: 64,
+    flaggedLines: [
+      { line: 'RBI Automated Compliance Engine', discount: '12%', limit: '15%', overBy: '0 pt  OK', isOver: false },
+      { line: 'Custom Banking Connectors', discount: '14%', limit: '10%', overBy: '4 pt  OVER', isOver: true },
+    ],
+    flaggedNote: 'Custom banking SLA penalty clauses and connector discount (+4pt) require VP commercial signoff.',
+    workflowStages: ['Submitted', 'Sales Manager', 'Finance', 'Confirmed'],
+    currentStageIndex: 1,
+    auditHistory: [
+      { user: 'K. Sharma', action: 'Submitted', date: 'Aug 29', note: 'BFSI enterprise quote' },
+      { user: 'Legal Ops', action: 'Escalated', date: 'Aug 30', note: 'SLA clause review' },
+    ],
+    factors: [
+      'Custom SLA penalty clauses requested by bank compliance.',
+    ],
+    auditTrail: [
+      { time: '2026-08-30', user: 'Legal Ops', action: 'Escalated to VP Commercial' },
+    ]
+  }
+];

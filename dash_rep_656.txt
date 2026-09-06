@@ -1,0 +1,150 @@
+  const [modifyForm, setModifyForm] = useState({ plan: '', cycle: 'Monthly', amount: '', nextBill: '' });
+
+  // Customer Portal (Wireframe #11) State
+  const [customerPortalTab, setCustomerPortalTab] = useState('My Quotation'); // 'My Quotation', 'Messages', 'Profile'
+  const [counterDiscount, setCounterDiscount] = useState(15);
+  const [requestedDeliveryDate, setRequestedDeliveryDate] = useState('2026-10-15');
+  const [portalComments, setPortalComments] = useState({
+    'Extended Warranty': 'Can this be 15% off instead of 10%?',
+    'Onsite Setup Service': 'Can we push this to next month?',
+    'Laptop Pro 14': 'Quantities confirmed for Q3 rollout',
+  });
+  const [portalStatus, setPortalStatus] = useState('Under Negotiation'); // 'Under Negotiation', 'Pending Approval (Re-entered Screen 6)', 'Confirmed'
+  const [portalMessages, setPortalMessages] = useState([
+    {
+      id: 1,
+      sender: 'Arjun Mehta (Sales Rep)',
+      time: 'Yesterday 04:15 PM',
+      isCustomer: false,
+      text: 'Hi Sarah, quotation Q-1042 has been prepared with 12% on Laptop Pro 14 and 10% on Extended Warranty. Please review the line items and terms.',
+    },
+    {
+      id: 2,
+      sender: 'Sarah Chen (Acme Corp)',
+      time: 'Today 10:30 AM',
+      isCustomer: true,
+      text: 'Thanks Arjun! Looking through it now. We would like to request 15% off on Extended Warranty and push Onsite Setup to next month.',
+    },
+    {
+      id: 3,
+      sender: 'Arjun Mehta (Sales Rep)',
+      time: 'Today 10:38 AM',
+      isCustomer: false,
+      text: 'Understood! If you submit 15% in the portal, our threshold engine will automatically route it directly to M. Shah (Sales Manager) for approval in Screen 6.',
+    },
+  ]);
+  const [newPortalMessage, setNewPortalMessage] = useState('');
+
+  // Submit Customer Counter-Request (Wireframe #11)
+  const handleSubmitCustomerRequest = (e) => {
+    if (e) e.preventDefault();
+    const discountVal = parseFloat(counterDiscount) || 0;
+    const isExceedingThreshold = discountVal > 10;
+
+    if (isExceedingThreshold) {
+      setPortalStatus('Pending Approval (Re-entered Screen 6)');
+
+      // Update quotation stage in list
+      setQuotations((prev) =>
+        prev.map((q) =>
+          q.id === 'Q-1042'
+            ? {
+                ...q,
+                stage: 'Pending Approval',
+                notes: `Customer counter-request: ${discountVal}% discount on Extended Warranty & delivery on ${requestedDeliveryDate}.`,
+              }
+            : q
+        )
+      );
+
+      // Update or escalate in Approvals
+      const newAuditItem = {
+        time: 'Just now',
+        user: 'Acme Corp (Customer Portal)',
+        action: `Counter-proposal submitted: ${discountVal}% discount (+5pt over 10% limit) & delivery date requested for ${requestedDeliveryDate}. Re-entered Screen 6.`,
+      };
+
+      setApprovals((prev) =>
+        prev.map((a) =>
+          a.quotationId === 'Q-1042'
+            ? {
+                ...a,
+                status: 'Pending',
+                stage: 'Sales Manager',
+                currentStageIndex: 1,
+                auditTrail: [...(a.auditTrail || []), newAuditItem],
+              }
+            : a
+        )
+      );
+
+      // Add to activity stream
+      setActivities((prev) => [
+        {
+          id: getNextActivityId(),
+          title: `Acme Corp submitted counter-proposal (${discountVal}% discount) • Re-entered Screen 6 Approval`,
+          category: 'Customer Negotiation',
+          time: 'Just now',
+          type: 'warning',
+          badge: 'Re-entered Approval',
+        },
+        ...prev,
+      ]);
+
+      showNotification(`Counter-proposal submitted. Threshold exceeded: Quote re-entered Screen 6 Approval for M. Shah!`);
+    } else {
+      setPortalStatus('Counter-Proposal Submitted');
+      showNotification(`Counter-proposal submitted successfully to sales rep.`);
+    }
+  };
+
+  // Confirm Quotation directly from Customer Portal (Wireframe #11)
+  const handleConfirmCustomerQuotation = () => {
+    setPortalStatus('Confirmed');
+
+    setQuotations((prev) =>
+      prev.map((q) =>
+        q.id === 'Q-1042'
+          ? {
+              ...q,
+              stage: 'Confirmed',
+              notes: `Quotation confirmed directly by Acme Corp customer portal.`,
+            }
+          : q
+      )
+    );
+
+    setActivities((prev) => [
+      {
+        id: getNextActivityId(),
+        title: `Acme Corp confirmed Quotation Q-1042 directly via Customer Portal`,
+        category: 'Customer Confirmation',
+        time: 'Just now',
+        type: 'success',
+        badge: 'Confirmed',
+      },
+      ...prev,
+    ]);
+
+    showNotification(`Quotation Q-1042 confirmed by Acme Corp! Transitioned to Fulfillment (Screen 7 & 8).`);
+  };
+
+  // Send message in Customer Portal Messages tab (Wireframe #11)
+  const handleSendPortalMessage = (e) => {
+    if (e) e.preventDefault();
+    if (!newPortalMessage.trim()) return;
+
+    const newMsg = {
+      id: getNextMsgId(),
+      sender: 'Sarah Chen (Acme Corp)',
+      time: 'Just now',
+      isCustomer: true,
+      text: newPortalMessage.trim(),
+    };
+
+    setPortalMessages((prev) => [...prev, newMsg]);
+    setNewPortalMessage('');
+  };
+
+  // Open Billing Detail Dedicated View (Wireframe #10)
+  const openSubscriptionDetailView = (sub) => {

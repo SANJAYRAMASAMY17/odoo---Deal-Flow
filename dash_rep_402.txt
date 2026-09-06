@@ -1,0 +1,123 @@
+  // Quotation metrics
+  const openQuotationsCount = quotations.length;
+  const atRiskDealsCount = 3;
+  const totalPipelineValue = quotations.reduce((acc, q) => acc + q.amount, 0);
+
+  // Subscriptions metrics & filter matching Wireframe #9
+  const activeSubCount = subscriptions.filter((s) => s.status === 'Active').length;
+  const pausedSubCount = subscriptions.filter((s) => s.status === 'Paused').length;
+  const cancelledSubCount = subscriptions.filter((s) => s.status === 'Cancelled').length;
+
+  const filteredSubscriptions = subscriptions.filter((s) => {
+    if (subscriptionFilter === 'ALL') return true;
+    return s.status === subscriptionFilter;
+  });
+
+  // Create New Recurring Plan (Admin) - Wireframe #9
+  const handleCreateNewPlan = (e) => {
+    if (e) e.preventDefault();
+    if (!newPlanForm.customer || !newPlanForm.plan || !newPlanForm.amount) {
+      showNotification('Please fill in customer, plan name, and amount.');
+      return;
+    }
+
+    const newSub = {
+      id: `SUB-${100 + subscriptions.length + 1}`,
+      customer: newPlanForm.customer,
+      city: newPlanForm.city || 'Bengaluru, Karnataka',
+      gstin: newPlanForm.gstin || '29AABCX1234F1Z1',
+      plan: newPlanForm.plan,
+      cycle: newPlanForm.cycle,
+      amount: Number(newPlanForm.amount),
+      nextBill: newPlanForm.nextBill || 'Oct 15',
+      status: 'Active',
+      orderId: newPlanForm.orderId || 'Q-1042',
+      startDate: '2026-09-05',
+      autoRenew: newPlanForm.autoRenew ?? true,
+      prorationLog: [
+        {
+          date: '2026-09-05',
+          title: 'Plan Created by Admin',
+          amount: `${formatINR(newPlanForm.amount)} / ${newPlanForm.cycle.toLowerCase().replace('ly', '')}`,
+          note: `New recurring subscription initialized under ${newPlanForm.customer}. Linked to ${newPlanForm.orderId || 'Direct SLA agreement'}.`,
+        }
+      ]
+    };
+
+    setSubscriptions([newSub, ...subscriptions]);
+    setIsNewPlanModalOpen(false);
+
+    // Reset form
+    setNewPlanForm({
+      customer: 'Acme Corp',
+      city: 'Bengaluru, Karnataka',
+      gstin: '29AABCA1234F1Z5',
+      plan: '',
+      cycle: 'Monthly',
+      amount: '',
+      nextBill: 'Oct 15',
+      orderId: 'Q-1042',
+      notes: '',
+      autoRenew: true,
+    });
+
+    setActivities([
+      {
+        id: Date.now(),
+        title: `New plan "${newSub.plan}" created for ${newSub.customer} (${formatINR(newSub.amount)}/${newSub.cycle})`,
+        category: 'Subscription Activation',
+        time: 'Just now',
+        type: 'success',
+        badge: 'Plan Created',
+      },
+      ...activities,
+    ]);
+
+    showNotification(`New subscription plan "${newSub.plan}" created for ${newSub.customer}!`);
+  };
+
+  // Toggle Pause/Resume on a Subscription - Wireframe #9
+  const handleTogglePauseSubscription = (subId) => {
+    const sub = subscriptions.find((s) => s.id === subId);
+    if (!sub) return;
+
+    const isCurrentlyActive = sub.status === 'Active';
+    const newStatus = isCurrentlyActive ? 'Paused' : 'Active';
+    const newNextBill = isCurrentlyActive ? '-' : 'Oct 15';
+
+    const newLog = {
+      date: '2026-09-05',
+      title: isCurrentlyActive ? 'Subscription Paused by Admin' : 'Subscription Resumed by Admin',
+      amount: isCurrentlyActive ? '₹0 (Paused)' : `${formatINR(sub.amount)} (${sub.cycle})`,
+      note: isCurrentlyActive
+        ? 'Billing suspended by Admin operations. Prorated credits preserved.'
+        : 'Billing reactivated by Admin operations. Next cycle scheduled for Oct 15.',
+    };
+
+    const updated = {
+      ...sub,
+      status: newStatus,
+      nextBill: newNextBill,
+      prorationLog: [newLog, ...(sub.prorationLog || [])],
+    };
+
+    setSubscriptions(subscriptions.map((s) => (s.id === subId ? updated : s)));
+
+    if (selectedSubscriptionDetail && selectedSubscriptionDetail.id === subId) {
+      setSelectedSubscriptionDetail(updated);
+    }
+
+    setActivities([
+      {
+        id: Date.now(),
+        title: `${sub.customer} plan "${sub.plan}" ${isCurrentlyActive ? 'paused' : 'resumed'} by Admin`,
+        category: 'Subscription Lifecycle',
+        time: 'Just now',
+        type: isCurrentlyActive ? 'warning' : 'success',
+        badge: newStatus,
+      },
+      ...activities,
+    ]);
+
+    showNotification(`Subscription for ${sub.customer} has been ${isCurrentlyActive ? 'paused' : 'resumed'}.`);
+  };

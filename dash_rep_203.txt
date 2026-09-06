@@ -1,0 +1,4 @@
+  // Approvals metrics
+  const pendingCount = approvals.filter((a) => a.status === 'Pending').length;
+  const returnedCount = approvals.filter((a) => a.status === 'Returned').length;
+  const approvedCount = 11 + approvals.filter((a) => a.status === 'Approved').length;

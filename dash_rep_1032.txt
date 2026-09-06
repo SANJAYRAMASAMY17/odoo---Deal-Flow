@@ -1,0 +1,156 @@
+    const newProd = {
+      id: `PROD-${100 + catalogProducts.length + 1}`,
+      name: newProductForm.name,
+      sku: generatedSku,
+      category: newProductForm.category,
+      variants: newProductForm.variants || '-',
+      variantList: [],
+      priceUSD: `$${priceNum}`,
+      priceINR: priceINR,
+      unit: newProductForm.unit,
+      tax: newProductForm.tax,
+      taxRate: Number(newProductForm.tax.replace('%', '')) || 15,
+      taxPercent: newProductForm.tax,
+      taxCode: newProductForm.category === 'Services' ? 'SAC 9987 (Deployment)' : 'HSN 8471 (Appliance)',
+      subscription: newProductForm.category === 'Subscription' ? 'Yes' : 'NO',
+      recurring: 'Monthly',
+      qtyOnHand: 50,
+      status: 'Active',
+      description: newProductForm.description || 'Enterprise catalog equipment.',
+      discountLimit: 15,
+      productVariants: [
+        { id: 1, attribute: 'Color', values: 'Standard', extraPrice: '0' },
+      ],
+      pricelists: [
+        { id: 1, tier: 'Bronze', currency: 'USD', priceRule: 'Price, no adjustmeent' },
+        { id: 2, tier: 'Gold', currency: 'USD/EUR', priceRule: 'Price minus 10 percent base' },
+      ],
+      tierPricing: [
+        { tier: 'Standard Indian Enterprise Tier 2026', currency: 'INR', price: formatINR(priceINR), discountLimit: '15%' },
+        { tier: 'Commercial Direct Tier', currency: 'INR', price: formatINR(Math.round(priceINR * 1.08)), discountLimit: '10%' },
+        { tier: 'Global Export USD Tier', currency: 'USD', price: `$${priceNum}`, discountLimit: '15%' },
+      ],
+    };
+
+    setCatalogProducts([newProd, ...catalogProducts]);
+    setIsNewProductModalOpen(false);
+    setNewProductForm({
+      name: '',
+      category: 'Hardware',
+      priceUSD: '',
+      unit: 'Each',
+      tax: '15%',
+      variants: '-',
+      description: '',
+    });
+
+    setActivities((prev) => [
+      {
+        id: getNextActivityId(),
+        title: `New product "${newProd.name}" (${newProd.sku}) added to catalog`,
+        category: 'Catalog Management',
+        time: 'Just now',
+        type: 'success',
+        badge: 'Product Added',
+      },
+      ...prev,
+    ]);
+
+    showNotification(`New product "${newProd.name}" added to catalog!`);
+  };
+
+  // Wireframe #17: Product Details & Pricelist Dedicated View State & Handlers
+  const [activeProductDetail, setActiveProductDetail] = useState(null);
+  const [productDetailForm, setProductDetailForm] = useState(null);
+
+  const openProductDetailView = (prod) => {
+    const target = prod || catalogProducts[0];
+    const cloned = JSON.parse(JSON.stringify(target));
+    setActiveProductDetail(cloned);
+    setProductDetailForm(cloned);
+    setSelectedCatalogProduct(null);
+    setActiveModule('Products');
+  };
+
+  const handleSaveProductDetail = () => {
+    if (!productDetailForm) return;
+    setCatalogProducts((prev) =>
+      prev.map((p) => (p.id === productDetailForm.id ? { ...productDetailForm } : p))
+    );
+    setActiveProductDetail({ ...productDetailForm });
+    setActivities((prev) => [
+      {
+        id: getNextActivityId(),
+        title: `Product "${productDetailForm.name}" & pricelist rules updated`,
+        category: 'Catalog Management',
+        time: 'Just now',
+        type: 'success',
+        badge: 'Saved',
+      },
+      ...prev,
+    ]);
+    showNotification(`Product details for "${productDetailForm.name}" updated successfully!`);
+  };
+
+  const handleAddVariantRow = () => {
+    if (!productDetailForm) return;
+    const newVariant = {
+      id: getNextActivityId(),
+      attribute: 'New Option',
+      values: 'Standard',
+      extraPrice: '0',
+    };
+    setProductDetailForm((prev) => ({
+      ...prev,
+      productVariants: [...(prev.productVariants || []), newVariant],
+    }));
+  };
+
+  const handleRemoveVariantRow = (index) => {
+    setProductDetailForm((prev) => ({
+      ...prev,
+      productVariants: (prev.productVariants || []).filter((_, idx) => idx !== index),
+    }));
+  };
+
+  const handleUpdateVariantRow = (index, field, val) => {
+    setProductDetailForm((prev) => ({
+      ...prev,
+      productVariants: (prev.productVariants || []).map((item, idx) =>
+        idx === index ? { ...item, [field]: val } : item
+      ),
+    }));
+  };
+
+  const handleAddPricelistRow = () => {
+    if (!productDetailForm) return;
+    const newPricelist = {
+      id: getNextActivityId(),
+      tier: 'Silver',
+      currency: 'USD',
+      priceRule: 'Price minus 5 percent base',
+    };
+    setProductDetailForm((prev) => ({
+      ...prev,
+      pricelists: [...(prev.pricelists || []), newPricelist],
+    }));
+  };
+
+  const handleRemovePricelistRow = (index) => {
+    setProductDetailForm((prev) => ({
+      ...prev,
+      pricelists: (prev.pricelists || []).filter((_, idx) => idx !== index),
+    }));
+  };
+
+  const handleUpdatePricelistRow = (index, field, val) => {
+    setProductDetailForm((prev) => ({
+      ...prev,
+      pricelists: (prev.pricelists || []).map((item, idx) =>
+        idx === index ? { ...item, [field]: val } : item
+      ),
+    }));
+  };
+
+  // Open Billing Detail Dedicated View (Wireframe #10)
+  const openSubscriptionDetailView = (sub) => {

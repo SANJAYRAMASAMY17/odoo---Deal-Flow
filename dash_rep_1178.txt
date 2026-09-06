@@ -1,0 +1,12 @@
+                {/* 1. Top DealFlow360 Brand Bar */}
+                <div className="rounded-2xl bg-sky-500 px-5 py-3.5 flex flex-wrap items-center justify-between gap-4 shadow-xl shadow-sky-500/10">
+                  <div className="flex items-center gap-3 text-slate-950 font-black text-xl tracking-tight font-display">
+                    <span>DealFlow360</span>
+                    <span className="text-[10px] uppercase font-bold tracking-widest px-2.5 py-0.5 rounded-md bg-slate-950/15 text-slate-950">
+                      Product Studio
+                    </span>
+                  </div>
+                  <div className="text-xs font-bold text-slate-950/80 font-mono">
+                    Product Configuration &amp; Commercial Pricing
+                  </div>
+                </div>

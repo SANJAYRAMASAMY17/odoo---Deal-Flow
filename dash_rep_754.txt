@@ -1,0 +1,47 @@
+  const [invoices, setInvoices] = useState(initialInvoices);
+  const [invoiceFilter, setInvoiceFilter] = useState('ALL'); // 'ALL' | 'Unpaid' | 'Paid'
+  const [selectedInvoiceDetail, setSelectedInvoiceDetail] = useState(null);
+
+  // Dedicated Wireframe #13 Invoice Detail View
+  const [activeInvoiceDetail, setActiveInvoiceDetail] = useState(null);
+
+  // Open Invoice Detail Dedicated View (Wireframe #13)
+  const openInvoiceDetailView = (inv) => {
+    setActiveInvoiceDetail(JSON.parse(JSON.stringify(inv)));
+    setSelectedInvoiceDetail(null);
+    setActiveModule('Invoices');
+  };
+
+  // Record Payment on dedicated Invoice Detail page (Wireframe #13)
+  const handleRecordDetailPayment = () => {
+    if (!activeInvoiceDetail) return;
+    const invId = activeInvoiceDetail.id;
+    const utrNumber = `HDFC-UTR-${getNextActivityId()}910`;
+
+    const updated = {
+      ...activeInvoiceDetail,
+      status: 'Paid',
+      utr: utrNumber,
+      paymentMode: 'NEFT / RTGS (Direct Settlement)',
+    };
+
+    setActiveInvoiceDetail(updated);
+    setInvoices((prev) => prev.map((inv) => (inv.id === invId ? updated : inv)));
+
+    setActivities((prev) => [
+      {
+        id: getNextActivityId(),
+        title: `Payment recorded for ${activeInvoiceDetail.customer} (${invId}) • ${utrNumber}`,
+        category: 'Invoice Settlement',
+        time: 'Just now',
+        type: 'success',
+        badge: 'Paid',
+      },
+      ...prev,
+    ]);
+
+    showNotification(`Payment recorded for ${invId}! Stepper advanced to Paid.`);
+  };
+
+  // Mark Invoice as Paid & Record Bank UTR (Wireframe #12)
+  const handleMarkInvoicePaid = (invoiceId) => {
